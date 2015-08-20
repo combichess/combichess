@@ -29,6 +29,8 @@ public class Main {
 		test01();
 	}
 	
+	
+	
 	public static boolean test01()
 	{
 		Player white = new Player("Herr Alm");
@@ -42,29 +44,14 @@ public class Main {
 		
 		// ser svart ett steg fram så är det bäst att ta hästen.
 		// ser svart två steg fram så tar han bonden
-		
 		System.out.println(bord);
 		
-		Move moveB = bord.findBestMove(PlayerColour.Black, 2);
-		System.out.println(bord);
-		if (moveB == null)
-		{
-			System.out.println("moveB får inte vara null");
-			return false;
-		}
-		
-		if (moveB.getXmove() != 2 || moveB.getYmove() != 1){
-			System.out.println("failed på test 01.A");
-		}
+		Move moveB = bord.findBestMove(PlayerColour.Black, 1);
+		System.out.println(((moveB == null || moveB.getXmove() != 2 || moveB.getYmove() != 1)? "failed": "passed") + " på test 01.a\t" + moveB);
 
-		System.out.println(bord);
-		System.out.println(moveB);
-		bord.commitMove(moveB);
-		bord.uncommitLastMove();
-		
-		
-		
-		System.out.println(bord);
+		moveB = bord.findBestMove(PlayerColour.Black, 2);
+		System.out.println(((moveB == null || moveB.getXmove() != 2 || moveB.getYmove() != -1)? "failed": "passed") + " på test 01.b\t" + moveB);
+
 		
 		return true;
 	}

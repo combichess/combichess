@@ -95,7 +95,7 @@ public class Board {
 		setPieceOnSquare(xPos, yPos, newPiece);
 	}
 	
-	public int commitMove(Move moveToCommit)
+	public int commitMove(Move moveToCommit, List<Move> moves)
 	{
 		committedMoves.add(moveToCommit);
 		
@@ -135,7 +135,7 @@ public class Board {
 		return null;
 	}
 	
-	public int uncommitLastMove()
+	public int uncommitLastMove(List<Move> moves)
 	{
 		Move toUncommit = committedMoves.pop();
 		//System.out.println(toUncommit);
@@ -150,7 +150,8 @@ public class Board {
 		//System.out.println("förändring: " + (toUncommit.getPositionChange()%8) + ", " + (toUncommit.getPositionChange()/8));
 		//System.out.println("det ändras med: " + (gammalPosition%8) + ", " + (gammalPosition/8));
 
-		uncommittingPiece.moveX(-toUncommit.getPositionChange());
+		int positionChangeBack = -toUncommit.getPositionChange();		
+		uncommittingPiece.moveX(positionChangeBack);
 		squares[gammalPosition] = uncommittingPiece;
 		squares[presentPosition] = takenPiece;
 		if (takenPiece != null)
@@ -264,34 +265,30 @@ public class Board {
 	
 	public Move findBestMove(PlayerColour colour, int N)
 	{
-		//static int numberOfSteps = 0;
-		if (N == 1) {
+		Move rekordMove = null;
+
+		if (N == 1)
 			return findBestMove(colour);
-		} else {
-			List<Move> moves = getAllPossibleMovesFor(colour);
-			
-			System.out.println("Visa alla första moves");
-			for (Move move : moves)
-				System.out.println("move1: " + move);
-			
-			   
-			System.out.println("\nShow alla andra moves");
-			for (Move move : moves)
-			{
-				System.out.print("move1: " + move);	
-				
-					// gå fram med move
-				commitMove(move);
-				Move move2 = findBestMove(colour.getOpponentColour(), N-1);
-				System.out.println("\tmove2: " + move2);
-				
-					// ångra move
-				uncommitLastMove();
-			}
-		}
+
+		List<Move> moves = getAllPossibleMovesFor(colour);
+		int rekordMoveValue = -100000000;
 		
-		//System.out.println("number of steps: " + numberOfSteps);
-		// ok, as far as i know, i mean, you know, so, 
-		return null;
+		for (Move move : moves)
+		{
+				// utför move
+			commitMove(move, moves);
+			Move move2 = findBestMove(colour.getOpponentColour(), N-1);
+			int nyttMoveValue = move.getValue() - move2.getValue(); 
+			if (nyttMoveValue > rekordMoveValue)
+			{
+				rekordMove = move;
+				rekordMoveValue = nyttMoveValue;
+			}
+			
+				// ångra move
+			uncommitLastMove(moves);
+		}
+
+		return rekordMove;
 	}
 }

@@ -56,8 +56,11 @@ public abstract class Piece implements PieceInterface {
 	
 	public void moveX(int dPos)
 	{
-		xPos += dPos%8;
-		yPos += dPos/8;
+		//xPos += dPos%8;
+		//yPos += dPos/8;
+		int nyPos = (xPos + 8*yPos) + (dPos);
+		xPos = nyPos%8;
+		yPos = nyPos/8; 
 	}
 	
 	public void moveX(int dxPos, int dyPos)	
