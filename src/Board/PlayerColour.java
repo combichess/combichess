@@ -5,7 +5,7 @@ public enum PlayerColour {
 	Black;
 	
 	
-	public PlayerColour getOpponent()
+	public PlayerColour getOpponentColour()
 	{
 		return this==White? Black: White;
 	}

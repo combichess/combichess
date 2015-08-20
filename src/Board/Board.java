@@ -1,6 +1,7 @@
 package Board;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import Move.Move;
@@ -15,7 +16,7 @@ import piece.Queen;
 import piece.Rook;
 
 public class Board { 
-	private List<Move> committedMoves;
+	private LinkedList<Move> committedMoves;
 	private Piece blacks[];
 	private Piece whites[];
 	private Piece squares[];
@@ -28,7 +29,7 @@ public class Board {
 		blacks = new Piece[16];
 		whites = new Piece[16];
 		squares = new Piece[64];
-		committedMoves = new ArrayList<Move>();
+		committedMoves = new LinkedList<Move>();
 		playerWhite = white;
 		playerBlack = black;
 	}
@@ -101,8 +102,11 @@ public class Board {
 		int oldXPos = moveToCommit.getPiece().getX();
 		int oldYPos = moveToCommit.getPiece().getY();
 		
-		int newXPos = oldXPos + moveToCommit.getXmove();
-		int newYPos = oldYPos + moveToCommit.getYmove();
+		int dx = moveToCommit.getXmove();
+		int dy = moveToCommit.getYmove();
+		
+		int newXPos = oldXPos + dx;
+		int newYPos = oldYPos + dy;
 		
 		int newPosId = (newYPos<<3) + newXPos;
 		int oldPosId = (oldYPos<<3) + oldXPos;
@@ -113,6 +117,8 @@ public class Board {
 			squares[(takenPiece.getY() << 3) + takenPiece.getX()] = null;
 			takenPiece.setActivity(false);
 		}
+		
+		moveToCommit.getPiece().moveX(dx, dy);
 		squares[newPosId] = moveToCommit.getPiece();
 		squares[oldPosId] = null;
 		
@@ -131,6 +137,25 @@ public class Board {
 	
 	public int uncommitLastMove()
 	{
+		Move toUncommit = committedMoves.pop();
+		//System.out.println(toUncommit);
+		
+		Piece uncommittingPiece = toUncommit.getPiece();
+		Piece takenPiece = toUncommit.getAffectedPiece();
+		int presentPosition = uncommittingPiece.getPosition(); 
+		int gammalPosition = presentPosition - toUncommit.getPositionChange();
+		
+		
+		//System.out.println("nuvarande position: " + (toUncommit.getPiece().getPosition()%8) + ", " + (toUncommit.getPiece().getPosition()/8));
+		//System.out.println("förändring: " + (toUncommit.getPositionChange()%8) + ", " + (toUncommit.getPositionChange()/8));
+		//System.out.println("det ändras med: " + (gammalPosition%8) + ", " + (gammalPosition/8));
+
+		uncommittingPiece.moveX(-toUncommit.getPositionChange());
+		squares[gammalPosition] = uncommittingPiece;
+		squares[presentPosition] = takenPiece;
+		if (takenPiece != null)
+			takenPiece.setActivity(true);
+			
 		return 0;
 	}
 	
@@ -187,12 +212,17 @@ public class Board {
 		return str;
 	}
 	
-	public List<Move> getAllPossibleMovesFor(PlayerColour player) {
+	public List<Move> getAllPossibleMovesFor(PlayerColour colour) {
 		List<Move> possibleMoves = new ArrayList<Move>();
-		Piece[] playerPieces = (player == PlayerColour.White)? whites: blacks;
+			
+			//sätt upp spelarens valueTable(pjäsvärden) i PieceType.java så att det snabbt kan returnera rätt värde på 
+		PieceType.setPieceValues((colour == PlayerColour.White? playerWhite: playerBlack).getValueTable());
+		
+		Piece[] playerPieces = (colour == PlayerColour.White)? whites: blacks;
 		for (Piece piece : playerPieces) {
-			if (piece != null && piece.getActivity())
+			if (piece != null && piece.getActivity()) {
 				possibleMoves.addAll(piece.getPossibleMoves(this));
+			}
 		}
 		
 		return possibleMoves;
@@ -222,7 +252,9 @@ public class Board {
 		PieceType.setPieceValues(player.getValueTable());
 
 		List<Move> moves = getAllPossibleMovesFor(colour);
-		commitMove(moves.get(0));
+		
+		//for (Move mov : moves)
+		//	System.out.println(j++ + ": " + mov);
 		
 			// nollställ värderingen av pjäserna när spelaren letat färdigt
 		PieceType.unsetPieceValues();
@@ -233,22 +265,33 @@ public class Board {
 	public Move findBestMove(PlayerColour colour, int N)
 	{
 		//static int numberOfSteps = 0;
-		
 		if (N == 1) {
 			return findBestMove(colour);
 		} else {
 			List<Move> moves = getAllPossibleMovesFor(colour);
 			
+			System.out.println("Visa alla första moves");
+			for (Move move : moves)
+				System.out.println("move1: " + move);
+			
+			   
+			System.out.println("\nShow alla andra moves");
 			for (Move move : moves)
 			{
+				System.out.print("move1: " + move);	
+				
+					// gå fram med move
 				commitMove(move);
-				findBestMove(colour.getOpponent(), N-1);
+				Move move2 = findBestMove(colour.getOpponentColour(), N-1);
+				System.out.println("\tmove2: " + move2);
+				
+					// ångra move
 				uncommitLastMove();
 			}
 		}
 		
 		//System.out.println("number of steps: " + numberOfSteps);
-		
+		// ok, as far as i know, i mean, you know, so, 
 		return null;
 	}
 }

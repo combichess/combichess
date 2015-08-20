@@ -32,23 +32,16 @@ public abstract class Piece implements PieceInterface {
 		char xCharPos = 'a';
 		xCharPos += xPos;
 		return (player==PlayerColour.White? "W": "B") + " " + type.getLetter() + xCharPos + "" + yPos;
-	}//((squares[pos].getPlayer() == Player.Black)? "B": "W") + 
-	
-	/*static public void setPieceValues(int valueTable_[])
-	{
-		for (int i=0; i<valueTable.length; i++)
-			valueTable[i] = valueTable_[i];
 	}
-	
-	static public void unsetPieceValues()
-	{
-		for (int i=0; i<valueTable.length; i++)
-			valueTable[i] = 0;
-	}*/
 	
 	public PlayerColour getPlayer()
 	{
 		return player;
+	}
+	
+	public int getPosition()	// position definierat som int
+	{
+		return xPos + yPos*8;
 	}
 
 	public int getX()
@@ -59,6 +52,12 @@ public abstract class Piece implements PieceInterface {
 	public int getY()
 	{
 		return yPos;
+	}
+	
+	public void moveX(int dPos)
+	{
+		xPos += dPos%8;
+		yPos += dPos/8;
 	}
 	
 	public void moveX(int dxPos, int dyPos)	

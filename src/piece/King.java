@@ -28,7 +28,6 @@ public class King extends Piece {
 		{
 			for (int x=Math.max(xPos-1, 0); x<maxX; x++)
 			{
-				System.out.println("xPos = " + x + " yPos = " + y);
 				Piece pieceOnNewSquare = board.getPieceOnSquare(x, y);
 				if (pieceOnNewSquare == null)
 					nyLista.add(new Move(this, pieceOnNewSquare, x, y));

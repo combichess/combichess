@@ -53,6 +53,11 @@ public class Move {
 		return value;
 	}
 	
+	public int getPositionChange()
+	{
+		return dx + dy*8;
+	}
+	
 	public String toString(ChessNotation not)
 	{
 		String str = pieceThatMoves.toString(not);
