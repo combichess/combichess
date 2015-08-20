@@ -1,6 +1,7 @@
 # Ignore everything in this directory
 .*/
 .*
+schack.bmp
 bin/
 # Except this file
 !.gitignore
