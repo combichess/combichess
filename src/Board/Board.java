@@ -17,8 +17,10 @@ import piece.Rook;
 
 public class Board { 
 	private LinkedList<Move> committedMoves;
-	private Piece blacks[];
-	private Piece whites[];
+	//private Piece blacks[];
+		//private Piece whites[];
+	private List<Piece> blacks;
+	private List<Piece> whites;
 	private Piece squares[];
 	private Player playerBlack;
 	private Player playerWhite;
@@ -26,8 +28,8 @@ public class Board {
 		// setup
 	public Board(Player white, Player black)
 	{
-		blacks = new Piece[16];
-		whites = new Piece[16];
+		blacks = new LinkedList<Piece>();
+		whites = new LinkedList<Piece>();
 		squares = new Piece[64];
 		committedMoves = new LinkedList<Move>();
 		playerWhite = white;
@@ -49,7 +51,7 @@ public class Board {
 		Piece newPiece = null;
 		
 		if ((xPos & (~7)) != 0 || (yPos & (~7)) != 0)
-			return;
+			return;	// throw exception
 		
 		if (getPieceOnSquare(xPos, yPos) != null)
 			return;
@@ -76,26 +78,67 @@ public class Board {
 			break;
 		}
 		
-		boolean thereIsNoMorePieces = true;
-		Piece playerPieces[] = (player == PlayerColour.White)? whites: blacks;
-		for (int i=0; i<playerPieces.length; i++)
-		{
-			if (playerPieces[i] == null)
-			{
-				playerPieces[i] = newPiece;
-				thereIsNoMorePieces = false;
-				break;
-			}
-		}
-		
-		if (thereIsNoMorePieces)
-			return;
-		
-		// annars har allt gått bra
+		(player == PlayerColour.White? whites: blacks).add(newPiece);
 		setPieceOnSquare(xPos, yPos, newPiece);
 	}
 	
-	public int commitMove(Move moveToCommit, List<Move> moves)
+	public boolean fullTest()
+	{
+		int numOfErrors = 0;
+		List<Piece> allPieces = new LinkedList<Piece>();
+		for (Piece white :whites)
+			if (white.getActivity())
+				allPieces.add(white);
+		for (Piece black :blacks)
+			if (black.getActivity())
+				allPieces.add(black);
+		
+		int numOfNullSquares = 0;
+		
+		for (int i=0; i<64; i++)
+		{
+			Piece square = squares[i];
+			if (square == null)
+				numOfNullSquares++;
+					
+			int numOfPiecesOnI = 0;
+			for (Piece piece: allPieces)
+			{
+				int x = piece.getX();
+				int y = piece.getY();
+				int pos = x + 8*y;
+
+				if (pos == i && piece != null)
+					numOfPiecesOnI++;
+				
+				if (pos == i && square != piece)
+				{
+					System.out.println("Full Test Error(" + (++numOfErrors) + "): squares[" + i + "] = " + square + "\t!= piece " + piece);
+				}
+			}
+			if (numOfPiecesOnI > 1)
+				System.out.println("Full Test Error(" + (++numOfErrors) + "): " + numOfPiecesOnI + " pieces on square " + i);
+		}
+		
+		
+		for (Piece piece: allPieces) 
+		{
+			int x = piece.getX();
+			int y = piece.getY();
+			if (x < 0 || x > 7 || y < 0 || y > 7)
+				System.out.println("Full Test Error(" + (++numOfErrors) + "): Illegal positioning on piece: " + piece + "\tx = " + x + "\ty = " + y);
+		}
+		
+		if (64 - numOfNullSquares != allPieces.size())
+		{
+			System.out.println("Full Test Error(" + (++numOfErrors) + "): Occupied squares = " + (64-numOfNullSquares) + " != num of pieces = " + allPieces.size());
+		}
+		
+		
+		return numOfErrors == 0;
+	}
+	
+	public int commitMove(Move moveToCommit)
 	{
 		committedMoves.add(moveToCommit);
 		
@@ -119,6 +162,13 @@ public class Board {
 		}
 		
 		moveToCommit.getPiece().moveX(dx, dy);
+		if (newPosId > 63 || newPosId < 0 || oldPosId > 63 || oldPosId < 0)
+		{
+			System.out.println("boardet now: " + this.toString());
+			System.out.println("newPosId: " + newPosId + "\t oldPosId: " + oldPosId);
+			// throw exception
+			
+		} 
 		squares[newPosId] = moveToCommit.getPiece();
 		squares[oldPosId] = null;
 		
@@ -135,9 +185,10 @@ public class Board {
 		return null;
 	}
 	
-	public int uncommitLastMove(List<Move> moves)
+	public int uncommitLastMove()
 	{
-		Move toUncommit = committedMoves.pop();
+		//Move toUncommit = committedMoves.pop();
+		Move toUncommit = committedMoves.removeLast();
 		//System.out.println(toUncommit);
 		
 		Piece uncommittingPiece = toUncommit.getPiece();
@@ -219,7 +270,8 @@ public class Board {
 			//sätt upp spelarens valueTable(pjäsvärden) i PieceType.java så att det snabbt kan returnera rätt värde på 
 		PieceType.setPieceValues((colour == PlayerColour.White? playerWhite: playerBlack).getValueTable());
 		
-		Piece[] playerPieces = (colour == PlayerColour.White)? whites: blacks;
+		//Piece[] playerPieces = (colour == PlayerColour.White)? whites: blacks;
+		List<Piece> playerPieces = (colour == PlayerColour.White)? whites: blacks;
 		for (Piece piece : playerPieces) {
 			if (piece != null && piece.getActivity()) {
 				possibleMoves.addAll(piece.getPossibleMoves(this));
@@ -229,7 +281,7 @@ public class Board {
 		return possibleMoves;
 	}
 	
-	static public Move getBestMoveFromList(List<Move> moves)
+	static private Move getBestMoveFromList(List<Move> moves)
 	{
 		Move bestMove = moves.get(0);
 		int bestValue = bestMove.getValue();
@@ -247,48 +299,51 @@ public class Board {
 	
 	private Move findBestMove(PlayerColour colour)
 	{
-		Player player = (colour == PlayerColour.White? playerWhite: playerBlack);
-		
-			// sätt värdering av pjäserna åt spelaren som spelar.
-		PieceType.setPieceValues(player.getValueTable());
-
 		List<Move> moves = getAllPossibleMovesFor(colour);
-		
-		//for (Move mov : moves)
-		//	System.out.println(j++ + ": " + mov);
-		
-			// nollställ värderingen av pjäserna när spelaren letat färdigt
-		PieceType.unsetPieceValues();
-		
 		return getBestMoveFromList(moves);
 	}
 	
-	public Move findBestMove(PlayerColour colour, int N)
+	private Move findBestMove(PlayerColour colour, int N)
 	{
 		Move rekordMove = null;
 
 		if (N == 1)
 			return findBestMove(colour);
-
+		
 		List<Move> moves = getAllPossibleMovesFor(colour);
 		int rekordMoveValue = -100000000;
 		
-		for (Move move : moves)
+		for (Move thisMove : moves)
 		{
 				// utför move
-			commitMove(move, moves);
-			Move move2 = findBestMove(colour.getOpponentColour(), N-1);
-			int nyttMoveValue = move.getValue() - move2.getValue(); 
+			commitMove(thisMove);
+
+			Move nextMove = findBestMove(colour.getOpponentColour(), N-1);
+			thisMove.addValueFromNextMove(nextMove);
+			int nyttMoveValue = thisMove.getValue(); 
+
 			if (nyttMoveValue > rekordMoveValue)
 			{
-				rekordMove = move;
+				rekordMove = thisMove;
 				rekordMoveValue = nyttMoveValue;
 			}
 			
-				// ångra move
-			uncommitLastMove(moves);
+				// dra tillbaka senaste move
+			uncommitLastMove();
 		}
 
 		return rekordMove;
+	}
+	
+	public Move findBestMoveFor(Player player, int N)
+	{		
+			// sätt värdering av pjäserna åt spelaren som spelar.
+		PieceType.setPieceValues(player.getValueTable());
+		PlayerColour colour = player == playerWhite? PlayerColour.White: PlayerColour.Black;
+		Move bestMove = findBestMove(colour, N);
+	
+		// nollställ värderingen av pjäserna när spelaren letat färdigt
+		PieceType.unsetPieceValues();
+		return bestMove;
 	}
 }

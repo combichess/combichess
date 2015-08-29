@@ -10,4 +10,8 @@ public enum PlayerColour {
 		return this==White? Black: White;
 	}
 	
+	public String toString()
+	{
+		return this==White? "White": "Black";
+	}
 }

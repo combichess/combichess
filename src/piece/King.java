@@ -10,8 +10,6 @@ import Move.Move;
 
 public class King extends Piece {
 	
-	
-
 	public King(int xPos, int yPos, PlayerColour player) {
 		super(xPos, yPos, player);
 		type = PieceType.King;

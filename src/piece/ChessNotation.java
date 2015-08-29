@@ -19,6 +19,13 @@ public enum ChessNotation {
 	{
 		return ((char)('a' + x)) + "" + (y+1);
 	}
+	
+	public String getCo(int pos)
+	{
+		int x = pos%8;
+		int y = pos/8;
+		return ((char)('a' + x)) + "" + (y+1);
+	}
 }
 
 /*

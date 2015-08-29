@@ -71,22 +71,35 @@ public abstract class Piece implements PieceInterface {
 	
 	public String toString()
 	{
-		return toString(ChessNotation.MY_OWN_FULL_NOTATION); 
+		return toString(xPos + yPos*8, ChessNotation.ALGEBRAIC); 
 	}
 	
 	public String toString(ChessNotation not)
 	{
-		String toReturn = "";
+		return toString(xPos + yPos*8, not);  
+	}
+	
+	public String toString(int customPos)
+	{
+		return toString(customPos, ChessNotation.ALGEBRAIC); 
+	}
+	
+	public String toString(int customPos, ChessNotation not)
+	{
+		
+		String toReturn = (customPos<0 || customPos>63)? 
+				"err": 
+					"";
 		switch (not) 
 		{
 		case ALGEBRAIC:
-			toReturn = (player==PlayerColour.White? "W": "B") + "" + type.getLetter() + not.getCo(xPos, yPos);
+			toReturn = (player==PlayerColour.White? "W": "B") + "" + type.getLetter() + not.getCo(customPos);
 			break;
 		case MY_OWN_FULL_NOTATION:
-			toReturn = "Piece: xxx, [" + xPos + ", " + yPos + "]";
+			toReturn = "Piece: xxx, [" + (customPos%8) + ", " + customPos/8 + "]";
 			break;
 		default:
-			toReturn = "No real piece-notation";
+			toReturn = "No real piece-notation in Piece.toString(int, ChessNotation)";
 			break;
 		}
 		
