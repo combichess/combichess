@@ -1,24 +1,18 @@
-package Main;
+package test;
 
-import gui.Gui;
-import gui.Gui2;
 import piece.PieceType;
 import Board.Board;
 import Board.Player;
 import Board.PlayerColour;
 import Move.Move;
 
-public class Main {
+public class Test {
 
-
-	public static void main(String [] args)
-	{		
-		Gui2.starta();
-		test01();
+	public Test() 
+	{
+		
 	}
-	
-	
-	
+		
 	public static boolean test01()
 	{
 		Player white = new Player("Herr Alm");
