@@ -1,9 +1,9 @@
-package piece;
+package system.piece;
 
 import java.util.List;
 
-import Board.Board;
-import Move.Move;
+import system.board.Board;
+import system.move.Move;
 
 public interface PieceInterface {
 	public List<Move> getPossibleMoves(Board board);

@@ -1,11 +1,11 @@
-package piece;
+package system.piece;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import Board.Board;
-import Board.PlayerColour;
-import Move.Move;
+import system.board.Board;
+import system.board.PlayerColour;
+import system.move.Move;
 
 public class Pawn extends Piece {
 

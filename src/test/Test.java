@@ -1,10 +1,10 @@
 package test;
 
-import piece.PieceType;
-import Board.Board;
-import Board.Player;
-import Board.PlayerColour;
-import Move.Move;
+import system.board.Board;
+import system.board.Player;
+import system.board.PlayerColour;
+import system.move.Move;
+import system.piece.PieceType;
 
 public class Test {
 

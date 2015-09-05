@@ -3,6 +3,9 @@ package gui;
 import java.awt.EventQueue;
 import javax.swing.JFrame;    
 
+//exempelkod från:
+//http://zetcode.com/tutorials/javaswingtutorial/firstprograms/
+
 public class Gui2 extends JFrame{
 	
     public Gui2() {

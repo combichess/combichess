@@ -1,4 +1,4 @@
-package piece;
+package system.piece;
 
 public enum PieceType {
 	Pawn(0),

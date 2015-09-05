@@ -1,6 +1,6 @@
-package Board;
+package system.board;
 
-import piece.PieceType;
+import system.piece.PieceType;
 
 public class Player {
 	private String name;

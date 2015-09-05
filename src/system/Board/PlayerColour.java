@@ -1,4 +1,4 @@
-package Board;
+package system.board;
 
 public enum PlayerColour {
 	White,

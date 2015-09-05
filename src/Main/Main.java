@@ -2,11 +2,11 @@ package Main;
 
 import gui.Gui;
 import gui.Gui2;
-import piece.PieceType;
-import Board.Board;
-import Board.Player;
-import Board.PlayerColour;
-import Move.Move;
+import system.board.Board;
+import system.board.Player;
+import system.board.PlayerColour;
+import system.move.Move;
+import system.piece.PieceType;
 
 public class Main {
 

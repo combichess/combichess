@@ -1,19 +1,23 @@
-package Board;
+package system.board;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import Move.Move;
-import piece.Bishop;
-import piece.ChessNotation;
-import piece.King;
-import piece.Knight;
-import piece.Pawn;
-import piece.Piece;
-import piece.PieceType;
-import piece.Queen;
-import piece.Rook;
+import system.board.PlayerColour;
+import system.move.Move;
+import system.piece.Bishop;
+import system.piece.ChessNotation;
+import system.piece.King;
+import system.piece.Knight;
+import system.piece.Pawn;
+import system.piece.PieceType;
+import system.piece.Queen;
+import system.piece.Rook;
+
+import system.piece.Piece;
+
+
 
 public class Board { 
 	private LinkedList<Move> committedMoves;

@@ -1,7 +1,7 @@
-package Move;
+package system.move;
 
-import piece.ChessNotation;
-import piece.Piece;
+import system.piece.ChessNotation;
+import system.piece.Piece;
 
 public class Move {
 	private Piece pieceThatMoves;

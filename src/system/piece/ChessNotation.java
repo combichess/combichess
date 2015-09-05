@@ -1,4 +1,4 @@
-package piece;
+package system.piece;
 
 
 // http://en.wikipedia.org/wiki/Chess_notation
