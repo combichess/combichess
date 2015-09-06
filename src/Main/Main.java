@@ -1,7 +1,7 @@
 package Main;
 
-import gui.Gui;
-import gui.Gui2;
+
+import gui.Gui3;
 import system.board.Board;
 import system.board.Player;
 import system.board.PlayerColour;
@@ -13,7 +13,7 @@ public class Main {
 
 	public static void main(String [] args)
 	{		
-		Gui2.starta();
+		Gui3.starta();
 		test01();
 	}
 	
