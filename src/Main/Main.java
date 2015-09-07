@@ -1,5 +1,7 @@
 package Main;
 
+// http://www.pageresource.com/clipart/entertainment/games/chess/
+// http://zetcode.com/tutorials/javaswingtutorial/
 
 import gui.Gui3;
 import system.board.Board;
