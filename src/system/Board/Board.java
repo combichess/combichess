@@ -19,10 +19,9 @@ import system.piece.Piece;
 
 
 
-public class Board { 
+public class Board implements Runnable { 
+	
 	private LinkedList<Move> committedMoves;
-	//private Piece blacks[];
-		//private Piece whites[];
 	private List<Piece> blacks;
 	private List<Piece> whites;
 	private Piece squares[];
@@ -349,5 +348,10 @@ public class Board {
 		// nollställ värderingen av pjäserna när spelaren letat färdigt
 		PieceType.unsetPieceValues();
 		return bestMove;
+	}
+
+	@Override
+	public void run() {
+		
 	}
 }

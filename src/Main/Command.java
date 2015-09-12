@@ -8,10 +8,8 @@ import system.board.Board;
 import system.board.Player;
 import test.Test;
 
-public class Main {
+public class Command {
 	
-	
-	//public static int String cmdMove;
 	
 	public static void main(String [] args)
 	{		
@@ -25,5 +23,9 @@ public class Main {
 		
 		
 		Test.test01();
+	}
+	
+	private static void init() {
+		
 	}
 }

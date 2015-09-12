@@ -3,29 +3,33 @@ package gui;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;    
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.Timer;
 
 //exempelkod från:
 //http://zetcode.com/tutorials/javaswingtutorial/firstprograms/
 
-public class Gui3 extends JFrame{
+public class Gui3 extends JFrame implements Runnable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1729536400205912420L;
-
+	private JPanel windowPanel = null; 
+	private Timer timer = null;
+	
 	public Gui3() {
         initUI();
     }
 	
     public final void initUI() {
     	
-    	JPanel windowPanel = new JPanel();
+    	windowPanel = new JPanel();
     	windowPanel.setLayout(new BoxLayout(windowPanel, BoxLayout.Y_AXIS));
     	
     	JPanel topPanel = new JPanel();
@@ -84,14 +88,25 @@ public class Gui3 extends JFrame{
         windowPanel.add(topPanel);
         windowPanel.add(bottomPanel);
         add(windowPanel);
+        
+        AL guiTimerUpdater = new AL(100, 100);
+        Timer timer = new Timer(100, guiTimerUpdater);
+        
+        timer.setRepeats(true);
+        timer.start();
+        
+        
 
         setTitle("GridLayout");
         setSize(800, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
     }
+    
+    
 
-    public static void starta() {
+
+    /*public static void starta() {
 
         EventQueue.invokeLater(new Runnable() {
         
@@ -101,6 +116,13 @@ public class Gui3 extends JFrame{
                 ex.setVisible(true);
             }
         });
-    }
+    }*/
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+
+		setVisible(true);
+	}
 }
 
