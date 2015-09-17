@@ -12,7 +12,7 @@ public class Communicator {
 	
 	private static List<Message> messages = new LinkedList<Message>();
 	
-	protected static synchronized void addMessage(Message mess) {
+	public static synchronized void addMessage(Message mess) {
 		messages.add(mess);
 	}
 	

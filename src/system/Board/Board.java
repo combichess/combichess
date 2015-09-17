@@ -19,7 +19,7 @@ import system.piece.Piece;
 
 
 
-public class Board implements Runnable { 
+public class Board { 
 	
 	private LinkedList<Move> committedMoves;
 	private List<Piece> blacks;
@@ -29,7 +29,7 @@ public class Board implements Runnable {
 	private Player playerWhite;
 	
 		// setup
-	public Board(Player white, Player black)
+	protected Board(Player white, Player black)
 	{
 		blacks = new LinkedList<Piece>();
 		whites = new LinkedList<Piece>();
@@ -44,13 +44,13 @@ public class Board implements Runnable {
 		return squares[(y<<3) + x];
 	}
 
-	public void setPieceOnSquare(int xPos, int yPos, Piece piece)
+	protected void setPieceOnSquare(int xPos, int yPos, Piece piece)
 	{
 		squares[(yPos<<3) + xPos] = piece;
 	}
 	
 	
-	public void addPiece(int xPos, int yPos, PlayerColour player, PieceType type) {
+	protected void addPiece(int xPos, int yPos, PlayerColour player, PieceType type) {
 		Piece newPiece = null;
 		
 		if ((xPos & (~7)) != 0 || (yPos & (~7)) != 0)
@@ -85,7 +85,7 @@ public class Board implements Runnable {
 		setPieceOnSquare(xPos, yPos, newPiece);
 	}
 	
-	public boolean fullTest()
+	protected boolean fullTest()
 	{
 		int numOfErrors = 0;
 		List<Piece> allPieces = new LinkedList<Piece>();
@@ -141,7 +141,7 @@ public class Board implements Runnable {
 		return numOfErrors == 0;
 	}
 	
-	public int commitMove(Move moveToCommit)
+	protected int commitMove(Move moveToCommit)
 	{
 		committedMoves.add(moveToCommit);
 		
@@ -178,17 +178,17 @@ public class Board implements Runnable {
 		return 0;
 	}
 	
-	public Move getHighestValueMove(List<Move> moves)
+	protected Move getHighestValueMove(List<Move> moves)
 	{
 		return null;
 	}
 	
-	public Move getLowestValueMove(List<Move> moves)
+	protected Move getLowestValueMove(List<Move> moves)
 	{
 		return null;
 	}
 	
-	public int uncommitLastMove()
+	protected int uncommitLastMove()
 	{
 		//Move toUncommit = committedMoves.pop();
 		Move toUncommit = committedMoves.removeLast();
@@ -214,7 +214,7 @@ public class Board implements Runnable {
 		return 0;
 	}
 	
-	public void standardSetup()
+	protected void standardSetup()
 	{
 		for (int i=0; i<8; i++)
 		{
@@ -237,7 +237,7 @@ public class Board implements Runnable {
 		
 	}
 	
-	public Piece getPiece(int horizontal, int vertical) 
+	protected Piece getPiece(int horizontal, int vertical) 
 	{
 		return squares[horizontal - 9 + 8*vertical];
 	}
@@ -267,7 +267,7 @@ public class Board implements Runnable {
 		return str;
 	}
 	
-	public List<Move> getAllPossibleMovesFor(PlayerColour colour) {
+	protected List<Move> getAllPossibleMovesFor(PlayerColour colour) {
 		List<Move> possibleMoves = new ArrayList<Move>();
 			
 			//sätt upp spelarens valueTable(pjäsvärden) i PieceType.java så att det snabbt kan returnera rätt värde på 
@@ -338,7 +338,7 @@ public class Board implements Runnable {
 		return rekordMove;
 	}
 	
-	public Move findBestMoveFor(Player player, int N)
+	protected Move findBestMoveFor(Player player, int N)
 	{		
 			// sätt värdering av pjäserna åt spelaren som spelar.
 		PieceType.setPieceValues(player.getValueTable());
@@ -348,10 +348,5 @@ public class Board implements Runnable {
 		// nollställ värderingen av pjäserna när spelaren letat färdigt
 		PieceType.unsetPieceValues();
 		return bestMove;
-	}
-
-	@Override
-	public void run() {
-		
 	}
 }

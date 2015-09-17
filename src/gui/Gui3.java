@@ -1,9 +1,9 @@
 package gui;
 
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -11,6 +11,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.Timer;
+
+import main.Communicator;
+import main.control.Message;
+import main.control.MessageType;
+import main.control.ProcessType;
 
 //exempelkod från:
 //http://zetcode.com/tutorials/javaswingtutorial/firstprograms/
@@ -20,16 +25,14 @@ public class Gui3 extends JFrame implements Runnable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1729536400205912420L;
-	private JPanel windowPanel = null; 
-	private Timer timer = null;
+	private JPanel windowPanel = null;
+	private ProcessType processType = ProcessType.Gui_1;
 	
-	public Gui3() {
-        initUI();
-    }
-	
-    public final void initUI() {
-    	
-    	windowPanel = new JPanel();
+	@Override
+	public void run() {
+				// Sätt upp hela GUI:et
+		// TODO Auto-generated method stub
+		windowPanel = new JPanel();
     	windowPanel.setLayout(new BoxLayout(windowPanel, BoxLayout.Y_AXIS));
     	
     	JPanel topPanel = new JPanel();
@@ -90,39 +93,43 @@ public class Gui3 extends JFrame implements Runnable {
         add(windowPanel);
         
         AL guiTimerUpdater = new AL(100, 100);
-        Timer timer = new Timer(100, guiTimerUpdater);
+        final Timer timer = new Timer(100, guiTimerUpdater);
         
+        	// kör kontinuerlig uppdatering på timern för att se om board:en uppdateras
         timer.setRepeats(true);
         timer.start();
         
-        
-
-        setTitle("GridLayout");
-        setSize(800, 500);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-    }
-    
-    
-
-
-    /*public static void starta() {
-
-        EventQueue.invokeLater(new Runnable() {
-        
-            @Override
-            public void run() {
-            	Gui3 ex = new Gui3();
-                ex.setVisible(true);
-            }
+        	// http://docs.oracle.com/javase/7/docs/api/java/awt/doc-files/AWTThreadIssues.html
+        addWindowListener(new WindowAdapter() 
+        {
+        	@Override
+        	public void windowClosing(WindowEvent event) 
+        	{
+        		timer.stop();
+        		System.out.println("Nu avslutas GUI:et och därför sänds avslutningsmeddelande till Boarden");
+        		Message mess = new Message(processType, ProcessType.Board_1, MessageType.KillProcessImmediately, null);
+        		Communicator.addMessage(mess);
+        		setVisible(false);
+        		dispose();
+        	}
         });
-    }*/
+        
 
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
+        setTitle("*** Combichess ***");
+        setSize(800, 500);
+        
+        //setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	// nu ska windowClosing köras om programmet avslutas.
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        setLocationRelativeTo(null);
 
 		setVisible(true);
+		
+		
+			// Sätt upp Board:en, låt detta göras efter hur användaren väljer förvald setup. 
+			// I förvald setup väljs vilken färg spelaren ska ha, betänketid, standardsetup eller något annat magiskt.
+		Message setupStandardBoard = new Message(ProcessType.Gui_1, ProcessType.Board_1, MessageType.StandardSetup, null);
+		Communicator.addMessage(setupStandardBoard);
 	}
+	
 }
 
