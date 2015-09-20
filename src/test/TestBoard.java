@@ -6,12 +6,12 @@ import system.board.PlayerColour;
 import system.move.Move;
 import system.piece.PieceType;
 
-public class Test extends Board{
+public class TestBoard extends Board{
 	private Player black;
 	private boolean result;
 	private int milliSeconds;
 	
-	public Test(Player white, Player black) 
+	public TestBoard(Player white, Player black) 
 	{
 		super(white, black);
 		this.black = black;

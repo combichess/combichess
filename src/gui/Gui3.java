@@ -1,16 +1,26 @@
 package gui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.io.InputStream;
 
+import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;    
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.Timer;
+
 
 import main.Communicator;
 import main.control.Message;
@@ -27,9 +37,19 @@ public class Gui3 extends JFrame implements Runnable {
 	private static final long serialVersionUID = 1729536400205912420L;
 	private JPanel windowPanel = null;
 	private ProcessType processType = ProcessType.Gui_1;
+	private Timer idleTimer;
+	private ImageIcon imageIcons[] = null; 
 	
 	@Override
 	public void run() {
+		
+		try {
+			loadImages();
+		} catch (IOException e) {
+			e.printStackTrace();
+			closeGUI();
+		}
+		
 				// Sätt upp hela GUI:et
 		// TODO Auto-generated method stub
 		windowPanel = new JPanel();
@@ -55,6 +75,7 @@ public class Gui3 extends JFrame implements Runnable {
         	bottomPanel.add(nyKnapp);
         }
         
+     
         	// sätter in en kant runt 
         //panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         boardPanel.setLayout(new GridLayout(8, 8, 1, 1));
@@ -72,7 +93,18 @@ public class Gui3 extends JFrame implements Runnable {
 
         for (int i = 0; i < buttons.length; i++) {
 
-        	JButton nyKnapp = new JButton(buttons[i]);
+        	JButton nyKnapp = null;
+        	if (i != 10 && imageIcons[0] != null)
+        		nyKnapp = new JButton(buttons[i]);
+        	else {
+        		nyKnapp = new JButton(imageIcons[0]);
+        		//nyKnapp.setIcon(imageIcons[0]);
+        		nyKnapp.setMargin(new Insets(0, 0, 0, 0));
+        		nyKnapp.setBackground(Color.blue);
+        		nyKnapp.setBorder(null);
+        	}
+        		
+        	
 
         	AL asdf = new AL(i%8, i/8); 
         	
@@ -91,13 +123,16 @@ public class Gui3 extends JFrame implements Runnable {
         windowPanel.add(topPanel);
         windowPanel.add(bottomPanel);
         add(windowPanel);
-        
-        AL guiTimerUpdater = new AL(100, 100);
-        final Timer timer = new Timer(100, guiTimerUpdater);
-        
-        	// kör kontinuerlig uppdatering på timern för att se om board:en uppdateras
-        timer.setRepeats(true);
-        timer.start();
+
+        	// 	kör kontinuerlig uppdatering på timern för att se om board:en uppdateras
+        idleTimer = new Timer(100, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				updateTimer();
+			}
+		});
+        idleTimer.setRepeats(true);
+        idleTimer.start();
         
         	// http://docs.oracle.com/javase/7/docs/api/java/awt/doc-files/AWTThreadIssues.html
         addWindowListener(new WindowAdapter() 
@@ -105,12 +140,7 @@ public class Gui3 extends JFrame implements Runnable {
         	@Override
         	public void windowClosing(WindowEvent event) 
         	{
-        		timer.stop();
-        		System.out.println("Nu avslutas GUI:et och därför sänds avslutningsmeddelande till Boarden");
-        		Message mess = new Message(processType, ProcessType.Board_1, MessageType.KillProcessImmediately, null);
-        		Communicator.addMessage(mess);
-        		setVisible(false);
-        		dispose();
+        		closeGUI();
         	}
         });
         
@@ -124,12 +154,85 @@ public class Gui3 extends JFrame implements Runnable {
 
 		setVisible(true);
 		
-		
 			// Sätt upp Board:en, låt detta göras efter hur användaren väljer förvald setup. 
 			// I förvald setup väljs vilken färg spelaren ska ha, betänketid, standardsetup eller något annat magiskt.
-		Message setupStandardBoard = new Message(ProcessType.Gui_1, ProcessType.Board_1, MessageType.StandardSetup, null);
+		Message setupStandardBoard = new Message(ProcessType.Gui_1, ProcessType.Board_1, MessageType.STANDARD_SETUP, null);
 		Communicator.addMessage(setupStandardBoard);
 	}
 	
+	
+	private void updateTimer()
+	{
+		handleMessages();
+	}
+	
+	private void handleMessages()
+	{
+		Message mess = Communicator.getMessage(processType);
+		while (mess != null) {
+			switch (mess.getMessageType())
+			{
+			case KILL_PROCESS_IMMEDIATELY:
+				closeGUI();
+				break;
+			case PROPOSE_MOVE:
+				break;
+			case SET_PIECE_VALUES:
+				break;
+			case SET_BOARD_DATA:
+				updateBoard(mess.getMessageData());
+				break;
+			default:
+				break;
+			}
+			mess = Communicator.getMessage(processType);
+		};
+	}
+	
+	private void closeGUI()
+	{
+		if (idleTimer != null)
+			idleTimer.stop();
+		System.out.println("Nu avslutas GUI:et och därför sänds avslutningsmeddelande till Boarden");
+		Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.KILL_PROCESS_IMMEDIATELY, null));
+		setVisible(false);
+		dispose();
+	}
+	
+	private void loadImages() throws IOException
+	{
+		String imageStrings[] = new String[] {	"BB", "BK", "BN", "BP", "BQ", "BR", 
+												"WB", "WK", "WN", "WP", "WQ", "WR"};
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		for (int i=0; i<imageStrings.length; i++)
+			imageStrings[i] = imageStrings[i] + ".bmp";
+			
+		imageIcons = new ImageIcon[imageStrings.length];
+		
+		for (int i=0; i<imageStrings.length; i++)
+		{
+			System.out.print(imageStrings[i]);
+			InputStream input = classLoader.getResourceAsStream(imageStrings[i]);
+			Image img = ImageIO.read(input);
+			imageIcons[i] = new ImageIcon(img);
+			System.out.println("\t" + (imageIcons[i] == null? "null": "icke null"));
+		}
+	}
+	
+		// 
+	private void updateBoard(String str) 
+	{
+		String strs[] = str.split(",");
+		if (strs.length != 64)
+		{
+			System.out.println("strs.length " + strs.length + "!= 64");
+			return;
+		}
+		
+		for (int i=0; i<64; i++)
+		{
+			// gör schackpjäsknapparna till klassmedlemmar och stoppa in rätt imageIcon här.
+		}
+	}
 }
 

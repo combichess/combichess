@@ -27,18 +27,18 @@ public class BoardWrapper extends Board implements Runnable {
 				
 				switch(retrieved.getMessageType())
 				{
-				case CommitMove:
+				case COMMIT_MOVE:
 					break;
-				case GetPlayerValues:
+				case GET_PIECE_VALUES:
 					break;
-				case KillProcessImmediately:
+				case KILL_PROCESS_IMMEDIATELY:
 					stopRunning = true;
 					break;
-				case ProposeMove:
+				case PROPOSE_MOVE:
 					break;
-				case SetPlayerValues:
+				case SET_PIECE_VALUES:
 					break;
-				case StandardSetup:
+				case STANDARD_SETUP:
 					this.standardSetup();
 					break;
 				default:
