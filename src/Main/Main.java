@@ -3,15 +3,10 @@ package main;
 // http://www.pageresource.com/clipart/entertainment/games/chess/
 // http://zetcode.com/tutorials/javaswingtutorial/
 
-import java.io.InputStream;
-
-import javax.imageio.ImageIO;
 
 import gui.Gui3;
 import system.board.BoardWrapper;
 import system.board.Player;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 
 public class Main {
 	
@@ -19,14 +14,7 @@ public class Main {
 	//public static int String cmdMove;
 	
 	public static void main(String [] args) throws InterruptedException
-	{	
-		/*ImageIcon hej = new ImageIcon("images/BB.bmp");
-		
-		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-		InputStream input = classLoader.getResourceAsStream("BB.bmp");
-		InputStream input2 = classLoader.getResourceAsStream("images/BB.bmp");
-		
-		return;*/
+	{
 		
 		startGame();
 	}

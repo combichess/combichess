@@ -1,7 +1,10 @@
 package system.board;
 
+import system.piece.Piece;
 import main.Communicator;
+import main.control.ControlValue;
 import main.control.Message;
+import main.control.MessageType;
 import main.control.ProcessType;
 
 public class BoardWrapper extends Board implements Runnable { 
@@ -16,7 +19,7 @@ public class BoardWrapper extends Board implements Runnable {
 	@Override
 	public void run() {
 		System.out.println("running tråd BoardWrapper");
-		boolean stopRunning = false;
+		boolean stopRunning = true;	// denna ska vara false som standard
 		Message retrieved;
 		
 		do {
@@ -40,6 +43,8 @@ public class BoardWrapper extends Board implements Runnable {
 					break;
 				case STANDARD_SETUP:
 					this.standardSetup();
+					returnBoardAvailability();
+					returnBoardSetup();
 					break;
 				default:
 					break;
@@ -63,5 +68,63 @@ public class BoardWrapper extends Board implements Runnable {
 			e.printStackTrace();
 		}
 	}
-
+	
+	
+	public void returnBoardSetup()
+	{
+		String tjena = "";
+		for (int i=0; i<squares.length; i++)
+		{
+			tjena += (i==0? "": ",");
+			if (squares[i] == null)
+				tjena += "  ";
+			else {
+				switch(squares[i].getPlayer())
+				{
+				case White:
+					tjena += ControlValue.WHITE;
+				case Black:
+					tjena += ControlValue.BLACK;
+				default:
+					tjena += ControlValue.UNDEFINED;
+				}
+				
+				switch(squares[i].getType())
+				{
+				case Pawn:
+					tjena += ControlValue.PAWN;
+				case Knight:
+					tjena += ControlValue.KNIGHT;
+				case Bishop:
+					tjena += ControlValue.BISHOP;
+				case Rook:
+					tjena += ControlValue.ROOK;
+				case Queen:
+					tjena += ControlValue.QUEEN;
+				case King:
+					tjena += ControlValue.KING;
+				default:
+					tjena += ControlValue.UNDEFINED;
+				}
+			}	
+		}
+		
+		System.out.println("skicka följande sträng från Board till Gui: " + tjena);
+		Message mess = new Message(processType, ProcessType.Gui_1, MessageType.SET_BOARD_DATA, tjena);
+		Communicator.addMessage(mess);
+	}
+	
+	public void returnBoardAvailability()
+	{
+		String tjena = "";
+		for (int i=0; i<squares.length; i++)
+		{
+			tjena += (i==0? "": ",");
+			if (squares[i] == null)
+				tjena += "0";
+			else {
+				
+			}
+		}
+	}
 }

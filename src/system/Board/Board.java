@@ -21,12 +21,12 @@ import system.piece.Piece;
 
 public class Board { 
 	
-	private LinkedList<Move> committedMoves;
-	private List<Piece> blacks;
-	private List<Piece> whites;
-	private Piece squares[];
-	private Player playerBlack;
-	private Player playerWhite;
+	protected LinkedList<Move> committedMoves;
+	protected List<Piece> blacks;
+	protected List<Piece> whites;
+	protected Piece squares[];
+	protected Player playerBlack;
+	protected Player playerWhite;
 	
 		// setup
 	protected Board(Player white, Player black)
@@ -282,6 +282,31 @@ public class Board {
 		}
 		
 		return possibleMoves;
+	}
+	
+		// returnerar alla möjliga tillåtna positioner colour kan flytta från
+		// fixa denna senare, kolla upp om spelare står schack eller om flytt av pjäs kan flytta utan att ställa sig själv schack
+	protected List<Integer> getAllPossibleAllowedSquaresToMoveFrom(PlayerColour colour)
+	{
+		List<Integer> positioner = new LinkedList<Integer>();
+		for (Piece piece : squares)
+		{
+			if (piece != null && piece.getActivity() && piece.getPlayer() == colour)
+				positioner.add(piece.getPosition());
+		}
+		return positioner;
+	}
+	
+		// returnerar alla möjliga platser pjäs kan flytta till.
+		// fixa denna senare på samma sätt som ovan.
+	protected List<Integer> getAllPossibleAllowedSquaresToMoveToWith(Piece piece)
+	{
+		List<Integer> positioner = new LinkedList<Integer>();
+		List<Move> moves = piece.getPossibleMoves(this);
+		for (Move move: moves)
+			positioner.add(move.getToPos());
+		
+		return positioner;
 	}
 	
 	static private Move getBestMoveFromList(List<Move> moves)

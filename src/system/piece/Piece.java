@@ -158,6 +158,11 @@ public abstract class Piece implements PieceInterface {
 		}
 	}
 	
+	public PieceType getType()
+	{
+		return type;
+	}
+	
 	public boolean getActivity()
 	{
 		return active;
