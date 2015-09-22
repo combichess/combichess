@@ -33,7 +33,7 @@ import main.control.ProcessType;
 //exempelkod från:
 //http://zetcode.com/tutorials/javaswingtutorial/firstprograms/
 
-public class Gui3 extends JFrame implements Runnable {
+public class Gui extends JFrame implements Runnable {
 	/**
 	 * 
 	 */
@@ -44,18 +44,19 @@ public class Gui3 extends JFrame implements Runnable {
 	private JPanel bottomPanel = null;
 	private JPanel boardPanel = null;
 	private JPanel informationPanel = null;
-	private String[] boardSetupAsString = null;		// vad varje ruta är för pjäser
-	private boolean[] boardAvailabilityAsBoolean = null;	// vilka knappar du får klicka på, false = inactive, true = aktiv
+	private JButton[] squares = null;
 	
 	private ProcessType processType = ProcessType.Gui_1;
 	private Timer idleTimer;
 	private HashMap<String, ImageIcon> imageIcons = null;
-	//private ImageIcon imageIcons[] = null; 
 	
+		// skit i att skapa en egen tråd och låt GUI:et köra på den tråd som skapas med guiet. Byt run() till konstruktor
 	@Override
 	public void run() {
 		
 		loadImages();
+		
+		Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.STANDARD_SETUP, null));
 		
 				// Sätt upp hela GUI:et
 			// referens hur till "./schacket ska se ut.jpg"
@@ -69,6 +70,7 @@ public class Gui3 extends JFrame implements Runnable {
         informationPanel = new JPanel();
         bottomPanel = new JPanel();
 
+        squares = new JButton[64];
 
         bottomPanel.setLayout(new GridLayout(3,3,3,3));
         String[] bottomButtons = {
@@ -82,28 +84,20 @@ public class Gui3 extends JFrame implements Runnable {
         	bottomPanel.add(nyKnapp);
         }
         
-     
-        	// sätter in en kant runt 
-        boardSetupAsString = new String[] {
-            "BR", "BB", "BN", "BQ", "BK", "BN", "BB", "BR", 
-            "BP", "BP", "BP", "BP", "BP", "BP", "BP", "BP",
-            "  ", "  ", "  ", "  ", "  ", "  ", "  ", "  ",
-            "  ", "  ", "  ", "  ", "  ", "  ", "  ", "  ", 
-            "  ", "  ", "  ", "  ", "  ", "  ", "  ", "  ", 
-            "  ", "  ", "  ", "  ", "  ", "  ", "  ", "  ",
-            "WP", "WP", "WP", "WP", "WP", "WP", "WP", "WP",
-            "WR", "WB", "WN", "WQ", "WK", "WN", "WB", "WR"
-        };
-        
-        boardAvailabilityAsBoolean = new boolean[64];
-        for (int i=0; i<boardAvailabilityAsBoolean.length; i++)
-        	boardAvailabilityAsBoolean[i] = true;
-        
-        updateBoardPanel();
+        boardPanel.setLayout(new GridLayout(8, 8, 1, 1));
+        for (int i=0; i<64; i++) {
+        	squares[i] = new JButton("start");
+        	squares[i].setMargin(new Insets(0, 0, 0, 0));
+			squares[i].setBackground(Color.blue);
+			squares[i].setBorder(null);
+			squares[i].addActionListener(new AL(i%8, i/8));
+			
+			
+        	boardPanel.add(squares[i]);
+        }
 
         topPanel.add(boardPanel);
         
-
         JTextArea textAreaRight = new JTextArea("text area");
         textAreaRight.setPreferredSize(new Dimension(100, 400));
         informationPanel.add(textAreaRight);
@@ -113,11 +107,11 @@ public class Gui3 extends JFrame implements Runnable {
         windowPanel.add(bottomPanel);
         add(windowPanel);
 
-        	// 	kör kontinuerlig uppdatering på timern för att se om board:en uppdateras
+        // 	kör kontinuerlig uppdatering på timern för att se om board:en uppdateras
         idleTimer = new Timer(100, new ActionListener() {
-			@Override
+        	@Override
 			public void actionPerformed(ActionEvent arg0) {
-				updateTimer();
+				idleFunction();
 			}
 		});
         idleTimer.setRepeats(true);
@@ -145,12 +139,11 @@ public class Gui3 extends JFrame implements Runnable {
 		
 			// Sätt upp Board:en, låt detta göras efter hur användaren väljer förvald setup. 
 			// I förvald setup väljs vilken färg spelaren ska ha, betänketid, standardsetup eller något annat magiskt.
-		Message setupStandardBoard = new Message(ProcessType.Gui_1, ProcessType.Board_1, MessageType.STANDARD_SETUP, null);
-		Communicator.addMessage(setupStandardBoard);
+		//Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.STANDARD_SETUP, null));
 	}
 	
 	
-	private void updateTimer()
+	private void idleFunction()
 	{
 		handleMessages();
 	}
@@ -168,9 +161,11 @@ public class Gui3 extends JFrame implements Runnable {
 				break;
 			case SET_PIECE_VALUES:
 				break;
-			case SET_BOARD_DATA:
-				boardSetupAsString = mess.getMessageData().split(",");
-				updateBoardPanel();
+			case SET_BOARD_PIECES:
+				updateBoardPieces(mess.getMessageData());
+				break;
+			case AVAILABLE_SQUARES:
+				updateBoardAvailability(mess.getMessageData());
 				break;
 			default:
 				break;
@@ -194,15 +189,12 @@ public class Gui3 extends JFrame implements Runnable {
 		String imageStrings[] = new String[] {	"BB", "BK", "BN", "BP", "BQ", "BR", 
 												"WB", "WK", "WN", "WP", "WQ", "WR"};
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-		//for (int i=0; i<imageStrings.length; i++)
-		//	imageStrings[i] = imageStrings[i] + ".bmp";
-			
-		//imageIcons = new ImageIcon[imageStrings.length];
+
 		imageIcons = new HashMap<String, ImageIcon>();
 		
 		for (int i=0; i<imageStrings.length; i++)
 		{
-			System.out.print(imageStrings[i]);
+			//System.out.print(imageStrings[i]);
 			InputStream input = classLoader.getResourceAsStream(imageStrings[i] + ".bmp");
 			Image img = null;
 			try {
@@ -211,47 +203,69 @@ public class Gui3 extends JFrame implements Runnable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			//imageIcons[i] = new ImageIcon(img);
 			ImageIcon imageIcon = new ImageIcon(img);
 			if (imageIcon != null)
 				imageIcons.put(imageStrings[i], new ImageIcon(img));
-			System.out.println(imageStrings[i] + "\t" + (imageIcon == null? "null": "icke null"));
+			//System.out.println(imageStrings[i] + "\t" + (imageIcon == null? "null": "icke null"));
 		}
 	}
 	
 		// 
-	private void updateBoardPanel() 
+	private void updateBoardPieces(String messData) 
 	{
+		String boardSetupAsString[] = messData.split(",");
 		if (boardSetupAsString.length != 64)
 		{
-			System.out.println("strs.length " + boardSetupAsString.length + "!= 64");
+			System.out.println("strs.length = " + boardSetupAsString.length + " != 64");
 			return;
 		}
-		
-
-        boardPanel.removeAll();
-        boardPanel.setLayout(new GridLayout(8, 8, 1, 1));
+        
 		int i=0;
 		for (String controlValueStr: boardSetupAsString)
 		{
 			// gör schackpjäsknapparna till klassmedlemmar och stoppa in rätt imageIcon här.
 			ControlValue controlValue = new ControlValue(controlValueStr);
 			ImageIcon icon = imageIcons.get(controlValue.toString());
+			if (icon != null) {
+				squares[i].setText("");
+				squares[i].setIcon(icon);
+			} else {
+				squares[i].setText("icon=null");
+				squares[i].setIcon(null);
+			}
 			
-			
-			JButton nyKnapp = (icon != null)? new JButton(icon): new JButton("none");
-			//nyKnapp.setEnabled(boardAvailabilityAsBoolean[i]);
-			nyKnapp.setEnabled((i%3) == 0);
-			nyKnapp.setMargin(new Insets(0, 0, 0, 0));
-    		nyKnapp.setBackground(Color.blue);
-    		nyKnapp.setBorder(null);
-
-        	AL asdf = new AL(i%8, i/8);
+			//squares[i].setEnabled((i%3) == 0);
         	i++;
-            nyKnapp.addActionListener(asdf);
-			boardPanel.add(nyKnapp);
 		}
-		boardPanel.revalidate();	// revalidate, repaint, reset eller vad?
+		//boardPanel.revalidate();	// revalidate, repaint, reset eller vad?
+
+		boardPanel.validate();
+		boardPanel.repaint();
+	}
+	
+	private void updateBoardAvailability(String messData)
+	{
+		String squareAvailStr[] = messData.split(",");
+		if (squareAvailStr.length != 64)
+		{
+			System.out.println("updateBoardAvailability failed");
+			return;
+		}
+		
+		for (int i=0; i<squareAvailStr.length; i++) {
+			squares[i].setEnabled(squareAvailStr[i].contains("1"));
+			//squares[i].validate();
+			//squares[i].repaint();
+		}
+		
+		//boardPanel.validate();
+		//boardPanel.repaint();
+		System.out.println("updateBoardAvailability run");
+	}
+	
+	private void squareClick(int x, int y)
+	{
+	
 	}
 }
 

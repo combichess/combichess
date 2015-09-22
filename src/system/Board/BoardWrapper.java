@@ -1,6 +1,8 @@
 package system.board;
 
-import system.piece.Piece;
+import java.util.List;
+
+
 import main.Communicator;
 import main.control.ControlValue;
 import main.control.Message;
@@ -19,7 +21,7 @@ public class BoardWrapper extends Board implements Runnable {
 	@Override
 	public void run() {
 		System.out.println("running tråd BoardWrapper");
-		boolean stopRunning = true;	// denna ska vara false som standard
+		boolean stopRunning = false;	// denna ska vara false som standard
 		Message retrieved;
 		
 		do {
@@ -42,7 +44,7 @@ public class BoardWrapper extends Board implements Runnable {
 				case SET_PIECE_VALUES:
 					break;
 				case STANDARD_SETUP:
-					this.standardSetup();
+					standardSetup();
 					returnBoardAvailability();
 					returnBoardSetup();
 					break;
@@ -83,48 +85,62 @@ public class BoardWrapper extends Board implements Runnable {
 				{
 				case White:
 					tjena += ControlValue.WHITE;
+					break;
 				case Black:
 					tjena += ControlValue.BLACK;
+					break;
 				default:
 					tjena += ControlValue.UNDEFINED;
+					break;
 				}
 				
 				switch(squares[i].getType())
 				{
 				case Pawn:
 					tjena += ControlValue.PAWN;
+					break;
 				case Knight:
 					tjena += ControlValue.KNIGHT;
+					break;
 				case Bishop:
 					tjena += ControlValue.BISHOP;
+					break;
 				case Rook:
 					tjena += ControlValue.ROOK;
+					break;
 				case Queen:
 					tjena += ControlValue.QUEEN;
+					break;
 				case King:
 					tjena += ControlValue.KING;
+					break;
 				default:
 					tjena += ControlValue.UNDEFINED;
+					break;
 				}
 			}	
 		}
 		
 		System.out.println("skicka följande sträng från Board till Gui: " + tjena);
-		Message mess = new Message(processType, ProcessType.Gui_1, MessageType.SET_BOARD_DATA, tjena);
+		Message mess = new Message(processType, ProcessType.Gui_1, MessageType.SET_BOARD_PIECES, tjena);
 		Communicator.addMessage(mess);
 	}
 	
 	public void returnBoardAvailability()
 	{
+		List<Integer> possiblePositions = this.getAllPossibleAllowedSquaresToMoveFrom(PlayerColour.White);
+		
+		boolean[] availables = new boolean[64];
+		for (int i=0; i<64; i++)
+			availables[i] = false;
+		
+		for (int pos : possiblePositions)
+			availables[pos] = true;
+		
 		String tjena = "";
 		for (int i=0; i<squares.length; i++)
-		{
-			tjena += (i==0? "": ",");
-			if (squares[i] == null)
-				tjena += "0";
-			else {
-				
-			}
-		}
+			tjena += (i==0? "": ",") + (availables[i]? "1": "0");
+		
+		Communicator.addMessage(new Message(processType, ProcessType.Gui_1, MessageType.AVAILABLE_SQUARES, tjena));
 	}
 }

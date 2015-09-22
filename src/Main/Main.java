@@ -4,7 +4,7 @@ package main;
 // http://zetcode.com/tutorials/javaswingtutorial/
 
 
-import gui.Gui3;
+import gui.Gui;
 import system.board.BoardWrapper;
 import system.board.Player;
 
@@ -27,7 +27,7 @@ public class Main {
 		
 		
 		BoardWrapper bord = new BoardWrapper(white, black);
-		Gui3 gui = new Gui3();
+		Gui gui = new Gui();
 
 		Thread threadBoard = new Thread(bord, "t-board");
 		Thread threadGui = new Thread(gui, "t-gui");

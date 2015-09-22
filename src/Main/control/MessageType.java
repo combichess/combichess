@@ -8,8 +8,9 @@ public enum MessageType {
     KILL_PROCESS_IMMEDIATELY(4),	// null, döda tråd om denna erhålls
     STANDARD_SETUP(5),
     GET_POSSIBLE_MOVES_FROM_SQUARE(6),
-    GET_BOARD_DATA(7),
-    SET_BOARD_DATA(8);
+    GET_BOARD_PIECES(7),
+    SET_BOARD_PIECES(8),
+    AVAILABLE_SQUARES(9);
     int value;
     
     private MessageType(int val)
@@ -36,6 +37,11 @@ public enum MessageType {
     	case 6:
     		return "Get Possible Moves From";
     	case 7:
+    		return "Get Board pIECES";
+    	case 8:
+    		return "Set Board Pieces";
+    	case 9:
+    		return "Available Squares";
     		
     	}
     	return null;

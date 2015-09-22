@@ -11,8 +11,11 @@ import main.control.ProcessType;
 public class Communicator {
 	
 	private static List<Message> messages = new LinkedList<Message>();
+	private static final boolean utskrift = false;
 	
 	public static synchronized void addMessage(Message mess) {
+		if (utskrift)
+			System.out.println("AddMessage: " + mess);
 		messages.add(mess);
 	}
 	
@@ -26,6 +29,8 @@ public class Communicator {
 			if (mess.getMessageTo() == messTo && mess.getMessageType() == messType)
 			{
 				messages.remove(iterator);
+				if (utskrift)
+					System.out.println("GetMessage1: " + mess);
 				return mess;
 			}
 		}
@@ -43,6 +48,9 @@ public class Communicator {
 			if (mess.getMessageTo() == messTo)
 			{
 				iterator.remove();
+				if (utskrift)
+					System.out.println("GetMessage2: " + mess);
+				
 				return mess;
 			}
 		}
