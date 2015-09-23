@@ -77,6 +77,8 @@ public class Gui extends JFrame implements Runnable {
         		"Nytt", "Hämta", "Spara", "Spara som", "Lägesinfo", "Ange svårighetsgrad", "Be om förslag", "Ge upp", "Avsluta"
         };
         
+        
+        	// ta bort denna
         for (String bottomButton : bottomButtons)
         {
         	JButton nyKnapp = new JButton(bottomButton);
@@ -84,14 +86,20 @@ public class Gui extends JFrame implements Runnable {
         	bottomPanel.add(nyKnapp);
         }
         
+        	// ersätt med denna
+        for (int i=101; i<110; i++)
+        {
+        	
+        }
+        
+        
         boardPanel.setLayout(new GridLayout(8, 8, 1, 1));
         for (int i=0; i<64; i++) {
         	squares[i] = new JButton("start");
         	squares[i].setMargin(new Insets(0, 0, 0, 0));
 			squares[i].setBackground(Color.blue);
 			squares[i].setBorder(null);
-			squares[i].addActionListener(new AL(i%8, i/8));
-			
+			squares[i].addActionListener(new AL(i, this));
 			
         	boardPanel.add(squares[i]);
         }
@@ -129,7 +137,7 @@ public class Gui extends JFrame implements Runnable {
         
 
         setTitle("*** Combichess ***");
-        setSize(800, 500);
+        setSize(650, 670);
         
         //setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	// nu ska windowClosing köras om programmet avslutas.
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -209,7 +217,17 @@ public class Gui extends JFrame implements Runnable {
 			//System.out.println(imageStrings[i] + "\t" + (imageIcon == null? "null": "icke null"));
 		}
 	}
-	
+	/*
+	 * 	0 = A1
+		1 = B1
+		2 = C1
+		7 = H1
+		8 = A2
+		...
+		56= A8
+		57= B8
+		63= H8*
+	 */
 		// 
 	private void updateBoardPieces(String messData) 
 	{
@@ -239,8 +257,8 @@ public class Gui extends JFrame implements Runnable {
 		}
 		//boardPanel.revalidate();	// revalidate, repaint, reset eller vad?
 
-		boardPanel.validate();
-		boardPanel.repaint();
+		//boardPanel.validate();
+		//boardPanel.repaint();
 	}
 	
 	private void updateBoardAvailability(String messData)
@@ -263,9 +281,13 @@ public class Gui extends JFrame implements Runnable {
 		System.out.println("updateBoardAvailability run");
 	}
 	
-	private void squareClick(int x, int y)
+	public void buttonIdClick(int squareId)
 	{
-	
+		System.out.println("Button Id: " + squareId);
+		if (squareId >= 0 && squareId < 64) {
+			Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_POSSIBLE_MOVES_FROM_SQUARE, Integer.toString(squareId)));			
+		}
+		
 	}
 }
 

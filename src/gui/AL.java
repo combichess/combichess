@@ -3,21 +3,18 @@ package gui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-//exempelkod från:
-//http://zetcode.com/tutorials/javaswingtutorial/firstprograms/
-
 public class AL implements ActionListener{
 	
-	int xPos;
-	int yPos;
+	int buttonId;
+	final Gui gui;
 	
-	public AL(int x, int y) {
-		xPos = x;
-		yPos = y;
+	public AL(int buttonId, final Gui gui) {
+		this.buttonId = buttonId;
+		this.gui = gui;
     }
 
 	public void actionPerformed(ActionEvent arg0) {
-		System.out.println("XPos: " + xPos + "\tyPos: " + yPos);
+		gui.buttonIdClick(buttonId);
 	}
 }
 
