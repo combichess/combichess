@@ -214,8 +214,19 @@ public class Board {
 		return 0;
 	}
 	
+	protected void clearSetup()
+	{
+		committedMoves.clear();
+		blacks.clear();
+		whites.clear();
+		for (int i=0; i<squares.length; i++)
+			squares[i] = null;
+	}
+	
 	protected void standardSetup()
 	{
+		clearSetup();
+		
 		for (int i=0; i<8; i++)
 		{
 			addPiece(i, 1, PlayerColour.White, PieceType.Pawn);

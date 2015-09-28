@@ -2,6 +2,9 @@ package system.board;
 
 import java.util.List;
 
+import system.move.Move;
+import system.piece.Piece;
+
 
 import main.Communicator;
 import main.control.ControlValue;
@@ -12,11 +15,15 @@ import main.control.ProcessType;
 public class BoardWrapper extends Board implements Runnable { 
 
 	private ProcessType processType = ProcessType.Board_1;  
+	private static final int UPDATE_BOARD_IDLE_MILLISECONDS = 10; 
+	private final int thinkMovesForward = 4;
 	
 	public BoardWrapper(Player white, Player black) {
 		super(white, black);
 		
 	}
+	
+	
 
 	@Override
 	public void run() {
@@ -33,6 +40,10 @@ public class BoardWrapper extends Board implements Runnable {
 				switch(retrieved.getMessageType())
 				{
 				case COMMIT_MOVE:
+					commitMove(retrieved.getMessageData());
+					break;
+				case GET_POSSIBLE_MOVES_FROM_SQUARE:
+					sendPossibleMovesFromSquare(Integer.parseInt(retrieved.getMessageData()));
 					break;
 				case GET_PIECE_VALUES:
 					break;
@@ -40,6 +51,7 @@ public class BoardWrapper extends Board implements Runnable {
 					stopRunning = true;
 					break;
 				case PROPOSE_MOVE:
+					proposeMove(retrieved.getMessageData());
 					break;
 				case SET_PIECE_VALUES:
 					break;
@@ -55,7 +67,7 @@ public class BoardWrapper extends Board implements Runnable {
 			}
 			
 			if (!stopRunning)
-				sleepWithLessEffort(100);
+				sleepWithLessEffort(UPDATE_BOARD_IDLE_MILLISECONDS);
 			
 		} while(!stopRunning);
 	}
@@ -126,6 +138,30 @@ public class BoardWrapper extends Board implements Runnable {
 		Communicator.addMessage(mess);
 	}
 	
+	private void sendPossibleMovesFromSquare(int square)
+	{
+		Piece piece = squares[square];
+		if (piece == null || piece.getActivity() == false)
+		{
+			System.out.println("error in sendPossibleMovesFromSquare(" + square + ")");
+			return;
+		}
+		
+		List<Move> pieceMoves = piece.getPossibleMoves(this);
+		int val[] = new int[64];
+		for (int i=0; i<64; i++)
+			val[i] = 0;
+		
+		for (Move move: pieceMoves)
+			val[move.getToPos()] = 1;
+		
+		String str = "";
+		for (int i=0; i<64; i++)
+			str += (i==0?"":",") + val[i];
+		
+		Communicator.addMessage(new Message(processType, ProcessType.Gui_1, MessageType.AVAILABLE_SQUARES, str));
+	}
+	
 	public void returnBoardAvailability()
 	{
 		List<Integer> possiblePositions = this.getAllPossibleAllowedSquaresToMoveFrom(PlayerColour.White);
@@ -142,5 +178,57 @@ public class BoardWrapper extends Board implements Runnable {
 			tjena += (i==0? "": ",") + (availables[i]? "1": "0");
 		
 		Communicator.addMessage(new Message(processType, ProcessType.Gui_1, MessageType.AVAILABLE_SQUARES, tjena));
+	}
+	
+	public void commitMove(String strMove)
+	{
+		String[] sqrs = strMove.split(",");
+		if (sqrs.length != 2) {
+			System.out.println("BoardWrapper.commitMove failed, sqrs = " + sqrs);
+			return;
+		}
+		
+		int fr = Integer.parseInt(sqrs[0]);
+		int to = Integer.parseInt(sqrs[1]);
+		Move move = new Move(squares[fr], squares[to], to%8, to/8);
+		System.out.println("Move to commit: " + move);
+		super.commitMove(move);
+		
+		returnBoardSetup();
+		returnBoardAvailability();
+	}
+	
+	public void proposeMove(String playerChar)
+	{
+		if (playerChar == null || playerChar.length() != 1)
+		{
+			System.out.println("BoardWrapper.proposeMove failed, playerChar == " + playerChar);
+			return;
+		}
+		
+		Move mov = null;
+		
+		switch(playerChar.charAt(0))
+		{
+		case ControlValue.WHITE:
+			mov = findBestMoveFor(this.playerWhite, thinkMovesForward);
+			break;
+		case ControlValue.BLACK:
+			mov = findBestMoveFor(this.playerBlack, thinkMovesForward);
+			break;
+		default:
+			System.out.println("BoardWrapper.proposeMove failed, playerChar == " + playerChar);
+			return;
+		}
+		
+		if (mov == null)
+		{
+			System.out.println("BoardWrapper.proposeMove failed, mov == null");
+			return;
+		}
+		
+		super.commitMove(mov);
+		returnBoardSetup();
+		returnBoardAvailability();
 	}
 }

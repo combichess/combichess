@@ -19,7 +19,7 @@ public enum Buttons {
     {
     	this.value = value;
     }
-    
+        
     public void setValue(int value)
     {
     	this.value = value;

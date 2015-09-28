@@ -3,6 +3,7 @@ package gui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+	// dum klass. Används enbart för att åter få kontakt med Gui:et efter en knapptryckning, men fattar inte hur jag annars ska göra :( 
 public class AL implements ActionListener{
 	
 	int buttonId;

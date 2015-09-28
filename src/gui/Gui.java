@@ -48,7 +48,9 @@ public class Gui extends JFrame implements Runnable {
 	
 	private ProcessType processType = ProcessType.Gui_1;
 	private Timer idleTimer;
+	private static final int UPDATE_GUI_IDLE_MILLISECONDS = 10; 
 	private HashMap<String, ImageIcon> imageIcons = null;
+	private int moveFrom;
 	
 		// skit i att skapa en egen tråd och låt GUI:et köra på den tråd som skapas med guiet. Byt run() till konstruktor
 	@Override
@@ -73,25 +75,15 @@ public class Gui extends JFrame implements Runnable {
         squares = new JButton[64];
 
         bottomPanel.setLayout(new GridLayout(3,3,3,3));
-        String[] bottomButtons = {
-        		"Nytt", "Hämta", "Spara", "Spara som", "Lägesinfo", "Ange svårighetsgrad", "Be om förslag", "Ge upp", "Avsluta"
-        };
         
-        
-        	// ta bort denna
-        for (String bottomButton : bottomButtons)
+        for (Buttons butt: new Buttons[]{Buttons.Nytt, Buttons.Get, Buttons.Save, Buttons.SaveAs, Buttons.Info, Buttons.Difficult,
+        		Buttons.Suggest, Buttons.Resign, Buttons.Exit})
         {
-        	JButton nyKnapp = new JButton(bottomButton);
+        	JButton nyKnapp = new JButton(butt.toString());
         	nyKnapp.setPreferredSize(new Dimension(40, 50));
+        	nyKnapp.addActionListener(new AL(butt.getValue(), this));
         	bottomPanel.add(nyKnapp);
         }
-        
-        	// ersätt med denna
-        for (int i=101; i<110; i++)
-        {
-        	
-        }
-        
         
         boardPanel.setLayout(new GridLayout(8, 8, 1, 1));
         for (int i=0; i<64; i++) {
@@ -116,7 +108,7 @@ public class Gui extends JFrame implements Runnable {
         add(windowPanel);
 
         // 	kör kontinuerlig uppdatering på timern för att se om board:en uppdateras
-        idleTimer = new Timer(100, new ActionListener() {
+        idleTimer = new Timer(UPDATE_GUI_IDLE_MILLISECONDS, new ActionListener() {
         	@Override
 			public void actionPerformed(ActionEvent arg0) {
 				idleFunction();
@@ -144,6 +136,7 @@ public class Gui extends JFrame implements Runnable {
         setLocationRelativeTo(null);
 
 		setVisible(true);
+		moveFrom = -1;
 		
 			// Sätt upp Board:en, låt detta göras efter hur användaren väljer förvald setup. 
 			// I förvald setup väljs vilken färg spelaren ska ha, betänketid, standardsetup eller något annat magiskt.
@@ -175,6 +168,9 @@ public class Gui extends JFrame implements Runnable {
 			case AVAILABLE_SQUARES:
 				updateBoardAvailability(mess.getMessageData());
 				break;
+			/*case GET_POSSIBLE_MOVES_FROM_SQUARE:
+				
+				updateWithPossibleMovesToMake(mess.getMessageData());*/
 			default:
 				break;
 			}
@@ -285,9 +281,23 @@ public class Gui extends JFrame implements Runnable {
 	{
 		System.out.println("Button Id: " + squareId);
 		if (squareId >= 0 && squareId < 64) {
-			Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_POSSIBLE_MOVES_FROM_SQUARE, Integer.toString(squareId)));			
+			if (moveFrom == -1) {
+				moveFrom = squareId;
+				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_POSSIBLE_MOVES_FROM_SQUARE, Integer.toString(squareId)));
+			} else {
+				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.COMMIT_MOVE, Integer.toString(moveFrom) + "," + Integer.toString(squareId)));
+				moveFrom = -1;
+				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.PROPOSE_MOVE, ControlValue.BLACK + ""));
+			}
+		} else if (squareId >= 100) {
+			if (squareId == Buttons.Nytt.getValue())
+				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.STANDARD_SETUP, null));
+			
+			if (squareId == Buttons.Exit.getValue())
+				closeGUI();
 		}
 		
 	}
 }
+
 
