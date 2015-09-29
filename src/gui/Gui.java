@@ -1,6 +1,7 @@
 package gui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -18,8 +19,11 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;    
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
 
@@ -51,6 +55,13 @@ public class Gui extends JFrame implements Runnable {
 	private static final int UPDATE_GUI_IDLE_MILLISECONDS = 10; 
 	private HashMap<String, ImageIcon> imageIcons = null;
 	private int moveFrom;
+
+	private boolean whitePlayerIsHuman;
+	private boolean blackPlayerIsHuman;
+	private String whitePlayerName;
+	private String blackPlayerName;
+	private long whitePlayerMillisecondsLeft;
+	private long blackPlayerMillisecondsLeft;
 	
 		// skit i att skapa en egen tråd och låt GUI:et köra på den tråd som skapas med guiet. Byt run() till konstruktor
 	@Override
@@ -85,15 +96,36 @@ public class Gui extends JFrame implements Runnable {
         	bottomPanel.add(nyKnapp);
         }
         
-        boardPanel.setLayout(new GridLayout(8, 8, 1, 1));
-        for (int i=0; i<64; i++) {
-        	squares[i] = new JButton("start");
-        	squares[i].setMargin(new Insets(0, 0, 0, 0));
-			squares[i].setBackground(Color.blue);
-			squares[i].setBorder(null);
-			squares[i].addActionListener(new AL(i, this));
-			
-        	boardPanel.add(squares[i]);
+        boardPanel.setLayout(new GridLayout(9, 9, 1, 1));
+        int b = 0;
+        for (int i=0; i<81; i++) {
+        	if (i>72) {
+        		char c = 'A';
+        		c += (i-73);
+        		JLabel label = new JLabel("" + c);
+        		label.setHorizontalAlignment(SwingConstants.CENTER);
+        		label.setVerticalAlignment(SwingConstants.CENTER);
+        		boardPanel.add(label);
+        		
+        	} else if (i==72) {
+        		boardPanel.add(new JLabel());
+        	}  else if ((i%9) == 0)	{ // lägg till 8,7,6...1
+        		JLabel label = new JLabel(Integer.toString(8-(i/9)));
+	    		boardPanel.add(label);
+        		label.setHorizontalAlignment(SwingConstants.CENTER);
+        		label.setVerticalAlignment(SwingConstants.CENTER);
+	    	} else {
+        		if (b > 63)
+        			System.out.println("hit ska jag inte vara: b = " + b + "\ti = " + i);
+        		
+        		squares[b] = new JButton();
+            	squares[b].setMargin(new Insets(0, 0, 0, 0));
+    			squares[b].setBackground(Color.blue);
+    			squares[b].setBorder(null);
+    			squares[b].addActionListener(new AL(b, this));
+    			boardPanel.add(squares[b]);
+    			b++;
+        	}
         }
 
         topPanel.add(boardPanel);
@@ -129,7 +161,7 @@ public class Gui extends JFrame implements Runnable {
         
 
         setTitle("*** Combichess ***");
-        setSize(650, 670);
+        setSize(750, 770);
         
         //setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	// nu ska windowClosing köras om programmet avslutas.
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -137,12 +169,29 @@ public class Gui extends JFrame implements Runnable {
 
 		setVisible(true);
 		moveFrom = -1;
+		startAlert();
 		
 			// Sätt upp Board:en, låt detta göras efter hur användaren väljer förvald setup. 
 			// I förvald setup väljs vilken färg spelaren ska ha, betänketid, standardsetup eller något annat magiskt.
 		//Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.STANDARD_SETUP, null));
 	}
 	
+	private void startAlert()
+	{
+			// http://stackoverflow.com/questions/6555040/multiple-input-in-joptionpane-showinputdialog
+		String[] possibilities = {	"White-computer vs Black-computer", 
+									"White-human vs Black-computer",
+									"White-computer vs Black-human"};
+		String result = (String) JOptionPane.showInputDialog(this, "Message", "Title", JOptionPane.PLAIN_MESSAGE, null, possibilities, possibilities[0]);
+		System.out.println(result);
+		
+		whitePlayerIsHuman = true;
+		blackPlayerIsHuman = false;
+		whitePlayerName = "Doctor Death";
+		blackPlayerName = "Mr Kill Mastah";
+		whitePlayerMillisecondsLeft = 300000;
+		blackPlayerMillisecondsLeft = 300000;
+	}
 	
 	private void idleFunction()
 	{
@@ -244,7 +293,7 @@ public class Gui extends JFrame implements Runnable {
 				squares[i].setText("");
 				squares[i].setIcon(icon);
 			} else {
-				squares[i].setText("icon=null");
+				squares[i].setText("");
 				squares[i].setIcon(null);
 			}
 			
@@ -267,7 +316,10 @@ public class Gui extends JFrame implements Runnable {
 		}
 		
 		for (int i=0; i<squareAvailStr.length; i++) {
-			squares[i].setEnabled(squareAvailStr[i].contains("1"));
+			boolean squareEnabled = squareAvailStr[i].contains("1");
+			squares[i].setEnabled(squareEnabled);
+			if (squares[i].getIcon() == null && squareEnabled)
+				squares[i].setText("*");
 			//squares[i].validate();
 			//squares[i].repaint();
 		}
