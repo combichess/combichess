@@ -55,14 +55,8 @@ public class Gui extends JFrame implements Runnable {
 	private static final int UPDATE_GUI_IDLE_MILLISECONDS = 10; 
 	private HashMap<String, ImageIcon> imageIcons = null;
 	private int moveFrom;
+	private StartupAlert startupAlert = null;
 
-	private boolean whitePlayerIsHuman;
-	private boolean blackPlayerIsHuman;
-	private String whitePlayerName;
-	private String blackPlayerName;
-	private long whitePlayerMillisecondsLeft;
-	private long blackPlayerMillisecondsLeft;
-	
 		// skit i att skapa en egen tråd och låt GUI:et köra på den tråd som skapas med guiet. Byt run() till konstruktor
 	@Override
 	public void run() {
@@ -110,6 +104,8 @@ public class Gui extends JFrame implements Runnable {
         	} else if (i==72) {
         		boardPanel.add(new JLabel());
         	}  else if ((i%9) == 0)	{ // lägg till 8,7,6...1
+        		
+        			// gör dessa labels till klassmedlemmar så att man kan byta sida 
         		JLabel label = new JLabel(Integer.toString(8-(i/9)));
 	    		boardPanel.add(label);
         		label.setHorizontalAlignment(SwingConstants.CENTER);
@@ -178,19 +174,8 @@ public class Gui extends JFrame implements Runnable {
 	
 	private void startAlert()
 	{
-			// http://stackoverflow.com/questions/6555040/multiple-input-in-joptionpane-showinputdialog
-		String[] possibilities = {	"White-computer vs Black-computer", 
-									"White-human vs Black-computer",
-									"White-computer vs Black-human"};
-		String result = (String) JOptionPane.showInputDialog(this, "Message", "Title", JOptionPane.PLAIN_MESSAGE, null, possibilities, possibilities[0]);
-		System.out.println(result);
-		
-		whitePlayerIsHuman = true;
-		blackPlayerIsHuman = false;
-		whitePlayerName = "Doctor Death";
-		blackPlayerName = "Mr Kill Mastah";
-		whitePlayerMillisecondsLeft = 300000;
-		blackPlayerMillisecondsLeft = 300000;
+		startupAlert = new StartupAlert();
+		startupAlert.askQuestions();
 	}
 	
 	private void idleFunction()
@@ -320,17 +305,19 @@ public class Gui extends JFrame implements Runnable {
 			squares[i].setEnabled(squareEnabled);
 			if (squares[i].getIcon() == null && squareEnabled)
 				squares[i].setText("*");
-			//squares[i].validate();
-			//squares[i].repaint();
 		}
 		
-		//boardPanel.validate();
-		//boardPanel.repaint();
 		System.out.println("updateBoardAvailability run");
 	}
 	
-	public void buttonIdClick(int squareId)
+		// denna metoden ska ge rätt pjäs oavsett hur bordet är vänt.
+	private int getSquareIdFromButtonId(int buttonId) {
+		return buttonId;
+	}
+	
+	public void buttonIdClick(int buttonId)
 	{
+		int squareId = getSquareIdFromButtonId(buttonId);
 		System.out.println("Button Id: " + squareId);
 		if (squareId >= 0 && squareId < 64) {
 			if (moveFrom == -1) {
