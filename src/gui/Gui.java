@@ -1,7 +1,6 @@
 package gui;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -20,7 +19,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;    
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
@@ -111,9 +109,6 @@ public class Gui extends JFrame implements Runnable {
         		label.setHorizontalAlignment(SwingConstants.CENTER);
         		label.setVerticalAlignment(SwingConstants.CENTER);
 	    	} else {
-        		if (b > 63)
-        			System.out.println("hit ska jag inte vara: b = " + b + "\ti = " + i);
-        		
         		squares[b] = new JButton();
             	squares[b].setMargin(new Insets(0, 0, 0, 0));
     			squares[b].setBackground(Color.blue);
@@ -165,6 +160,7 @@ public class Gui extends JFrame implements Runnable {
 
 		setVisible(true);
 		moveFrom = -1;
+		startupAlert = new StartupAlert();
 		startAlert();
 		
 			// Sätt upp Board:en, låt detta göras efter hur användaren väljer förvald setup. 
@@ -174,8 +170,7 @@ public class Gui extends JFrame implements Runnable {
 	
 	private void startAlert()
 	{
-		startupAlert = new StartupAlert();
-		startupAlert.askQuestions();
+		startupAlert.runAlert();
 	}
 	
 	private void idleFunction()
@@ -281,14 +276,8 @@ public class Gui extends JFrame implements Runnable {
 				squares[i].setText("");
 				squares[i].setIcon(null);
 			}
-			
-			//squares[i].setEnabled((i%3) == 0);
         	i++;
 		}
-		//boardPanel.revalidate();	// revalidate, repaint, reset eller vad?
-
-		//boardPanel.validate();
-		//boardPanel.repaint();
 	}
 	
 	private void updateBoardAvailability(String messData)
@@ -334,6 +323,9 @@ public class Gui extends JFrame implements Runnable {
 			
 			if (squareId == Buttons.Exit.getValue())
 				closeGUI();
+			
+			if (squareId == Buttons.Difficult.getValue())
+				startupAlert.runAlert();
 		}
 		
 	}
