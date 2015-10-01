@@ -47,20 +47,23 @@ public class Gui extends JFrame implements Runnable {
 	private JPanel boardPanel = null;
 	private JPanel informationPanel = null;
 	private JButton[] squares = null;
+	private JLabel[] verticalCoordLabels = null;
 	
 	private ProcessType processType = ProcessType.Gui_1;
 	private Timer idleTimer;
 	private static final int UPDATE_GUI_IDLE_MILLISECONDS = 10; 
 	private HashMap<String, ImageIcon> imageIcons = null;
 	private int moveFrom;
-	private StartupAlert startupAlert = null;
+	private boolean whiteVisibleAtBottom;
+	
+	private GameSettings gameSettingsAlert = null;
 
 		// skit i att skapa en egen tråd och låt GUI:et köra på den tråd som skapas med guiet. Byt run() till konstruktor
 	@Override
 	public void run() {
 		
 		loadImages();
-		
+		gameSettingsAlert = new GameSettings();
 		Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.STANDARD_SETUP, null));
 		
 				// Sätt upp hela GUI:et
@@ -77,6 +80,8 @@ public class Gui extends JFrame implements Runnable {
 
         squares = new JButton[64];
 
+        whiteVisibleAtBottom = true;
+        
         bottomPanel.setLayout(new GridLayout(3,3,3,3));
         
         for (Buttons butt: new Buttons[]{Buttons.Nytt, Buttons.Get, Buttons.Save, Buttons.SaveAs, Buttons.Info, Buttons.Difficult,
@@ -89,6 +94,7 @@ public class Gui extends JFrame implements Runnable {
         }
         
         boardPanel.setLayout(new GridLayout(9, 9, 1, 1));
+        verticalCoordLabels = new JLabel[9];
         int b = 0;
         for (int i=0; i<81; i++) {
         	if (i>72) {
@@ -96,7 +102,7 @@ public class Gui extends JFrame implements Runnable {
         		c += (i-73);
         		JLabel label = new JLabel("" + c);
         		label.setHorizontalAlignment(SwingConstants.CENTER);
-        		label.setVerticalAlignment(SwingConstants.CENTER);
+        		label.setVerticalAlignment(SwingConstants.TOP);// SwingConstants.CENTER);
         		boardPanel.add(label);
         		
         	} else if (i==72) {
@@ -104,10 +110,11 @@ public class Gui extends JFrame implements Runnable {
         	}  else if ((i%9) == 0)	{ // lägg till 8,7,6...1
         		
         			// gör dessa labels till klassmedlemmar så att man kan byta sida 
-        		JLabel label = new JLabel(Integer.toString(8-(i/9)));
-	    		boardPanel.add(label);
-        		label.setHorizontalAlignment(SwingConstants.CENTER);
-        		label.setVerticalAlignment(SwingConstants.CENTER);
+        		int verticalCoord = i/9;
+        		verticalCoordLabels[verticalCoord] = new JLabel(Integer.toString(8-(i/9))); 
+	    		verticalCoordLabels[verticalCoord].setHorizontalAlignment(SwingConstants.RIGHT);
+	    		verticalCoordLabels[verticalCoord].setVerticalAlignment(SwingConstants.CENTER);
+	    		boardPanel.add(verticalCoordLabels[verticalCoord]);
 	    	} else {
         		squares[b] = new JButton();
             	squares[b].setMargin(new Insets(0, 0, 0, 0));
@@ -160,7 +167,6 @@ public class Gui extends JFrame implements Runnable {
 
 		setVisible(true);
 		moveFrom = -1;
-		startupAlert = new StartupAlert();
 		startAlert();
 		
 			// Sätt upp Board:en, låt detta göras efter hur användaren väljer förvald setup. 
@@ -170,7 +176,26 @@ public class Gui extends JFrame implements Runnable {
 	
 	private void startAlert()
 	{
-		startupAlert.runAlert();
+		gameSettingsAlert.runAlert();
+		boolean newWhiteVisibleAtBottom = !(gameSettingsAlert.isBlackPlayerHuman() == true && gameSettingsAlert.whitePlayerIsHuman() == false); 
+		
+		if (newWhiteVisibleAtBottom != whiteVisibleAtBottom)
+		{
+			// redraw board
+			whiteVisibleAtBottom = newWhiteVisibleAtBottom;
+			updateBoard();
+		}
+		whiteVisibleAtBottom = newWhiteVisibleAtBottom;;
+	}
+	
+	private void updateBoard()
+	{
+		for (int i=1; i<9; i++)
+			verticalCoordLabels[i].setText(Integer.toString(whiteVisibleAtBottom? i: 9-i));
+		// gör alla squares disabled
+		// skicka ett hämta-alla-pjäser från boardet
+		// skicka ett hämta-availability från boardet
+		// fixa någon annan dag
 	}
 	
 	private void idleFunction()
@@ -325,7 +350,7 @@ public class Gui extends JFrame implements Runnable {
 				closeGUI();
 			
 			if (squareId == Buttons.Difficult.getValue())
-				startupAlert.runAlert();
+				gameSettingsAlert.runAlert();
 		}
 		
 	}

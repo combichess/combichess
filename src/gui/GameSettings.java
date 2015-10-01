@@ -18,7 +18,7 @@ import javax.swing.JTextArea;
 // http://stackoverflow.com/questions/6555040/multiple-input-in-joptionpane-showinputdialog
 // http://docs.oracle.com/javase/tutorial/uiswing/layout/card.html
 
-public class StartupAlert extends JFrame {
+public class GameSettings extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -44,7 +44,7 @@ public class StartupAlert extends JFrame {
 	private String whitePlayerName;
 	private String blackPlayerName;
 	
-	public StartupAlert()
+	public GameSettings()
 	{
 		whitePlayerIsHuman = true;
 		blackPlayerIsHuman = false;
@@ -152,7 +152,7 @@ public class StartupAlert extends JFrame {
 
 
 
-	public boolean isBlackPlayerIsHuman() {
+	public boolean isBlackPlayerHuman() {
 		return blackPlayerIsHuman;
 	}
 
