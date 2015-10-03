@@ -48,6 +48,7 @@ public class Gui extends JFrame implements Runnable {
 	private JPanel informationPanel = null;
 	private JButton[] squares = null;
 	private JLabel[] verticalCoordLabels = null;
+	private JLabel[] horizontalCoordLabels = null;
 	
 	private ProcessType processType = ProcessType.Gui_1;
 	private Timer idleTimer;
@@ -79,9 +80,7 @@ public class Gui extends JFrame implements Runnable {
         bottomPanel = new JPanel();
 
         squares = new JButton[64];
-
         whiteVisibleAtBottom = true;
-        
         bottomPanel.setLayout(new GridLayout(3,3,3,3));
         
         for (Buttons butt: new Buttons[]{Buttons.Nytt, Buttons.Get, Buttons.Save, Buttons.SaveAs, Buttons.Info, Buttons.Difficult,
@@ -95,15 +94,19 @@ public class Gui extends JFrame implements Runnable {
         
         boardPanel.setLayout(new GridLayout(9, 9, 1, 1));
         verticalCoordLabels = new JLabel[9];
+        horizontalCoordLabels = new JLabel[9];
+        
         int b = 0;
         for (int i=0; i<81; i++) {
         	if (i>72) {
-        		char c = 'A';
-        		c += (i-73);
-        		JLabel label = new JLabel("" + c);
-        		label.setHorizontalAlignment(SwingConstants.CENTER);
-        		label.setVerticalAlignment(SwingConstants.TOP);// SwingConstants.CENTER);
-        		boardPanel.add(label);
+        		//char c = 'A';
+        		//c += (i-73);
+        		//horizontalCoordLabels[i-73] = new JLabel("" + c);
+        		horizontalCoordLabels[i-73] = new JLabel();
+        		//JLabel label = new JLabel("" + c);
+        		horizontalCoordLabels[i-73].setHorizontalAlignment(SwingConstants.CENTER);
+        		horizontalCoordLabels[i-73].setVerticalAlignment(SwingConstants.TOP);// SwingConstants.CENTER);
+        		boardPanel.add(horizontalCoordLabels[i-73]);
         		
         	} else if (i==72) {
         		boardPanel.add(new JLabel());
@@ -111,7 +114,8 @@ public class Gui extends JFrame implements Runnable {
         		
         			// gör dessa labels till klassmedlemmar så att man kan byta sida 
         		int verticalCoord = i/9;
-        		verticalCoordLabels[verticalCoord] = new JLabel(Integer.toString(8-(i/9))); 
+        		//verticalCoordLabels[verticalCoord] = new JLabel(Integer.toString(8-(i/9))); 
+        		verticalCoordLabels[verticalCoord] = new JLabel();
 	    		verticalCoordLabels[verticalCoord].setHorizontalAlignment(SwingConstants.RIGHT);
 	    		verticalCoordLabels[verticalCoord].setVerticalAlignment(SwingConstants.CENTER);
 	    		boardPanel.add(verticalCoordLabels[verticalCoord]);
@@ -125,7 +129,7 @@ public class Gui extends JFrame implements Runnable {
     			b++;
         	}
         }
-
+        updateCoordinateLabelTexts();
         topPanel.add(boardPanel);
         
         JTextArea textAreaRight = new JTextArea("text area");
@@ -148,8 +152,7 @@ public class Gui extends JFrame implements Runnable {
         idleTimer.start();
         
         	// http://docs.oracle.com/javase/7/docs/api/java/awt/doc-files/AWTThreadIssues.html
-        addWindowListener(new WindowAdapter() 
-        {
+        addWindowListener(new WindowAdapter() {
         	@Override
         	public void windowClosing(WindowEvent event) 
         	{
@@ -157,7 +160,6 @@ public class Gui extends JFrame implements Runnable {
         	}
         });
         
-
         setTitle("*** Combichess ***");
         setSize(750, 770);
         
@@ -167,14 +169,14 @@ public class Gui extends JFrame implements Runnable {
 
 		setVisible(true);
 		moveFrom = -1;
-		startAlert();
+		startGameSettingsAlert();
 		
 			// Sätt upp Board:en, låt detta göras efter hur användaren väljer förvald setup. 
 			// I förvald setup väljs vilken färg spelaren ska ha, betänketid, standardsetup eller något annat magiskt.
 		//Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.STANDARD_SETUP, null));
 	}
 	
-	private void startAlert()
+	private void startGameSettingsAlert()
 	{
 		gameSettingsAlert.runAlert();
 		boolean newWhiteVisibleAtBottom = !(gameSettingsAlert.isBlackPlayerHuman() == true && gameSettingsAlert.whitePlayerIsHuman() == false); 
@@ -188,14 +190,31 @@ public class Gui extends JFrame implements Runnable {
 		whiteVisibleAtBottom = newWhiteVisibleAtBottom;;
 	}
 	
+	private void updateCoordinateLabelTexts()
+	{
+		for (int i=0; i<8; i++)
+		{
+			verticalCoordLabels[i].setText(Integer.toString(whiteVisibleAtBottom? i+1: 8-i));
+			horizontalCoordLabels[i].setText("" + (char)(whiteVisibleAtBottom? ('A' + i): ('H' - i)));
+		}
+	}
+	
 	private void updateBoard()
 	{
-		for (int i=1; i<9; i++)
-			verticalCoordLabels[i].setText(Integer.toString(whiteVisibleAtBottom? i: 9-i));
-		// gör alla squares disabled
-		// skicka ett hämta-alla-pjäser från boardet
-		// skicka ett hämta-availability från boardet
-		// fixa någon annan dag
+		updateCoordinateLabelTexts();
+		
+			// gör alla squares disabled
+		setAllSquaresEnabled(false);
+		
+			
+			// skicka ett hämta-alla-pjäser från boardet
+		Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_BOARD_PIECES, null));
+	}
+	
+	private void setAllSquaresEnabled(boolean enabled)
+	{
+		for (JButton square: squares)
+			square.setEnabled(enabled);
 	}
 	
 	private void idleFunction()
@@ -222,9 +241,6 @@ public class Gui extends JFrame implements Runnable {
 			case AVAILABLE_SQUARES:
 				updateBoardAvailability(mess.getMessageData());
 				break;
-			/*case GET_POSSIBLE_MOVES_FROM_SQUARE:
-				
-				updateWithPossibleMovesToMake(mess.getMessageData());*/
 			default:
 				break;
 			}
@@ -288,20 +304,21 @@ public class Gui extends JFrame implements Runnable {
 			return;
 		}
         
-		int i=0;
+		int squareId=0;
 		for (String controlValueStr: boardSetupAsString)
 		{
 			// gör schackpjäsknapparna till klassmedlemmar och stoppa in rätt imageIcon här.
+			int buttonId = getButtonIdFromSquareId(squareId);
 			ControlValue controlValue = new ControlValue(controlValueStr);
 			ImageIcon icon = imageIcons.get(controlValue.toString());
 			if (icon != null) {
-				squares[i].setText("");
-				squares[i].setIcon(icon);
+				squares[buttonId].setText("");
+				squares[buttonId].setIcon(icon);
 			} else {
-				squares[i].setText("");
-				squares[i].setIcon(null);
+				squares[buttonId].setText("");
+				squares[buttonId].setIcon(null);
 			}
-        	i++;
+        	squareId++;
 		}
 	}
 	
@@ -314,11 +331,12 @@ public class Gui extends JFrame implements Runnable {
 			return;
 		}
 		
-		for (int i=0; i<squareAvailStr.length; i++) {
-			boolean squareEnabled = squareAvailStr[i].contains("1");
-			squares[i].setEnabled(squareEnabled);
-			if (squares[i].getIcon() == null && squareEnabled)
-				squares[i].setText("*");
+		for (int squareId=0; squareId<squareAvailStr.length; squareId++) {
+			boolean squareEnabled = squareAvailStr[squareId].contains("1");
+			int buttonId = getButtonIdFromSquareId(squareId);
+			squares[buttonId].setEnabled(squareEnabled);
+			if (squares[buttonId].getIcon() == null && squareEnabled)
+				squares[buttonId].setText("*");
 		}
 		
 		System.out.println("updateBoardAvailability run");
@@ -326,14 +344,29 @@ public class Gui extends JFrame implements Runnable {
 	
 		// denna metoden ska ge rätt pjäs oavsett hur bordet är vänt.
 	private int getSquareIdFromButtonId(int buttonId) {
-		return buttonId;
+		int buttonIdX = buttonId%8;
+		int buttonIdY = buttonId/8;
+		if (whiteVisibleAtBottom)
+			return (7-buttonIdY)*8 + buttonIdX;
+		else
+			return 8*buttonIdY + 7 - buttonIdX;
+	}
+	
+	private int getButtonIdFromSquareId(int squareId) {
+		int squareIdX = squareId%8;
+		int squareIdY = squareId/8;
+		if (whiteVisibleAtBottom)
+			return (7-squareIdY)*8 + squareIdX;
+		else
+			return 8*squareIdY + 7 - squareIdX;
 	}
 	
 	public void buttonIdClick(int buttonId)
 	{
-		int squareId = getSquareIdFromButtonId(buttonId);
-		System.out.println("Button Id: " + squareId);
-		if (squareId >= 0 && squareId < 64) {
+		
+		System.out.println("Button Id: " + buttonId);
+		if (buttonId >= 0 && buttonId < 64) {
+			int squareId = getSquareIdFromButtonId(buttonId);
 			if (moveFrom == -1) {
 				moveFrom = squareId;
 				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_POSSIBLE_MOVES_FROM_SQUARE, Integer.toString(squareId)));
@@ -342,15 +375,15 @@ public class Gui extends JFrame implements Runnable {
 				moveFrom = -1;
 				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.PROPOSE_MOVE, ControlValue.BLACK + ""));
 			}
-		} else if (squareId >= 100) {
-			if (squareId == Buttons.Nytt.getValue())
+		} else if (buttonId >= 100) {
+			if (buttonId == Buttons.Nytt.getValue())
 				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.STANDARD_SETUP, null));
 			
-			if (squareId == Buttons.Exit.getValue())
+			if (buttonId == Buttons.Exit.getValue())
 				closeGUI();
 			
-			if (squareId == Buttons.Difficult.getValue())
-				gameSettingsAlert.runAlert();
+			if (buttonId == Buttons.Difficult.getValue())
+				startGameSettingsAlert();
 		}
 		
 	}

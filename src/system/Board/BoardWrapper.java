@@ -15,7 +15,9 @@ import main.control.ProcessType;
 public class BoardWrapper extends Board implements Runnable { 
 
 	private ProcessType processType = ProcessType.Board_1;  
-	private static final int UPDATE_BOARD_IDLE_MILLISECONDS = 10; 
+	private static final int UPDATE_BOARD_IDLE_MILLISECONDS = 10;
+	
+	@Deprecated
 	private final int thinkMovesForward = 4;
 	
 	public BoardWrapper(Player white, Player black) {
@@ -57,6 +59,10 @@ public class BoardWrapper extends Board implements Runnable {
 					break;
 				case STANDARD_SETUP:
 					standardSetup();
+					returnBoardAvailability();
+					returnBoardSetup();
+					break;
+				case GET_BOARD_PIECES:
 					returnBoardAvailability();
 					returnBoardSetup();
 					break;
