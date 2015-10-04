@@ -49,6 +49,7 @@ public class Gui extends JFrame implements Runnable {
 	private JButton[] squares = null;
 	private JLabel[] verticalCoordLabels = null;
 	private JLabel[] horizontalCoordLabels = null;
+	private JTextArea textAreaRight = null;
 	
 	private ProcessType processType = ProcessType.Gui_1;
 	private Timer idleTimer;
@@ -56,6 +57,7 @@ public class Gui extends JFrame implements Runnable {
 	private HashMap<String, ImageIcon> imageIcons = null;
 	private int moveFrom;
 	private boolean whiteVisibleAtBottom;
+	private boolean whitesTurn;
 	
 	private GameSettings gameSettingsAlert = null;
 
@@ -64,6 +66,7 @@ public class Gui extends JFrame implements Runnable {
 	public void run() {
 		
 		loadImages();
+		
 		gameSettingsAlert = new GameSettings();
 		Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.STANDARD_SETUP, null));
 		
@@ -132,7 +135,7 @@ public class Gui extends JFrame implements Runnable {
         updateCoordinateLabelTexts();
         topPanel.add(boardPanel);
         
-        JTextArea textAreaRight = new JTextArea("text area");
+        textAreaRight = new JTextArea("text area");
         textAreaRight.setPreferredSize(new Dimension(100, 400));
         informationPanel.add(textAreaRight);
         topPanel.add(informationPanel);
@@ -169,6 +172,8 @@ public class Gui extends JFrame implements Runnable {
 
 		setVisible(true);
 		moveFrom = -1;
+		setAllSquaresEnabled(false);
+		Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_MOVABLE_PIECES, "" + ControlValue.WHITE));
 		startGameSettingsAlert();
 		
 			// Sätt upp Board:en, låt detta göras efter hur användaren väljer förvald setup. 
@@ -179,7 +184,7 @@ public class Gui extends JFrame implements Runnable {
 	private void startGameSettingsAlert()
 	{
 		gameSettingsAlert.runAlert();
-		boolean newWhiteVisibleAtBottom = !(gameSettingsAlert.isBlackPlayerHuman() == true && gameSettingsAlert.whitePlayerIsHuman() == false); 
+		boolean newWhiteVisibleAtBottom = !(gameSettingsAlert.isBlackPlayerHuman() == true && gameSettingsAlert.isWhitePlayerHuman() == false); 
 		
 		if (newWhiteVisibleAtBottom != whiteVisibleAtBottom)
 		{
@@ -240,6 +245,11 @@ public class Gui extends JFrame implements Runnable {
 				break;
 			case AVAILABLE_SQUARES:
 				updateBoardAvailability(mess.getMessageData());
+				break;
+			case SET_MOVE_AS_STRING:
+				textAreaRight.setText(textAreaRight.getText() + mess.getMessageData());
+				whitesTurn = !whitesTurn;
+				updateMove();
 				break;
 			default:
 				break;
@@ -361,20 +371,22 @@ public class Gui extends JFrame implements Runnable {
 			return 8*squareIdY + 7 - squareIdX;
 	}
 	
+	// fixa här:
 	public void buttonIdClick(int buttonId)
 	{
-		
 		System.out.println("Button Id: " + buttonId);
 		if (buttonId >= 0 && buttonId < 64) {
 			int squareId = getSquareIdFromButtonId(buttonId);
-			if (moveFrom == -1) {
+			updateMove(squareId);
+			/*
+			if (moveFrom == -1) {	// 
 				moveFrom = squareId;
 				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_POSSIBLE_MOVES_FROM_SQUARE, Integer.toString(squareId)));
 			} else {
 				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.COMMIT_MOVE, Integer.toString(moveFrom) + "," + Integer.toString(squareId)));
 				moveFrom = -1;
 				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.PROPOSE_MOVE, ControlValue.BLACK + ""));
-			}
+			}*/
 		} else if (buttonId >= 100) {
 			if (buttonId == Buttons.Nytt.getValue())
 				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.STANDARD_SETUP, null));
@@ -385,7 +397,43 @@ public class Gui extends JFrame implements Runnable {
 			if (buttonId == Buttons.Difficult.getValue())
 				startGameSettingsAlert();
 		}
-		
+	}
+	
+		// i denna funktion hanteras alla händelser:
+	public void updateMove(int squareId)
+	{
+		String squareIdAsString = Integer.toString(squareId);
+		if (moveFrom == -1)
+		{
+			moveFrom = squareId;
+			Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_POSSIBLE_MOVES_FROM_SQUARE, squareIdAsString));
+		} else {
+			Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.COMMIT_MOVE, Integer.toString(moveFrom) + "," + Integer.toString(squareId)));
+			moveFrom = -1;
+		}
+	}
+	
+	public void updateMove()	// det är ett helt nytt drag för svart eller vit, 
+	{
+		if (whitesTurn) {
+			if(gameSettingsAlert.isWhitePlayerHuman())	// white player is a människa
+			{
+				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_MOVABLE_PIECES, "" + ControlValue.WHITE));
+				moveFrom = -1;
+			} else {		// white player is en dator
+				int turnsForward = gameSettingsAlert.getNumberOfMovesForwardForWhite();
+				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.PROPOSE_MOVE, ControlValue.WHITE + "," + Integer.toString(turnsForward)));
+			}
+		} else {
+			if(gameSettingsAlert.isBlackPlayerHuman())	// black player is a människa
+			{
+				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_MOVABLE_PIECES, "" + ControlValue.BLACK));
+				moveFrom = -1;
+			} else {		// black player is en dator
+				int turnsForward = gameSettingsAlert.getNumberOfMovesForwardForBlack();
+				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.PROPOSE_MOVE, ControlValue.BLACK + "," + Integer.toString(turnsForward)));
+			}
+		}
 	}
 }
 

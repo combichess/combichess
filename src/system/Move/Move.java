@@ -74,7 +74,7 @@ public class Move {
 		return posTo - posFrom;
 	}
 	
-	public String toString(ChessNotation not)
+	public String toString(ChessNotation not)	// det ska även innehålla drag-nummer
 	{
 		String str = pieceThatMoves.toString(posFrom, not);
 		//String str = pieceThatMoves.toString(not);
@@ -96,6 +96,6 @@ public class Move {
 	
 	public String toString()
 	{
-		return toString(ChessNotation.ALGEBRAIC);
+		return toString(ChessNotation.ALGEBRAIC);	// det ska även innehålla drag-nummer
 	}
 }

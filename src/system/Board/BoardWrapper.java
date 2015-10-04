@@ -3,6 +3,7 @@ package system.board;
 import java.util.List;
 
 import system.move.Move;
+import system.piece.ChessNotation;
 import system.piece.Piece;
 
 
@@ -59,12 +60,15 @@ public class BoardWrapper extends Board implements Runnable {
 					break;
 				case STANDARD_SETUP:
 					standardSetup();
-					returnBoardAvailability();
+					//returnBoardAvailability();
 					returnBoardSetup();
 					break;
 				case GET_BOARD_PIECES:
-					returnBoardAvailability();
+					//returnBoardAvailability();
 					returnBoardSetup();
+					break;
+				case GET_MOVABLE_PIECES:
+					sendPossibleMovesForPlayer(retrieved.getMessageData());
 					break;
 				default:
 					break;
@@ -168,6 +172,7 @@ public class BoardWrapper extends Board implements Runnable {
 		Communicator.addMessage(new Message(processType, ProcessType.Gui_1, MessageType.AVAILABLE_SQUARES, str));
 	}
 	
+	@Deprecated
 	public void returnBoardAvailability()
 	{
 		List<Integer> possiblePositions = this.getAllPossibleAllowedSquaresToMoveFrom(PlayerColour.White);
@@ -201,29 +206,35 @@ public class BoardWrapper extends Board implements Runnable {
 		super.commitMove(move);
 		
 		returnBoardSetup();
-		returnBoardAvailability();
+		returnCommittedMoveAsText(move);
+		//returnBoardAvailability();
 	}
 	
-	public void proposeMove(String playerChar)
+	public void proposeMove(String messData)
 	{
-		if (playerChar == null || playerChar.length() != 1)
+		String[] datas = messData.split(",");
+		
+		PlayerColour pc = getPlayerColourFromString(datas[0]);
+		int numberOfMovesForward = Integer.parseInt(datas[1]);
+		
+		if (messData == null || messData.length() != 1)
 		{
-			System.out.println("BoardWrapper.proposeMove failed, playerChar == " + playerChar);
+			System.out.println("BoardWrapper.proposeMove failed, playerChar == " + messData);
 			return;
 		}
 		
 		Move mov = null;
 		
-		switch(playerChar.charAt(0))
+		switch(pc)
 		{
-		case ControlValue.WHITE:
-			mov = findBestMoveFor(this.playerWhite, thinkMovesForward);
+		case White:
+			mov = findBestMoveFor(this.playerWhite, numberOfMovesForward);
 			break;
-		case ControlValue.BLACK:
-			mov = findBestMoveFor(this.playerBlack, thinkMovesForward);
+		case Black:
+			mov = findBestMoveFor(this.playerBlack, numberOfMovesForward);
 			break;
 		default:
-			System.out.println("BoardWrapper.proposeMove failed, playerChar == " + playerChar);
+			System.out.println("BoardWrapper.proposeMove failed, playerChar == " + messData);
 			return;
 		}
 		
@@ -234,7 +245,51 @@ public class BoardWrapper extends Board implements Runnable {
 		}
 		
 		super.commitMove(mov);
+		returnCommittedMoveAsText(mov);
 		returnBoardSetup();
-		returnBoardAvailability();
+		//returnBoardAvailability();
+	}
+	
+	private void sendPossibleMovesForPlayer(String messData)
+	{
+		PlayerColour pc = getPlayerColourFromString(messData);
+		
+		List<Integer> possiblePositions = this.getAllPossibleAllowedSquaresToMoveFrom(pc);
+		
+		boolean[] availables = new boolean[64];
+		for (int i=0; i<64; i++)
+			availables[i] = false;
+		
+		for (int pos : possiblePositions)
+			availables[pos] = true;
+		
+		String availableSquaresAsString = "";
+		for (int i=0; i<squares.length; i++)
+			availableSquaresAsString += (i==0? "": ",") + (availables[i]? "1": "0");
+		
+		Communicator.addMessage(new Message(processType, ProcessType.Gui_1, MessageType.AVAILABLE_SQUARES, availableSquaresAsString));
+	}
+	
+	private PlayerColour getPlayerColourFromString(String messData)
+	{
+		char c = messData.charAt(0);
+		PlayerColour pc = null;
+		switch(c)
+		{
+		case ControlValue.WHITE:
+			pc = PlayerColour.White;
+			break;
+		case ControlValue.BLACK:
+			pc = PlayerColour.Black;
+			break;
+		default:
+			System.out.println("BoardWrapper.java FEL: fattade inte messData i sendPossibleMovesForPlayer");
+		}
+		return pc;
+	}
+	
+	private void returnCommittedMoveAsText(Move move)
+	{
+		Communicator.addMessage(new Message(processType, ProcessType.Gui_1, MessageType.SET_MOVE_AS_STRING, move.toString()));
 	}
 }

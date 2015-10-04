@@ -146,11 +146,44 @@ public class GameSettings extends JFrame {
 			blackPlayerIsHuman = isHuman;
 	}
 
-	public boolean whitePlayerIsHuman() {
+	public boolean isWhitePlayerHuman() {
 		return whitePlayerIsHuman;
 	}
 
 
+	public int getNumberOfMovesForwardForWhite()
+	{
+		if (whitePlayerIsHuman)
+			return -1;
+		
+		switch (whitePlayerName)
+		{
+		case CPU_OPPONENT_LEVEL_1:
+			return 3;
+		case CPU_OPPONENT_LEVEL_2:
+			return 4;
+		case CPU_OPPONENT_LEVEL_3:
+			return 5;
+		}
+		return -1;
+	}
+	
+	public int getNumberOfMovesForwardForBlack()
+	{
+		if (blackPlayerIsHuman)
+			return -1;
+		
+		switch (blackPlayerName)
+		{
+		case CPU_OPPONENT_LEVEL_1:
+			return 3;
+		case CPU_OPPONENT_LEVEL_2:
+			return 4;
+		case CPU_OPPONENT_LEVEL_3:
+			return 5;
+		}
+		return -1;
+	}
 
 	public boolean isBlackPlayerHuman() {
 		return blackPlayerIsHuman;
