@@ -43,6 +43,7 @@ public class GameSettings extends JFrame {
 	private boolean blackPlayerIsHuman;
 	private String whitePlayerName;
 	private String blackPlayerName;
+	private boolean whiteIsAtBottomOfScreen;
 	
 	public GameSettings()
 	{
@@ -50,6 +51,8 @@ public class GameSettings extends JFrame {
 		blackPlayerIsHuman = false;
 		whitePlayerName = "Fru Vit";
 		blackPlayerName = "Herr Svart";
+		whiteIsAtBottomOfScreen = true;
+		
 		panel = new JPanel();
 	    panel.setLayout(new GridLayout(3, 3, 1, 1));
 	
@@ -130,6 +133,8 @@ public class GameSettings extends JFrame {
 		System.out.println("white: " + whitePlayerName + "\tHuman: " + whitePlayerIsHuman);
 		System.out.println("black: " + blackPlayerName + "\tHuman: " + blackPlayerIsHuman);
 		//String result = (String) JOptionPane.showInputDialog(this, "Message", "Title", JOptionPane.PLAIN_MESSAGE, null, possibilities, possibilities[0]);
+		
+		whiteIsAtBottomOfScreen = !(!whitePlayerIsHuman && blackPlayerIsHuman);	// svart visas bara i botten om svart är human och vit är data.
 	}
 	
 	
@@ -146,8 +151,9 @@ public class GameSettings extends JFrame {
 			blackPlayerIsHuman = isHuman;
 	}
 
-	public boolean isWhitePlayerHuman() {
-		return whitePlayerIsHuman;
+	public boolean isWhitePlayerAtBottomOfScreen()
+	{
+		return whiteIsAtBottomOfScreen;
 	}
 
 
@@ -185,6 +191,10 @@ public class GameSettings extends JFrame {
 		return -1;
 	}
 
+	public boolean isWhitePlayerHuman() {
+		return whitePlayerIsHuman;
+	}
+	
 	public boolean isBlackPlayerHuman() {
 		return blackPlayerIsHuman;
 	}

@@ -56,10 +56,11 @@ public class Gui extends JFrame implements Runnable {
 	private static final int UPDATE_GUI_IDLE_MILLISECONDS = 10; 
 	private HashMap<String, ImageIcon> imageIcons = null;
 	private int moveFrom;
-	private boolean whiteVisibleAtBottom;
-	private boolean whitesTurn;
+	//private boolean whiteVisibleAtBottom;
+	//private boolean whitesTurn;
+	private GameStatus gameStatus = null;
 	
-	private GameSettings gameSettingsAlert = null;
+	private GameSettings gameSettings = null;
 
 		// skit i att skapa en egen tråd och låt GUI:et köra på den tråd som skapas med guiet. Byt run() till konstruktor
 	@Override
@@ -67,7 +68,7 @@ public class Gui extends JFrame implements Runnable {
 		
 		loadImages();
 		
-		gameSettingsAlert = new GameSettings();
+		gameSettings = new GameSettings();
 		Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.STANDARD_SETUP, null));
 		
 				// Sätt upp hela GUI:et
@@ -83,7 +84,7 @@ public class Gui extends JFrame implements Runnable {
         bottomPanel = new JPanel();
 
         squares = new JButton[64];
-        whiteVisibleAtBottom = true;
+        //whiteVisibleAtBottom = true;
         bottomPanel.setLayout(new GridLayout(3,3,3,3));
         
         for (Buttons butt: new Buttons[]{Buttons.Nytt, Buttons.Get, Buttons.Save, Buttons.SaveAs, Buttons.Info, Buttons.Difficult,
@@ -135,7 +136,7 @@ public class Gui extends JFrame implements Runnable {
         updateCoordinateLabelTexts();
         topPanel.add(boardPanel);
         
-        textAreaRight = new JTextArea("text area");
+        textAreaRight = new JTextArea("");
         textAreaRight.setPreferredSize(new Dimension(100, 400));
         informationPanel.add(textAreaRight);
         topPanel.add(informationPanel);
@@ -174,6 +175,7 @@ public class Gui extends JFrame implements Runnable {
 		moveFrom = -1;
 		setAllSquaresEnabled(false);
 		Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_MOVABLE_PIECES, "" + ControlValue.WHITE));
+		gameStatus = new GameStatus();
 		startGameSettingsAlert();
 		
 			// Sätt upp Board:en, låt detta göras efter hur användaren väljer förvald setup. 
@@ -183,38 +185,66 @@ public class Gui extends JFrame implements Runnable {
 	
 	private void startGameSettingsAlert()
 	{
-		gameSettingsAlert.runAlert();
-		boolean newWhiteVisibleAtBottom = !(gameSettingsAlert.isBlackPlayerHuman() == true && gameSettingsAlert.isWhitePlayerHuman() == false); 
+		boolean isWhitePlayerAtBottomOfScreenBefore = gameSettings.isWhitePlayerAtBottomOfScreen();
+		gameSettings.runAlert();
+		//boolean isWhitePlayerAtBottomOfScreenAfter = !(gameSettings.isBlackPlayerHuman() == true && gameSettings.isWhitePlayerHuman() == false);
+		boolean isWhitePlayerAtBottomOfScreenAfter = gameSettings.isWhitePlayerAtBottomOfScreen();
 		
-		if (newWhiteVisibleAtBottom != whiteVisibleAtBottom)
+		if (isWhitePlayerAtBottomOfScreenAfter != isWhitePlayerAtBottomOfScreenBefore)
 		{
 			// redraw board
-			whiteVisibleAtBottom = newWhiteVisibleAtBottom;
-			updateBoard();
+			//whiteVisibleAtBottom = newWhiteVisibleAtBottom;
+			
+			//updateBoard();
+			updateCoordinateLabelTexts();
+			
+			// gör alla squares disabled
+			setAllSquaresEnabled(false);
+
+			// skicka ett hämta-alla-pjäser från boardet
+			Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_BOARD_PIECES, null));
+			
+			updateMove();
+			// uppdatera 
+			/*boolean isWhite = gameStatus.isWhitesTurn();
+			String stringColour = "" + (isWhite? ControlValue.WHITE: ControlValue.BLACK);
+			boolean isHuman = isWhite? gameSettings.isWhitePlayerHuman(): gameSettings.isBlackPlayerHuman();
+			
+			if (isHuman) {
+				int sqrFrom = gameStatus.getChosenSquareFrom();
+				int sqrTo = gameStatus.getChosenSquareTo();
+				
+					// här ska alla squares vara disabled
+				if (sqrFrom == GameStatus.UNDEFINED) {
+					Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_MOVABLE_PIECES, stringColour));
+				} else if (sqrTo == GameStatus.UNDEFINED) {
+					Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_POSSIBLE_MOVES_FROM_SQUARE, Integer.toString(sqrFrom)));
+				}
+			}*/
+			
 		}
-		whiteVisibleAtBottom = newWhiteVisibleAtBottom;;
 	}
 	
 	private void updateCoordinateLabelTexts()
 	{
+		boolean whiteDown = gameSettings.isWhitePlayerAtBottomOfScreen();
 		for (int i=0; i<8; i++)
 		{
-			verticalCoordLabels[i].setText(Integer.toString(whiteVisibleAtBottom? i+1: 8-i));
-			horizontalCoordLabels[i].setText("" + (char)(whiteVisibleAtBottom? ('A' + i): ('H' - i)));
+			verticalCoordLabels[i].setText(Integer.toString(whiteDown? i+1: 8-i));
+			horizontalCoordLabels[i].setText("" + (char)(whiteDown? ('A' + i): ('H' - i)));
 		}
 	}
 	
-	private void updateBoard()
+	/*private void updateBoard()
 	{
 		updateCoordinateLabelTexts();
 		
 			// gör alla squares disabled
 		setAllSquaresEnabled(false);
-		
-			
+
 			// skicka ett hämta-alla-pjäser från boardet
 		Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_BOARD_PIECES, null));
-	}
+	}*/
 	
 	private void setAllSquaresEnabled(boolean enabled)
 	{
@@ -246,11 +276,11 @@ public class Gui extends JFrame implements Runnable {
 			case AVAILABLE_SQUARES:
 				updateBoardAvailability(mess.getMessageData());
 				break;
-			case SET_MOVE_AS_STRING:
+			case SET_MOVE_AS_STRING: {		// detta är bekräftelse på att ett drag är flyttat och turen flyttas över till nästa spelare.
 				textAreaRight.setText(textAreaRight.getText() + mess.getMessageData());
-				whitesTurn = !whitesTurn;
+				gameStatus.switchPlayer();
 				updateMove();
-				break;
+				break;}
 			default:
 				break;
 			}
@@ -278,19 +308,16 @@ public class Gui extends JFrame implements Runnable {
 		
 		for (int i=0; i<imageStrings.length; i++)
 		{
-			//System.out.print(imageStrings[i]);
 			InputStream input = classLoader.getResourceAsStream(imageStrings[i] + ".bmp");
 			Image img = null;
 			try {
 				img = ImageIO.read(input);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			ImageIcon imageIcon = new ImageIcon(img);
 			if (imageIcon != null)
 				imageIcons.put(imageStrings[i], new ImageIcon(img));
-			//System.out.println(imageStrings[i] + "\t" + (imageIcon == null? "null": "icke null"));
 		}
 	}
 	/*
@@ -352,11 +379,12 @@ public class Gui extends JFrame implements Runnable {
 		System.out.println("updateBoardAvailability run");
 	}
 	
+	
 		// denna metoden ska ge rätt pjäs oavsett hur bordet är vänt.
 	private int getSquareIdFromButtonId(int buttonId) {
 		int buttonIdX = buttonId%8;
 		int buttonIdY = buttonId/8;
-		if (whiteVisibleAtBottom)
+		if (gameSettings.isWhitePlayerAtBottomOfScreen())
 			return (7-buttonIdY)*8 + buttonIdX;
 		else
 			return 8*buttonIdY + 7 - buttonIdX;
@@ -365,28 +393,32 @@ public class Gui extends JFrame implements Runnable {
 	private int getButtonIdFromSquareId(int squareId) {
 		int squareIdX = squareId%8;
 		int squareIdY = squareId/8;
-		if (whiteVisibleAtBottom)
+		if (gameSettings.isWhitePlayerAtBottomOfScreen())
 			return (7-squareIdY)*8 + squareIdX;
 		else
 			return 8*squareIdY + 7 - squareIdX;
 	}
 	
-	// fixa här:
-	public void buttonIdClick(int buttonId)
+	public void buttonIdClick(int buttonId)		// man får anta att det är en människa för annars är inte knapparna enabled
 	{
 		System.out.println("Button Id: " + buttonId);
 		if (buttonId >= 0 && buttonId < 64) {
 			int squareId = getSquareIdFromButtonId(buttonId);
-			updateMove(squareId);
-			/*
-			if (moveFrom == -1) {	// 
-				moveFrom = squareId;
-				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_POSSIBLE_MOVES_FROM_SQUARE, Integer.toString(squareId)));
-			} else {
-				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.COMMIT_MOVE, Integer.toString(moveFrom) + "," + Integer.toString(squareId)));
-				moveFrom = -1;
-				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.PROPOSE_MOVE, ControlValue.BLACK + ""));
-			}*/
+			int status = gameStatus.getStatus();
+			switch (status)
+			{
+			case GameStatus.WHITE_TO_MOVE:
+			case GameStatus.BLACK_TO_MOVE:
+				if (gameStatus.getChosenSquareFrom() == GameStatus.UNDEFINED)
+					gameStatus.setChosenSquareFrom(squareId);
+				else if (gameStatus.getChosenSquareTo() == GameStatus.UNDEFINED)
+					gameStatus.setChosenSquareTo(squareId);
+				else 
+					System.out.println("Både chosenSquareFrom och To är defined :(");
+				updateMove();
+				break;
+			
+			}
 		} else if (buttonId >= 100) {
 			if (buttonId == Buttons.Nytt.getValue())
 				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.STANDARD_SETUP, null));
@@ -399,40 +431,36 @@ public class Gui extends JFrame implements Runnable {
 		}
 	}
 	
-		// i denna funktion hanteras alla händelser:
-	public void updateMove(int squareId)
+	public void updateMove()
 	{
-		String squareIdAsString = Integer.toString(squareId);
-		if (moveFrom == -1)
-		{
-			moveFrom = squareId;
-			Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_POSSIBLE_MOVES_FROM_SQUARE, squareIdAsString));
-		} else {
-			Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.COMMIT_MOVE, Integer.toString(moveFrom) + "," + Integer.toString(squareId)));
-			moveFrom = -1;
-		}
-	}
-	
-	public void updateMove()	// det är ett helt nytt drag för svart eller vit, 
-	{
-		if (whitesTurn) {
-			if(gameSettingsAlert.isWhitePlayerHuman())	// white player is a människa
-			{
-				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_MOVABLE_PIECES, "" + ControlValue.WHITE));
-				moveFrom = -1;
-			} else {		// white player is en dator
-				int turnsForward = gameSettingsAlert.getNumberOfMovesForwardForWhite();
-				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.PROPOSE_MOVE, ControlValue.WHITE + "," + Integer.toString(turnsForward)));
+		boolean isWhite = gameStatus.isWhitesTurn();
+		String stringColour = "" + (isWhite? ControlValue.WHITE: ControlValue.BLACK);
+		boolean isHuman = isWhite? gameSettings.isWhitePlayerHuman(): gameSettings.isBlackPlayerHuman();
+		
+		if (gameStatus.getStatus() == GameStatus.BLACK_TO_MOVE || gameStatus.getStatus() == GameStatus.WHITE_TO_MOVE) {
+			if (isHuman) {
+				int sqrFrom = gameStatus.getChosenSquareFrom();
+				int sqrTo = gameStatus.getChosenSquareTo();
+				
+					// här ska alla squares vara disabled
+				if (sqrFrom == GameStatus.UNDEFINED) {
+					Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_MOVABLE_PIECES, stringColour));
+				} else if (sqrTo == GameStatus.UNDEFINED) {
+					Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_POSSIBLE_MOVES_FROM_SQUARE, Integer.toString(sqrFrom)));
+				} else {
+					Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.COMMIT_MOVE, Integer.toString(sqrFrom) + "," + Integer.toString(sqrTo)));
+					Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_BOARD_PIECES, null));
+				}
+				
+				setAllSquaresEnabled(false);
+			} else {
+				int numMovesForward = isWhite? gameSettings.getNumberOfMovesForwardForWhite(): gameSettings.getNumberOfMovesForwardForBlack();
+				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.PROPOSE_MOVE, stringColour + "," + numMovesForward));
+				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_BOARD_PIECES, null));
 			}
+			
 		} else {
-			if(gameSettingsAlert.isBlackPlayerHuman())	// black player is a människa
-			{
-				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_MOVABLE_PIECES, "" + ControlValue.BLACK));
-				moveFrom = -1;
-			} else {		// black player is en dator
-				int turnsForward = gameSettingsAlert.getNumberOfMovesForwardForBlack();
-				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.PROPOSE_MOVE, ControlValue.BLACK + "," + Integer.toString(turnsForward)));
-			}
+			System.out.println("Gui.java r.467\tDen ska inte komma hit för då är gameStatus ett värde som det inte ska ha.");
 		}
 	}
 }

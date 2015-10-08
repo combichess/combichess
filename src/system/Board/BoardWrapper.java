@@ -3,7 +3,6 @@ package system.board;
 import java.util.List;
 
 import system.move.Move;
-import system.piece.ChessNotation;
 import system.piece.Piece;
 
 
@@ -18,8 +17,8 @@ public class BoardWrapper extends Board implements Runnable {
 	private ProcessType processType = ProcessType.Board_1;  
 	private static final int UPDATE_BOARD_IDLE_MILLISECONDS = 10;
 	
-	@Deprecated
-	private final int thinkMovesForward = 4;
+	//@Deprecated
+	//private final int thinkMovesForward = 4;
 	
 	public BoardWrapper(Player white, Player black) {
 		super(white, black);
@@ -217,7 +216,7 @@ public class BoardWrapper extends Board implements Runnable {
 		PlayerColour pc = getPlayerColourFromString(datas[0]);
 		int numberOfMovesForward = Integer.parseInt(datas[1]);
 		
-		if (messData == null || messData.length() != 1)
+		if (messData == null || datas.length != 2)
 		{
 			System.out.println("BoardWrapper.proposeMove failed, playerChar == " + messData);
 			return;
@@ -246,7 +245,7 @@ public class BoardWrapper extends Board implements Runnable {
 		
 		super.commitMove(mov);
 		returnCommittedMoveAsText(mov);
-		returnBoardSetup();
+		//returnBoardSetup();
 		//returnBoardAvailability();
 	}
 	
