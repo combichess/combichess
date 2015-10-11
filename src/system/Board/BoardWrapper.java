@@ -20,9 +20,8 @@ public class BoardWrapper extends Board implements Runnable {
 	//@Deprecated
 	//private final int thinkMovesForward = 4;
 	
-	public BoardWrapper(Player white, Player black) {
-		super(white, black);
-		
+	public BoardWrapper() {
+		super();
 	}
 	
 	
@@ -227,10 +226,12 @@ public class BoardWrapper extends Board implements Runnable {
 		switch(pc)
 		{
 		case White:
-			mov = findBestMoveFor(this.playerWhite, numberOfMovesForward);
+			//mov = findBestMoveFor(this.playerWhite, numberOfMovesForward);
+			mov = findBestMoveFor(PlayerColour.White, numberOfMovesForward);
 			break;
 		case Black:
-			mov = findBestMoveFor(this.playerBlack, numberOfMovesForward);
+			//mov = findBestMoveFor(this.playerBlack, numberOfMovesForward);
+			mov = findBestMoveFor(PlayerColour.Black, numberOfMovesForward);
 			break;
 		default:
 			System.out.println("BoardWrapper.proposeMove failed, playerChar == " + messData);

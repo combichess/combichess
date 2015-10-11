@@ -29,14 +29,14 @@ public class Board {
 	protected Player playerWhite;
 	
 		// setup
-	protected Board(Player white, Player black)
+	protected Board()
 	{
 		blacks = new LinkedList<Piece>();
 		whites = new LinkedList<Piece>();
 		squares = new Piece[64];
 		committedMoves = new LinkedList<Move>();
-		playerWhite = white;
-		playerBlack = black;
+		playerWhite = new Player();
+		playerBlack = new Player();
 	}
 	
 	public Piece getPieceOnSquare(int x, int y)
@@ -374,12 +374,15 @@ public class Board {
 		return rekordMove;
 	}
 	
-	protected Move findBestMoveFor(Player player, int N)
+	//protected Move findBestMoveFor(Player player, int N)
+	protected Move findBestMoveFor(PlayerColour colour, int N)
 	{		
 			// sätt värdering av pjäserna åt spelaren som spelar.
-		PieceType.setPieceValues(player.getValueTable());
-		PlayerColour colour = player == playerWhite? PlayerColour.White: PlayerColour.Black;
+		PieceType.setPieceValues((colour == PlayerColour.White? playerWhite: playerBlack).getValueTable());
 		Move bestMove = findBestMove(colour, N);
+		//PieceType.setPieceValues(player.getValueTable());
+		//PlayerColour colour = player == playerWhite? PlayerColour.White: PlayerColour.Black;
+		//Move bestMove = findBestMove(colour, N);
 	
 		// nollställ värderingen av pjäserna när spelaren letat färdigt
 		PieceType.unsetPieceValues();
