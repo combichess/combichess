@@ -6,9 +6,11 @@ public class GameStatus {
 	public static final int UNDEFINED = -1; 
 	public static final int WHITE_TO_MOVE = 0;
 	//public static final int WHITE_HAS_CHOSEN_PIECE = 1;
+	@Deprecated
 	public static final int WHITE_COMMITTED_MOVE = 2;
 	public static final int BLACK_TO_MOVE = 3;
 	//public static final int BLACK_HAS_CHOSEN_PIECE = 4;
+	@Deprecated
 	public static final int BLACK_COMMITTED_MOVE = 5;
 	
 	private int status;

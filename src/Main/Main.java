@@ -21,12 +21,7 @@ public class Main {
 	
 	public static void startGame() throws InterruptedException
 	{
-		
-		Player white = new Player("Herr Alm");
-		Player black = new Player("Fru Oppo");
-		
-		
-		BoardWrapper bord = new BoardWrapper(white, black);
+		BoardWrapper bord = new BoardWrapper();
 		Gui gui = new Gui();
 
 		Thread threadBoard = new Thread(bord, "t-board");

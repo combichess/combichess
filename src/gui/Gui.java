@@ -205,23 +205,6 @@ public class Gui extends JFrame implements Runnable {
 			Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_BOARD_PIECES, null));
 			
 			updateMove();
-			// uppdatera 
-			/*boolean isWhite = gameStatus.isWhitesTurn();
-			String stringColour = "" + (isWhite? ControlValue.WHITE: ControlValue.BLACK);
-			boolean isHuman = isWhite? gameSettings.isWhitePlayerHuman(): gameSettings.isBlackPlayerHuman();
-			
-			if (isHuman) {
-				int sqrFrom = gameStatus.getChosenSquareFrom();
-				int sqrTo = gameStatus.getChosenSquareTo();
-				
-					// här ska alla squares vara disabled
-				if (sqrFrom == GameStatus.UNDEFINED) {
-					Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_MOVABLE_PIECES, stringColour));
-				} else if (sqrTo == GameStatus.UNDEFINED) {
-					Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_POSSIBLE_MOVES_FROM_SQUARE, Integer.toString(sqrFrom)));
-				}
-			}*/
-			
 		}
 	}
 	
