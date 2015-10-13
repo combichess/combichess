@@ -12,7 +12,8 @@ public abstract class Piece implements PieceInterface {
 	protected int yPos;
 	//protected String descriptiveLetter; 
 	PieceType type;
-	int numberOfMoves;
+	//int numberOfMoves;
+	int previousMoveNumber;
 	PlayerColour player;
 	protected boolean active;
 	//static private int valueTable[] = new int[] {0, 0, 0, 0, 0, 0};
@@ -20,11 +21,13 @@ public abstract class Piece implements PieceInterface {
 
 	protected Piece(int xPos, int yPos, PlayerColour player)
 	{
-		numberOfMoves = 0;
-		active = true;
+		//numberOfMoves = 0;
+		
+		this.active = true;
 		this.xPos = xPos;
 		this.yPos = yPos;
 		this.player = player;
+		this.previousMoveNumber = Move.PREVIOUSLY_NEVER_MOVED;
 	}
 	
 	protected String getPieceCoordsAsString()
@@ -54,20 +57,31 @@ public abstract class Piece implements PieceInterface {
 		return yPos;
 	}
 	
+	public void setPreviousMoveNumber(int previousMoveNumber) 
+	{
+		this.previousMoveNumber = previousMoveNumber;
+	}
+	
+	public int getPreviousMoveNumber()
+	{
+		return this.previousMoveNumber;
+	}
+	
 	public void moveX(int dPos)
 	{
-		//xPos += dPos%8;
-		//yPos += dPos/8;
+		int nyPos = (xPos + 8*yPos) + dPos;
+		xPos = nyPos&7;
+		yPos = nyPos>>3; 
+	}
+	
+	public void moveX(int dPos, int previousMoveNumber)
+	{
+		this.previousMoveNumber = previousMoveNumber;
 		int nyPos = (xPos + 8*yPos) + (dPos);
 		xPos = nyPos%8;
 		yPos = nyPos/8; 
 	}
 	
-	public void moveX(int dxPos, int dyPos)	
-	{
-		xPos += dxPos;
-		yPos += dyPos;
-	}
 	
 	public String toString()
 	{

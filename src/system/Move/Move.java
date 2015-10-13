@@ -4,11 +4,14 @@ import system.piece.ChessNotation;
 import system.piece.Piece;
 
 public class Move {
+	public static final int PREVIOUSLY_NEVER_MOVED = -1;
+	
 	private Piece pieceThatMoves;
 	private Piece affectedPiece;
 	private int posFrom;
 	private int posTo;
 	private MoveType moveType;
+	private int previousMoveNumber;	// previously moveNumber for moving piece
 	private int value;	// värdet på detta draget och alla efterföljande drag.
 						// om draget ger 4 poäng, motspelares bästa drag ger 5 poäng och
 						// efterföljande drag ger 3 poäng blir alltså value = 4 - 5 + 3 = 2 poäng
@@ -24,13 +27,19 @@ public class Move {
 		create(pieceThatMoves, affectedPiece, toX + toY*8, value);
 	}
 	
-	private void create(Piece pieceThatMoves, Piece affectedPiece, int toPos, int value)
+	private void create(Piece pieceThatMoves, Piece affectedPiece, int posTo, int value)
 	{
+		this.previousMoveNumber = pieceThatMoves.getPreviousMoveNumber();
 		this.pieceThatMoves = pieceThatMoves;
-		posFrom = pieceThatMoves.getPosition();
-		posTo = toPos;
+		this.posFrom = pieceThatMoves.getPosition();
+		this.posTo = posTo;
 		this.affectedPiece = affectedPiece;
 		this.value = value;		
+	}
+	
+	public int getPreviousMoveNumber()
+	{
+		return previousMoveNumber;
 	}
 	
 	public Piece getPiece()
@@ -77,13 +86,11 @@ public class Move {
 	public String toString(ChessNotation not)	// det ska även innehålla drag-nummer
 	{
 		String str = pieceThatMoves.toString(posFrom, not);
-		//String str = pieceThatMoves.toString(not);
 		str += " -> ";
 		if (affectedPiece != null)
 			str += affectedPiece.toString(not);
 		else 
 			str += not.getCo(posTo);
-			//str += not.getCo(pieceThatMoves.getX()+dx, pieceThatMoves.getY()+dy);
 		
 		str += ", val: " + value;
 		return str; 

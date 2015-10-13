@@ -8,8 +8,8 @@ public class MoveType {
 	public final static int LEFT_PAWN_TAKE = 0x3;
 	public final static int RIGHT_PAWN_TAKE = 0x4;
 	public final static int DOUBLE_PAWN_MOVE = 0x5;
-	public final static int LEFT_CASTLING = 0x6;
-	public final static int RIGHT_CASTLING = 0x7;
+	public final static int QUEEN_SIDE_CASTLING = 0x6;
+	public final static int KING_SIDE_CASTLING = 0x7;
 	
 	public final static int PROMOTION = 0x10;		// kan ske samtidigt som Left och right pawn take, därför är 0x13 och 0x14 tillåten
 	
@@ -42,10 +42,10 @@ public class MoveType {
 			break;
 		case DOUBLE_PAWN_MOVE:
 			break;
-		case LEFT_CASTLING:
+		case QUEEN_SIDE_CASTLING:
 			str += "o-x-oo";
 			break;
-		case RIGHT_CASTLING:
+		case KING_SIDE_CASTLING:
 			str += "o-x-ooo";
 			break;
 		case PROMOTION:

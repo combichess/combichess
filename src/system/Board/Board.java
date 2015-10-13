@@ -27,6 +27,7 @@ public class Board {
 	protected Piece squares[];
 	protected Player playerBlack;
 	protected Player playerWhite;
+	protected int moveNumber;
 	
 		// setup
 	protected Board()
@@ -164,7 +165,8 @@ public class Board {
 			takenPiece.setActivity(false);
 		}
 		
-		moveToCommit.getPiece().moveX(dx, dy);
+		//moveToCommit.getPiece().moveX(dx, dy);
+		moveToCommit.getPiece().moveX(dx + dy*8, moveNumber);
 		if (newPosId > 63 || newPosId < 0 || oldPosId > 63 || oldPosId < 0)
 		{
 			System.out.println("boardet now: " + this.toString());
@@ -174,6 +176,8 @@ public class Board {
 		} 
 		squares[newPosId] = moveToCommit.getPiece();
 		squares[oldPosId] = null;
+		
+		moveNumber++;
 		
 		return 0;
 	}
@@ -205,12 +209,14 @@ public class Board {
 		//System.out.println("det ändras med: " + (gammalPosition%8) + ", " + (gammalPosition/8));
 
 		int positionChangeBack = -toUncommit.getPositionChange();		
-		uncommittingPiece.moveX(positionChangeBack);
+		uncommittingPiece.moveX(positionChangeBack, toUncommit.getPreviousMoveNumber());
 		squares[gammalPosition] = uncommittingPiece;
 		squares[presentPosition] = takenPiece;
 		if (takenPiece != null)
 			takenPiece.setActivity(true);
-			
+		
+		moveNumber--;
+		
 		return 0;
 	}
 	

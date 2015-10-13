@@ -25,4 +25,14 @@ public class BoardTester extends Board{
 	{
 		return super.findBestMoveFor(col, N);
 	}
+	
+	public void standardSetup()
+	{
+		super.standardSetup();
+	}
+	
+	public void commitMove_(Move moveToCommit)
+	{
+		super.commitMove(moveToCommit);
+	}
 }

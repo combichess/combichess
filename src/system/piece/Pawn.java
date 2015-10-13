@@ -41,7 +41,7 @@ public class Pawn extends Piece {
 		if (goToSquare == null) {
 			nyLista.add(new Move(this, goToSquare, xPos, yPos + dy));
 			
-			if (numberOfMoves == 0)	// dubbeldrag framåt första draget
+			if (previousMoveNumber == Move.PREVIOUSLY_NEVER_MOVED)	// dubbeldrag framåt första draget
 			{
 				dy += dy;
 				goToSquare = board.getPieceOnSquare(this.xPos, this.yPos + dy);
