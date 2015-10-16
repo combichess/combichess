@@ -50,6 +50,15 @@ public class Board {
 		squares[(yPos<<3) + xPos] = piece;
 	}
 	
+	public int getMoveNumber()
+	{
+		return moveNumber;
+	}
+	
+	public Move getLastCommittedMove()	// används enbart i En passant-checkar
+	{
+		return committedMoves.getLast();
+	}
 	
 	protected void addPiece(int xPos, int yPos, PlayerColour player, PieceType type) {
 		Piece newPiece = null;
@@ -145,7 +154,6 @@ public class Board {
 	protected int commitMove(Move moveToCommit)
 	{
 		committedMoves.add(moveToCommit);
-		
 		int oldXPos = moveToCommit.getPiece().getX();
 		int oldYPos = moveToCommit.getPiece().getY();
 		
@@ -178,7 +186,6 @@ public class Board {
 		squares[oldPosId] = null;
 		
 		moveNumber++;
-		
 		return 0;
 	}
 	
@@ -194,14 +201,12 @@ public class Board {
 	
 	protected int uncommitLastMove()
 	{
-		//Move toUncommit = committedMoves.pop();
 		Move toUncommit = committedMoves.removeLast();
-		//System.out.println(toUncommit);
 		
 		Piece uncommittingPiece = toUncommit.getPiece();
 		Piece takenPiece = toUncommit.getAffectedPiece();
-		int presentPosition = uncommittingPiece.getPosition(); 
-		int gammalPosition = presentPosition - toUncommit.getPositionChange();
+		int posPostCommit = uncommittingPiece.getPosition(); 
+		int posPreCommit = posPostCommit - toUncommit.getPositionChange();
 		
 		
 		//System.out.println("nuvarande position: " + (toUncommit.getPiece().getPosition()%8) + ", " + (toUncommit.getPiece().getPosition()/8));
@@ -210,13 +215,15 @@ public class Board {
 
 		int positionChangeBack = -toUncommit.getPositionChange();		
 		uncommittingPiece.moveX(positionChangeBack, toUncommit.getPreviousMoveNumber());
-		squares[gammalPosition] = uncommittingPiece;
-		squares[presentPosition] = takenPiece;
-		if (takenPiece != null)
+		squares[posPreCommit] = uncommittingPiece;
+		squares[posPostCommit] = null;
+		
+		if (takenPiece != null) {
 			takenPiece.setActivity(true);
+			squares[takenPiece.getPosition()] = takenPiece; 
+		}
 		
 		moveNumber--;
-		
 		return 0;
 	}
 	
@@ -393,5 +400,12 @@ public class Board {
 		// nollställ värderingen av pjäserna när spelaren letat färdigt
 		PieceType.unsetPieceValues();
 		return bestMove;
+	}
+	
+		// ange endast fromPos och toPos, för att beskriva ett drag.
+	protected Move createMoveFromPositions(int fromPos, int toPos)
+	{
+		return null;
+		// vid castling krävs mer information
 	}
 }

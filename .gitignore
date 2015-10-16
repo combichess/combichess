@@ -2,7 +2,9 @@
 .*/
 .*
 *.bmp
-!images/*.bmp
 bin/
+test-output/
+
 # Except this file
 !.gitignore
+!images/*.bmp

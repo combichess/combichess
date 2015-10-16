@@ -35,4 +35,10 @@ public class BoardTester extends Board{
 	{
 		super.commitMove(moveToCommit);
 	}
+	
+	public void uncommit()
+	{
+		super.uncommitLastMove();
+	}
+
 }

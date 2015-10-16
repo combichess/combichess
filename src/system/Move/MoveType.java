@@ -1,16 +1,38 @@
 package system.move;
 
 
-public class MoveType {
-	public final static int STANDARD = 0;
-	public final static int LEFT_EN_PASSANT = 0x1;
-	public final static int RIGHT_EN_PASSANT = 0x2;
-	public final static int LEFT_PAWN_TAKE = 0x3;
-	public final static int RIGHT_PAWN_TAKE = 0x4;
-	public final static int DOUBLE_PAWN_MOVE = 0x5;
-	public final static int QUEEN_SIDE_CASTLING = 0x6;
-	public final static int KING_SIDE_CASTLING = 0x7;
+public enum MoveType {
+	STANDARD,
+	DOUBLE_PAWN_MOVE,
+	KING_SIDE_EN_PASSANT,
+	QUEEN_SIDE_EN_PASSANT,
+	//LEFT_PAWN_TAKE, 	ta bort dessa, annars kan de överlappa promotion 
+	//RIGHT_PAWN_TAKE,
+	QUEEN_SIDE_CASTLING,
+	KING_SIDE_CASTLING,
+	PROMOTION,			// anger att möjlighet finns till promotion, detta värde returneras från pawn.getPossibleMoves(), men duger inte till board.commitMove() 
+	PROMOTION_QUEEN, 
+	PROMOTION_KNIGHT,
+	PROMOTION_ROOK,
+	PROMOTION_BISHOP;
 	
+	public boolean isPromotion()
+	{
+		switch(this)
+		{
+		case PROMOTION:
+		case PROMOTION_QUEEN:
+		case PROMOTION_BISHOP:
+		case PROMOTION_KNIGHT:
+		case PROMOTION_ROOK:
+			return true;
+		default:
+			return false;
+		}
+	}
+}
+
+/*
 	public final static int PROMOTION = 0x10;		// kan ske samtidigt som Left och right pawn take, därför är 0x13 och 0x14 tillåten
 	
 	public final static int CHECK = 0x100;
@@ -54,4 +76,4 @@ public class MoveType {
 		return str;
 	}
 }
-
+*/

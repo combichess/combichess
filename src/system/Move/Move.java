@@ -19,22 +19,58 @@ public class Move {
 	
 		// konstruktor utan givet dragvärde
 	public Move(Piece pieceThatMoves, Piece affectedPiece, int toX, int toY) {
-		create(pieceThatMoves, affectedPiece, toX + toY*8, 0);
+		create(pieceThatMoves, affectedPiece, toX + toY*8, 0, MoveType.STANDARD);
 	}
 		
 		// konstruktor med dragets värde angivet som value
 	public Move(Piece pieceThatMoves, Piece affectedPiece, int toX, int toY, int value) {
-		create(pieceThatMoves, affectedPiece, toX + toY*8, value);
+		create(pieceThatMoves, affectedPiece, toX + toY*8, value, MoveType.STANDARD);
 	}
 	
-	private void create(Piece pieceThatMoves, Piece affectedPiece, int posTo, int value)
+	public Move(Piece pieceThatMoves, Piece affectedPiece, int toX, int toY, MoveType moveType) {
+		create(pieceThatMoves, affectedPiece, toX + toY*8, 0, moveType);
+		//System.out.println("Move.java\t Hit ska den inte komma!");
+	}
+	public Move(Piece pieceThatMoves, Piece affectedPiece, int toX, int toY, int value, MoveType moveType) {
+		create(pieceThatMoves, affectedPiece, toX + toY*8, value, moveType);
+		//System.out.println("Move.java\t Hit ska den inte komma!");
+	}
+	
+	private void create(Piece pieceThatMoves, Piece affectedPiece, int posTo, int value, MoveType moveType)
 	{
 		this.previousMoveNumber = pieceThatMoves.getPreviousMoveNumber();
 		this.pieceThatMoves = pieceThatMoves;
 		this.posFrom = pieceThatMoves.getPosition();
 		this.posTo = posTo;
 		this.affectedPiece = affectedPiece;
+		this.moveType = moveType;
 		this.value = value;		
+	}
+	
+	public boolean setPromotionType(MoveType moveType)
+	{
+		// kolla så att man kan välja promotiontype
+		if (this.moveType != MoveType.PROMOTION)
+			return false;
+		
+		// se till att man valt rätt 
+		switch(moveType)
+		{
+		case PROMOTION_QUEEN:
+		case PROMOTION_BISHOP:
+		case PROMOTION_KNIGHT:
+		case PROMOTION_ROOK:
+			this.moveType = moveType;
+			return true;
+		default:
+			return false;
+		}
+
+	}
+	
+	public MoveType getMoveType() 
+	{
+		return moveType;
 	}
 	
 	public int getPreviousMoveNumber()

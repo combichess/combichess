@@ -1,10 +1,13 @@
 package test;
 
-import static org.junit.Assert.*;
+/*import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.Test;*/
+
+import org.testng.annotations.*;
+
 import system.board.PlayerColour;
 import system.move.Move;
 import system.piece.PieceType;
@@ -13,7 +16,7 @@ public class TestBoardTest {
 
 	private BoardTester testBoard = null;
 	
-	@Before
+	@BeforeMethod
 	public void initObjects()
 	{
 		testBoard = new BoardTester();
@@ -34,8 +37,10 @@ public class TestBoardTest {
 	@Test
 	public void test01() {
 		Move moveB = testBoard.findBestMoveFor(PlayerColour.Black, 1);
-		assertEquals("One move forward thinking black, step x", 2, moveB.getXmove());
-		assertEquals("One move forward thinking black, step y", 1, moveB.getYmove());
+		assert(moveB.getXmove() == 2);
+		assert(moveB.getYmove() == 1);
+		//assert("One move forward thinking black, step x", 2, moveB.getXmove());
+		//assertEquals("One move forward thinking black, step y", 1, moveB.getYmove());
 	}
 	
 	/**
@@ -44,8 +49,10 @@ public class TestBoardTest {
 	@Test
 	public void test02() {
 		Move moveB = testBoard.findBestMoveFor(PlayerColour.Black, 2);
-		assertEquals("Two move forward thinking black, step x", 2, moveB.getXmove());
-		assertEquals("Two move forward thinking black, step y", -1, moveB.getYmove());
+		assert(moveB.getXmove() == 2);
+		assert(moveB.getYmove() == -1);
+		//assertEquals("Two move forward thinking black, step x", 2, moveB.getXmove());
+		//assertEquals("Two move forward thinking black, step y", -1, moveB.getYmove());
 	}
 	
 	/**
@@ -56,13 +63,17 @@ public class TestBoardTest {
 	@Test
 	public void test03() {
 		Move moveB = testBoard.findBestMoveFor(PlayerColour.Black, 3);
-		assertEquals("Three move forward thinking black, step x", 1, moveB.getXmove());
-		assertEquals("Three move forward thinking black, step y", 2, moveB.getYmove());
+		assert(moveB.getXmove() == 1);
+		assert(moveB.getYmove() == 2);
+		
+		//assertEquals("Three move forward thinking black, step x", 1, moveB.getXmove());
+		//assertEquals("Three move forward thinking black, step y", 2, moveB.getYmove());
 	}
 	
-	@After
+	@AfterMethod
 	public void destroy()
 	{
 		
 	}
 }
+

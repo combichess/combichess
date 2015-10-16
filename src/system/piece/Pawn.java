@@ -6,6 +6,7 @@ import java.util.List;
 import system.board.Board;
 import system.board.PlayerColour;
 import system.move.Move;
+import system.move.MoveType;
 
 public class Pawn extends Piece {
 
@@ -21,20 +22,40 @@ public class Pawn extends Piece {
 		 //Move(Piece pieceThatMoves, Piece affectedPiece, int toX, int toY) {
 		int dy = (this.player == PlayerColour.White)? 1: -1;
 		
+			// ta bort denna
 		if (yPos+dy > 7 || yPos+dy < 0)
 			return nyLista;
 		
 		Piece goToSquare;
-		if (xPos > 0) {
-			goToSquare = board.getPieceOnSquare(this.xPos - 1, this.yPos + dy);
-			if (goToSquare != null && goToSquare.getPlayer() != player)
-				nyLista.add(new Move(this, goToSquare, xPos - 1, yPos + dy, goToSquare.type.getValue()));
-		}
 		
-		if (xPos<7) {
-			goToSquare = board.getPieceOnSquare(this.xPos + 1, this.yPos + dy);
+		List<Integer> xSteps = new ArrayList<>();
+		if (xPos > 0)
+			xSteps.add(-1);
+		if (xPos < 7)
+			xSteps.add(1);
+		
+		for (int dx: xSteps)
+		{
+				// sidotagning för bonde
+			goToSquare = board.getPieceOnSquare(this.xPos + dx, this.yPos + dy);
 			if (goToSquare != null && goToSquare.getPlayer() != player)
-				nyLista.add(new Move(this, goToSquare, xPos + 1, yPos + dy, goToSquare.type.getValue()));
+				nyLista.add(new Move(this, goToSquare, xPos + dx, yPos + dy, PieceType.Pawn.getValue()));
+			
+				// En passant tagning?
+			if (this.yPos == (this.player == PlayerColour.White? 4: 5))
+			{
+				goToSquare = board.getPieceOnSquare(xPos + dx, yPos + dy);
+				Piece takenSquare = board.getPieceOnSquare(xPos + dx, yPos);
+				
+					// activity för takenSquare behöver inte kontrolleras då man hämtar piece från board, och board har inte inaktiva pieces
+				if (goToSquare == null && takenSquare != null && takenSquare.getPlayer() != this.player 
+						&& takenSquare.getPreviousMoveNumber() == board.getMoveNumber() - 1 && takenSquare.getType() == PieceType.Pawn
+						&& board.getLastCommittedMove().getMoveType() == MoveType.DOUBLE_PAWN_MOVE)
+				{
+					nyLista.add(new Move(this, takenSquare, xPos + dx, yPos + dy, PieceType.Pawn.getValue(), 
+							dx>0? MoveType.KING_SIDE_EN_PASSANT: MoveType.QUEEN_SIDE_EN_PASSANT));
+				}
+			}		
 		}
 		
 		goToSquare = board.getPieceOnSquare(this.xPos, this.yPos + dy);
@@ -45,7 +66,8 @@ public class Pawn extends Piece {
 			{
 				dy += dy;
 				goToSquare = board.getPieceOnSquare(this.xPos, this.yPos + dy);
-				nyLista.add(new Move(this, goToSquare, xPos, yPos + dy));
+				if (goToSquare == null)
+					nyLista.add(new Move(this, goToSquare, xPos, yPos + dy, MoveType.DOUBLE_PAWN_MOVE));
 			}
 		}
 		
