@@ -22,8 +22,8 @@ import system.piece.Piece;
 public class Board { 
 	
 	protected LinkedList<Move> committedMoves;
-	protected List<Piece> blacks;
-	protected List<Piece> whites;
+	protected LinkedList<Piece> blacks;
+	protected LinkedList<Piece> whites;
 	protected Piece squares[];
 	protected Player playerBlack;
 	protected Player playerWhite;
@@ -32,8 +32,8 @@ public class Board {
 		// setup
 	protected Board()
 	{
-		blacks = new LinkedList<Piece>();
-		whites = new LinkedList<Piece>();
+		blacks = new LinkedList<>();
+		whites = new LinkedList<>();
 		squares = new Piece[64];
 		committedMoves = new LinkedList<Move>();
 		playerWhite = new Player();
@@ -154,6 +154,8 @@ public class Board {
 	protected int commitMove(Move moveToCommit)
 	{
 		committedMoves.add(moveToCommit);
+		
+			// <------------förändra allt detta, det är fult skrivet och helt onödigt---
 		int oldXPos = moveToCommit.getPiece().getX();
 		int oldYPos = moveToCommit.getPiece().getY();
 		
@@ -165,11 +167,14 @@ public class Board {
 		
 		int newPosId = (newYPos<<3) + newXPos;
 		int oldPosId = (oldYPos<<3) + oldXPos;
+			// --------------------------------------------->
+			
 		
 			// i fall det är en "en passant" så är den tagna pjäsen inte på samma position som den committande pjäsen vandrar till, därför utförs raden här nedan.
 		Piece takenPiece = moveToCommit.getAffectedPiece();
 		if (takenPiece != null) {
-			squares[(takenPiece.getY() << 3) + takenPiece.getX()] = null;
+			//squares[(takenPiece.getY() << 3) + takenPiece.getX()] = null;
+			squares[takenPiece.getPosition()] = null;
 			takenPiece.setActivity(false);
 		}
 		
@@ -182,7 +187,31 @@ public class Board {
 			// throw exception
 			
 		} 
-		squares[newPosId] = moveToCommit.getPiece();
+		
+		if (moveToCommit.getMoveType().isPromotion()) {
+			Piece oldPawn = moveToCommit.getPiece();
+			//PlayerColour pc = moveToCommit.getPiece().getPlayer();
+			oldPawn.setActivity(false);
+			Piece newPiece = null;
+			switch(moveToCommit.getMoveType())
+			{
+			case PROMOTION_BISHOP:
+				newPiece = new Bishop(newPosId%8, newPosId/8, oldPawn.getPlayer());
+				break;
+			case PROMOTION_KNIGHT:
+				newPiece = new Knight(newPosId%8, newPosId/8, oldPawn.getPlayer());
+				break;
+			case PROMOTION_ROOK:
+				newPiece = new Rook(newPosId%8, newPosId/8, oldPawn.getPlayer());
+				break;
+			default:
+				newPiece = new Queen(newPosId%8, newPosId/8, oldPawn.getPlayer());
+				break;
+			}
+			squares[newPosId] = newPiece; 
+		} else {
+			squares[newPosId] = moveToCommit.getPiece();
+		}
 		squares[oldPosId] = null;
 		
 		moveNumber++;
@@ -213,11 +242,24 @@ public class Board {
 		//System.out.println("förändring: " + (toUncommit.getPositionChange()%8) + ", " + (toUncommit.getPositionChange()/8));
 		//System.out.println("det ändras med: " + (gammalPosition%8) + ", " + (gammalPosition/8));
 
-		int positionChangeBack = -toUncommit.getPositionChange();		
-		uncommittingPiece.moveX(positionChangeBack, toUncommit.getPreviousMoveNumber());
-		squares[posPreCommit] = uncommittingPiece;
-		squares[posPostCommit] = null;
-		
+		if (toUncommit.getMoveType().isPromotion()) {
+			//Piece promotedPiece = squares[uncommittingPiece.getPosition()];
+			// sist i listan är den nya pjäsen och den ska tas bort.
+			(uncommittingPiece.getPlayer() == PlayerColour.White? whites: blacks).removeLast();
+			uncommittingPiece.setActivity(true);
+			
+			int positionChangeBack = -toUncommit.getPositionChange();
+			uncommittingPiece.moveX(positionChangeBack, toUncommit.getPreviousMoveNumber());
+			squares[posPreCommit] = uncommittingPiece;
+			squares[posPostCommit] = null;
+			
+		} else {
+			int positionChangeBack = -toUncommit.getPositionChange();		
+			uncommittingPiece.moveX(positionChangeBack, toUncommit.getPreviousMoveNumber());
+			squares[posPreCommit] = uncommittingPiece;
+			squares[posPostCommit] = null;
+		}
+			
 		if (takenPiece != null) {
 			takenPiece.setActivity(true);
 			squares[takenPiece.getPosition()] = takenPiece; 

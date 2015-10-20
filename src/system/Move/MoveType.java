@@ -4,7 +4,7 @@ package system.move;
 public enum MoveType {
 	STANDARD,
 	DOUBLE_PAWN_MOVE,
-	KING_SIDE_EN_PASSANT,
+	KING_SIDE_EN_PASSANT,	// dessa är väl menlösa då det räcker med EN_PASSANT
 	QUEEN_SIDE_EN_PASSANT,
 	//LEFT_PAWN_TAKE, 	ta bort dessa, annars kan de överlappa promotion 
 	//RIGHT_PAWN_TAKE,

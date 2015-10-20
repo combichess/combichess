@@ -260,7 +260,7 @@ public class Gui extends JFrame implements Runnable {
 				updateBoardAvailability(mess.getMessageData());
 				break;
 			case SET_MOVE_AS_STRING: {		// detta är bekräftelse på att ett drag är flyttat och turen flyttas över till nästa spelare.
-				textAreaRight.setText(textAreaRight.getText() + mess.getMessageData());
+				textAreaRight.setText(textAreaRight.getText() + mess.getMessageData() + '\n');
 				gameStatus.switchPlayer();
 				updateMove();
 				break;}

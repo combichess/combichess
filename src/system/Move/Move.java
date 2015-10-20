@@ -50,7 +50,7 @@ public class Move {
 	public boolean setPromotionType(MoveType moveType)
 	{
 		// kolla så att man kan välja promotiontype
-		if (this.moveType != MoveType.PROMOTION)
+		if (!this.moveType.isPromotion())
 			return false;
 		
 		// se till att man valt rätt 

@@ -39,7 +39,12 @@ public class Pawn extends Piece {
 				// sidotagning för bonde
 			goToSquare = board.getPieceOnSquare(this.xPos + dx, this.yPos + dy);
 			if (goToSquare != null && goToSquare.getPlayer() != player)
-				nyLista.add(new Move(this, goToSquare, xPos + dx, yPos + dy, PieceType.Pawn.getValue()));
+			{
+				if (goToSquare.getY() == 0 || goToSquare.getY() == 7)
+					nyLista.add(new Move(this, goToSquare, xPos + dx, yPos + dy, PieceType.Pawn.getValue(), MoveType.PROMOTION));	// Promotion
+				else
+					nyLista.add(new Move(this, goToSquare, xPos + dx, yPos + dy, PieceType.Pawn.getValue()));
+			}
 			
 				// En passant tagning?
 			if (this.yPos == (this.player == PlayerColour.White? 4: 5))

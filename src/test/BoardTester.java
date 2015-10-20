@@ -1,5 +1,7 @@
 package test;
 
+import java.util.List;
+
 import system.board.Board;
 import system.board.PlayerColour;
 import system.move.Move;
@@ -9,6 +11,12 @@ public class BoardTester extends Board{
 	BoardTester() {
 		super();
 		
+	}
+	
+	public List<Integer> getPossibleMoves(PlayerColour colour)
+	{
+		return super.getAllPossibleAllowedSquaresToMoveFrom(colour);
+		//return getAllPossibleMovesFor(colour);
 	}
 	
 	public void clearAllData()
