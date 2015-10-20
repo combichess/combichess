@@ -126,7 +126,9 @@ public class Gui extends JFrame implements Runnable {
 	    	} else {
         		squares[b] = new JButton();
             	squares[b].setMargin(new Insets(0, 0, 0, 0));
-    			squares[b].setBackground(Color.blue);
+            	squares[b].setForeground(Color.red);
+    			//squares[b].setBackground(Color.blue);
+            	squares[b].setBackground(((9*b / 8) % 2) == 0? Color.white: Color.black);
     			squares[b].setBorder(null);
     			squares[b].addActionListener(new AL(b, this));
     			boardPanel.add(squares[b]);
@@ -291,7 +293,7 @@ public class Gui extends JFrame implements Runnable {
 		
 		for (int i=0; i<imageStrings.length; i++)
 		{
-			InputStream input = classLoader.getResourceAsStream(imageStrings[i] + ".bmp");
+			InputStream input = classLoader.getResourceAsStream(imageStrings[i] + ".png");
 			Image img = null;
 			try {
 				img = ImageIO.read(input);
