@@ -10,12 +10,9 @@ import system.board.Player;
 
 public class Main {
 	
-	
 	//public static int String cmdMove;
-	
 	public static void main(String [] args) throws InterruptedException
 	{
-		
 		startGame();
 	}
 	

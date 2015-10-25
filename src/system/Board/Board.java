@@ -60,7 +60,7 @@ public class Board {
 		return committedMoves.getLast();
 	}
 	
-	protected void addPiece(int xPos, int yPos, PlayerColour player, PieceType type) {
+	protected void addPiece(int xPos, int yPos, PlayerColour player, PieceType type, boolean touchedBefore) {
 		Piece newPiece = null;
 		
 		if ((xPos & (~7)) != 0 || (yPos & (~7)) != 0)
@@ -90,7 +90,7 @@ public class Board {
 			newPiece = new King(xPos, yPos, player);
 			break;
 		}
-		
+		newPiece.setPreviousMoveNumber(touchedBefore? 0: Move.PREVIOUSLY_NEVER_MOVED);
 		(player == PlayerColour.White? whites: blacks).add(newPiece);
 		setPieceOnSquare(xPos, yPos, newPiece);
 	}
@@ -191,24 +191,26 @@ public class Board {
 		if (moveToCommit.getMoveType().isPromotion()) {
 			Piece oldPawn = moveToCommit.getPiece();
 			//PlayerColour pc = moveToCommit.getPiece().getPlayer();
+			PlayerColour pc = oldPawn.getPlayer();
 			oldPawn.setActivity(false);
 			Piece newPiece = null;
 			switch(moveToCommit.getMoveType())
 			{
 			case PROMOTION_BISHOP:
-				newPiece = new Bishop(newPosId%8, newPosId/8, oldPawn.getPlayer());
+				newPiece = new Bishop(newPosId%8, newPosId/8, pc);
 				break;
 			case PROMOTION_KNIGHT:
-				newPiece = new Knight(newPosId%8, newPosId/8, oldPawn.getPlayer());
+				newPiece = new Knight(newPosId%8, newPosId/8, pc);
 				break;
 			case PROMOTION_ROOK:
-				newPiece = new Rook(newPosId%8, newPosId/8, oldPawn.getPlayer());
+				newPiece = new Rook(newPosId%8, newPosId/8, pc);
 				break;
 			default:
-				newPiece = new Queen(newPosId%8, newPosId/8, oldPawn.getPlayer());
+				newPiece = new Queen(newPosId%8, newPosId/8, pc);
 				break;
 			}
 			squares[newPosId] = newPiece; 
+			(pc == PlayerColour.White? whites: blacks).add(newPiece);	// byt till addLast för att vara mer specifik, nya pjäser läggs o tas bort sist i kön.
 		} else {
 			squares[newPosId] = moveToCommit.getPiece();
 		}
@@ -284,21 +286,21 @@ public class Board {
 		
 		for (int i=0; i<8; i++)
 		{
-			addPiece(i, 1, PlayerColour.White, PieceType.Pawn);
-			addPiece(i, 6, PlayerColour.Black, PieceType.Pawn);
+			addPiece(i, 1, PlayerColour.White, PieceType.Pawn, false);
+			addPiece(i, 6, PlayerColour.Black, PieceType.Pawn, false);
 		}
 		for (int i=0; i<2; i++)
 		{
 			PlayerColour plr = i==0? PlayerColour.White: PlayerColour.Black;
 			
-			addPiece(0, i*7, plr, PieceType.Rook);
-			addPiece(1, i*7, plr, PieceType.Knight);
-			addPiece(2, i*7, plr, PieceType.Bishop);
-			addPiece(3, i*7, plr, PieceType.Queen);
-			addPiece(4, i*7, plr, PieceType.King);
-			addPiece(5, i*7, plr, PieceType.Bishop);
-			addPiece(6, i*7, plr, PieceType.Knight);
-			addPiece(7, i*7, plr, PieceType.Rook);	
+			addPiece(0, i*7, plr, PieceType.Rook, false);
+			addPiece(1, i*7, plr, PieceType.Knight, false);
+			addPiece(2, i*7, plr, PieceType.Bishop, false);
+			addPiece(3, i*7, plr, PieceType.Queen, false);
+			addPiece(4, i*7, plr, PieceType.King, false);
+			addPiece(5, i*7, plr, PieceType.Bishop, false);
+			addPiece(6, i*7, plr, PieceType.Knight, false);
+			addPiece(7, i*7, plr, PieceType.Rook, false);	
 		}
 		
 	}
@@ -345,6 +347,11 @@ public class Board {
 			if (piece != null && piece.getActivity()) {
 				possibleMoves.addAll(piece.getPossibleMoves(this));
 			}
+		}
+		
+		if (possibleMoves.size() == 0)
+		{
+			possibleMoves = possibleMoves;
 		}
 		
 		return possibleMoves;
@@ -405,14 +412,36 @@ public class Board {
 			return findBestMove(colour);
 		
 		List<Move> moves = getAllPossibleMovesFor(colour);
-		int rekordMoveValue = -100000000;
+		int rekordMoveValue = -100*PieceType.King.getValue();	// tabort, ändra detta till en konstant i PieceType
+		
+		//tabort
+		List<Move> moves2 = getAllPossibleMovesFor(colour);
 		
 		for (Move thisMove : moves)
 		{
+			
+			//tabort			
+			if (thisMove == null)
+			{
+				thisMove = null;
+			} else if (thisMove.getValue() == PieceType.King.getValue()) {
+				// fortsätt inte leta djupare om kungen blir tagen, då är spelet avslutat
+				// annars så fortsätter den byta kungarna för att sen fortsätta spelet (strictly foh-bid'n)
+				return thisMove;
+			}
+			
 				// utför move
 			commitMove(thisMove);
 
 			Move nextMove = findBestMove(colour.getOpponentColour(), N-1);
+			
+			//tabort
+			if (nextMove == null)
+			{
+				Move nextMove2 = findBestMove(colour.getOpponentColour(), N-1);
+				System.out.println(nextMove2);
+			}
+			
 			thisMove.addValueFromNextMove(nextMove);
 			int nyttMoveValue = thisMove.getValue(); 
 
@@ -425,6 +454,11 @@ public class Board {
 				// dra tillbaka senaste move
 			uncommitLastMove();
 		}
+		//tabort	
+		if (rekordMove == null)
+		{
+			rekordMove = null;
+		}
 
 		return rekordMove;
 	}
@@ -434,7 +468,22 @@ public class Board {
 	{		
 			// sätt värdering av pjäserna åt spelaren som spelar.
 		PieceType.setPieceValues((colour == PlayerColour.White? playerWhite: playerBlack).getValueTable());
+		
+		//tabort
+		if (whites.size() != 16 || blacks.size() != 16)
+		{
+			
+			//System.out.println(whites);
+			//System.out.println(blacks);
+		}
+		
 		Move bestMove = findBestMove(colour, N);
+		
+		// tabort
+		if (bestMove.getValue() > PieceType.King.getValue()/2 || bestMove.getValue() < -PieceType.King.getValue()/2)
+		{
+			//System.out.println("tjena, hit ska den inte komma: " + bestMove);
+		}
 		//PieceType.setPieceValues(player.getValueTable());
 		//PlayerColour colour = player == playerWhite? PlayerColour.White: PlayerColour.Black;
 		//Move bestMove = findBestMove(colour, N);

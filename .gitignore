@@ -2,6 +2,7 @@
 .*/
 .*
 *.bmp
+*.txt
 bin/
 test-output/
 

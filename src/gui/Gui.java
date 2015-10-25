@@ -51,6 +51,9 @@ public class Gui extends JFrame implements Runnable {
 	private JLabel[] horizontalCoordLabels = null;
 	private JTextArea textAreaRight = null;
 	
+	private static final Color WHITE_SQUARE_COLOUR = Color.lightGray;
+	private static final Color BLACK_SQUARE_COLOUR = Color.darkGray;
+	
 	private ProcessType processType = ProcessType.Gui_1;
 	private Timer idleTimer;
 	private static final int UPDATE_GUI_IDLE_MILLISECONDS = 10; 
@@ -128,7 +131,7 @@ public class Gui extends JFrame implements Runnable {
             	squares[b].setMargin(new Insets(0, 0, 0, 0));
             	squares[b].setForeground(Color.red);
     			//squares[b].setBackground(Color.blue);
-            	squares[b].setBackground(((9*b / 8) % 2) == 0? Color.white: Color.black);
+            	squares[b].setBackground(((9*b / 8) % 2) == 0? WHITE_SQUARE_COLOUR: BLACK_SQUARE_COLOUR);
     			squares[b].setBorder(null);
     			squares[b].addActionListener(new AL(b, this));
     			boardPanel.add(squares[b]);
@@ -336,6 +339,7 @@ public class Gui extends JFrame implements Runnable {
 			if (icon != null) {
 				squares[buttonId].setText("");
 				squares[buttonId].setIcon(icon);
+				squares[buttonId].setDisabledIcon(icon);
 			} else {
 				squares[buttonId].setText("");
 				squares[buttonId].setIcon(null);

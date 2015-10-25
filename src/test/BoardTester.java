@@ -24,9 +24,9 @@ public class BoardTester extends Board{
 		clearSetup();
 	}
 	
-	public void addPiece(int xPos, int yPos, PlayerColour player, PieceType type)
+	public void addPiece(int xPos, int yPos, PlayerColour player, PieceType type, boolean movedBefore)
 	{
-		super.addPiece(xPos, yPos, player, type);
+		super.addPiece(xPos, yPos, player, type, movedBefore);
 	}
 	
 	public Move findBestMoveFor(PlayerColour col, int N)

@@ -21,12 +21,12 @@ public class TestBoardTest {
 	{
 		testBoard = new BoardTester();
 		testBoard.clearAllData();
-		testBoard.addPiece(4, 2, PlayerColour.Black, PieceType.King);
-		testBoard.addPiece(4, 3, PlayerColour.White, PieceType.Pawn);
-		testBoard.addPiece(2, 4, PlayerColour.Black, PieceType.Knight);
-		testBoard.addPiece(4, 5, PlayerColour.White, PieceType.Knight);
-		testBoard.addPiece(5, 5, PlayerColour.White, PieceType.King);
-		testBoard.addPiece(5, 7, PlayerColour.White, PieceType.Queen);
+		testBoard.addPiece(4, 2, PlayerColour.Black, PieceType.King, true);
+		testBoard.addPiece(4, 3, PlayerColour.White, PieceType.Pawn, true);
+		testBoard.addPiece(2, 4, PlayerColour.Black, PieceType.Knight, true);
+		testBoard.addPiece(4, 5, PlayerColour.White, PieceType.Knight, true);
+		testBoard.addPiece(5, 5, PlayerColour.White, PieceType.King, true);
+		testBoard.addPiece(5, 7, PlayerColour.White, PieceType.Queen, true);
 	}
 	
 	

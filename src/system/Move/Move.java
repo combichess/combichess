@@ -2,6 +2,7 @@ package system.move;
 
 import system.piece.ChessNotation;
 import system.piece.Piece;
+import system.piece.PieceType;
 
 public class Move {
 	public static final int PREVIOUSLY_NEVER_MOVED = -1;
@@ -17,23 +18,50 @@ public class Move {
 						// efterföljande drag ger 3 poäng blir alltså value = 4 - 5 + 3 = 2 poäng
 						// detta görs med addValueFromNextMove()
 	
-		// konstruktor utan givet dragvärde
+		 
+	/** konstruktor utan givet dragvärde
+	 * @param pieceThatMoves
+	 * @param affectedPiece
+	 * @param toX
+	 * @param toY
+	 */
 	public Move(Piece pieceThatMoves, Piece affectedPiece, int toX, int toY) {
 		create(pieceThatMoves, affectedPiece, toX + toY*8, 0, MoveType.STANDARD);
 	}
 		
 		// konstruktor med dragets värde angivet som value
+	/**
+	 * @param pieceThatMoves
+	 * @param affectedPiece
+	 * @param toX
+	 * @param toY
+	 * @param value
+	 */
 	public Move(Piece pieceThatMoves, Piece affectedPiece, int toX, int toY, int value) {
 		create(pieceThatMoves, affectedPiece, toX + toY*8, value, MoveType.STANDARD);
 	}
 	
+	/**
+	 * @param pieceThatMoves
+	 * @param affectedPiece
+	 * @param toX
+	 * @param toY
+	 * @param moveType
+	 */
 	public Move(Piece pieceThatMoves, Piece affectedPiece, int toX, int toY, MoveType moveType) {
 		create(pieceThatMoves, affectedPiece, toX + toY*8, 0, moveType);
-		//System.out.println("Move.java\t Hit ska den inte komma!");
 	}
+	
+	/**
+	 * @param pieceThatMoves
+	 * @param affectedPiece
+	 * @param toX
+	 * @param toY
+	 * @param value
+	 * @param moveType
+	 */
 	public Move(Piece pieceThatMoves, Piece affectedPiece, int toX, int toY, int value, MoveType moveType) {
 		create(pieceThatMoves, affectedPiece, toX + toY*8, value, moveType);
-		//System.out.println("Move.java\t Hit ska den inte komma!");
 	}
 	
 	private void create(Piece pieceThatMoves, Piece affectedPiece, int posTo, int value, MoveType moveType)
@@ -45,6 +73,10 @@ public class Move {
 		this.affectedPiece = affectedPiece;
 		this.moveType = moveType;
 		this.value = value;		
+		if (value > 200 || value < -200) 
+		{
+			value = value;
+		}
 	}
 	
 	public boolean setPromotionType(MoveType moveType)
@@ -132,9 +164,24 @@ public class Move {
 		return str; 
 	}
 	
+	// special om kungen blir tagen, då ska detta visas som konstant (+-)kunga-värde.
+	// 
 	public void addValueFromNextMove(Move nextMove)
 	{
-		value -= nextMove.value;
+
+		if (nextMove == null) {
+			//tabort
+			nextMove = null;
+		} else if (nextMove.value == PieceType.King.getValue()) {
+			//tabort
+			if (value == PieceType.King.getValue())
+			{
+				value = 100;
+				System.out.println("Hit ska den inte komma alls");
+			}
+			value = -PieceType.King.getValue();
+		} else
+			value -= nextMove.value;
 	}
 	
 	public String toString()

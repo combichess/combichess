@@ -15,27 +15,6 @@ import system.piece.PieceType;
 //@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class VariousTests {
 
-	/*
-	 * Junit-test för bonden av schackbonden (pawn-tests, double step, en passant och uncommit)
-
-	kolla möjliga drag från B2, B3 och B4 ska existera
-	kolla möjliga drag från A7, A6 och A5 ska existera
-	B2->B4        A7->A5
-	kolla möjliga drag från B4, B5 och A5 ska existera
-	B4->B5        C7->C5
-	kolla möjliga drag från B5, B4 och C4 men inte A4 ska existera
-	B5->C6
-	kolla att C5 inte existerar
-	uncommitMove
-	kolla att B5 och C5 är identisk med tidigare.
-	B5->C6        C8->A6
-	C6->C7        A6->B5
-	kolla att det finns 3 lägen gånger 4 möjligheter till promotion
-	kolla så att det höga värden på dragen
-	C7->C8        D8->xC8
-	uncommit moves tillbaka till startposition och jämför med startposition
-	 * */
-	
 	private static BoardTester testBoard = null;
 	private static Piece whiteBPawn = null;
 	private static Piece blackAPawn = null;
@@ -51,7 +30,7 @@ public class VariousTests {
 		if (!setupIsExecuted) {
 			testBoard = new BoardTester();
 			testBoard.clearAllData();
-			testBoard.standardSetup();
+			//testBoard.standardSetup();
 			PieceType.setPieceValues(new int[] {1, 3, 4, 5, 9, 100});
 			setupIsExecuted = true;
 		}
@@ -59,8 +38,73 @@ public class VariousTests {
 	
 	@Test
 	public void testVarious01() {
+		testBoard.addPiece(0, 0, PlayerColour.White, PieceType.Rook, false);
+		testBoard.addPiece(2, 0, PlayerColour.White, PieceType.Bishop, false);
+		testBoard.addPiece(4, 0, PlayerColour.White, PieceType.King, false);
+		testBoard.addPiece(5, 0, PlayerColour.White, PieceType.Bishop, false);
+		testBoard.addPiece(7, 0, PlayerColour.White, PieceType.Rook, false);
+		
+		testBoard.addPiece(0, 1, PlayerColour.White, PieceType.Pawn, false);
+		testBoard.addPiece(5, 1, PlayerColour.White, PieceType.Pawn, false);
+		testBoard.addPiece(6, 1, PlayerColour.White, PieceType.Pawn, false);
+		testBoard.addPiece(7, 1, PlayerColour.White, PieceType.Pawn, false);
+		
+		testBoard.addPiece(0, 2, PlayerColour.White, PieceType.Pawn, true);
+		testBoard.addPiece(1, 2, PlayerColour.White, PieceType.Queen, true);
+		testBoard.addPiece(2, 2, PlayerColour.White, PieceType.Knight, true);
+		testBoard.addPiece(5, 2, PlayerColour.White, PieceType.Knight, true);
+
+		testBoard.addPiece(2,  5, PlayerColour.White, PieceType.Pawn, true);
+		testBoard.addPiece(4,  4, PlayerColour.White, PieceType.Pawn, true);
+		
+		/*
+		BR,BN,  ,BQ,BK,BB,BN,BR
+		  ,  ,  ,  ,BP,BP,BP,BP,
+		  ,  ,WP,  ,  ,  ,  ,  ,
+		  ,  ,  ,  ,WP,  ,  ,  ,
+		  ,  ,  ,  ,  ,  ,BB,  ,
+		WP,WQ,WN,  ,  ,WN,  ,  ,
+		WP,  ,  ,  ,  ,WP,WP,WP,
+		WR,  ,WB,  ,WK,WB,  ,WR,
+		*/
+		
+		testBoard.addPiece(0,  7, PlayerColour.Black, PieceType.Rook, false);
+		testBoard.addPiece(1,  7, PlayerColour.Black, PieceType.Knight, false);
+		testBoard.addPiece(3,  7, PlayerColour.Black, PieceType.Queen, false);
+		testBoard.addPiece(4,  7, PlayerColour.Black, PieceType.King, false);
+		testBoard.addPiece(5,  7, PlayerColour.Black, PieceType.Bishop, false);
+		testBoard.addPiece(6,  7, PlayerColour.Black, PieceType.Knight, false);
+		testBoard.addPiece(7,  7, PlayerColour.Black, PieceType.Rook, false);
+		
+		testBoard.addPiece(4,  6, PlayerColour.Black, PieceType.Pawn, false);
+		testBoard.addPiece(5,  6, PlayerColour.Black, PieceType.Pawn, false);
+		testBoard.addPiece(6,  6, PlayerColour.Black, PieceType.Pawn, false);
+		testBoard.addPiece(7,  6, PlayerColour.Black, PieceType.Pawn, false);
+		
+		testBoard.addPiece(6,  3, PlayerColour.Black, PieceType.Bishop, true);
+		
+		System.out.println("Vit ska räkna ut sitt drag");
+		Move moveW = testBoard.findBestMoveFor(PlayerColour.White, 5);
+		System.out.println("Vits drag: " + moveW);
+		System.out.println("Svart ska räkna ut sitt drag");
+		Move moveB = testBoard.findBestMoveFor(PlayerColour.Black, 5);
+		System.out.println("Vits drag: " + moveB);
+		
+		System.out.println(testBoard.toString());
 		/*skicka följande sträng från Board till Gui: 
 
+			
+			BR,BN,  ,BQ,BK,BB,BN,BR
+			  ,  ,  ,  ,BP,BP,BP,BP,
+			  ,  ,WP,  ,  ,  ,  ,  ,
+			  ,  ,  ,  ,WP,  ,  ,  ,
+			  ,  ,  ,  ,  ,  ,BB,  ,
+			WP,WQ,WN,  ,  ,WN,  ,  ,
+			WP,  ,  ,  ,  ,WP,WP,WP,
+			WR,  ,WB,  ,WK,WB,  ,WR,
+			
+			
+			
 			WR,  ,WB,  ,WK,WB,  ,WR,
 			WP,  ,  ,  ,  ,WP,WP,WP,
 			WP,WQ,WN,  ,  ,WN,  ,  ,
@@ -69,6 +113,7 @@ public class VariousTests {
 			  ,  ,WP,  ,  ,  ,  ,  ,
 			  ,  ,  ,  ,BP,BP,BP,BP,
 			BR,BN,  ,BQ,BK,BB,BN,BR
+			
 
 			Board har tagit emot ett meddelande som lyder: From: "Gui"	To: "Board	MessageType: "Propose Move"	Data: "B,5"
 
