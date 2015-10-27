@@ -6,6 +6,7 @@ import java.util.List;
 import system.board.Board;
 import system.board.PlayerColour;
 import system.move.Move;
+import system.move.Moves;
 
 public class Bishop extends Piece {
 
@@ -15,9 +16,9 @@ public class Bishop extends Piece {
 	}
 
 
-	public List<Move> getPossibleMoves(Board board)
+	public Moves getPossibleMoves(Board board)
 	{
-		List<Move> possibleMoves = new ArrayList<Move>();
+		Moves possibleMoves = new Moves();
 		getPossibleDiagonalMoves(possibleMoves, board);
 		return possibleMoves;
 	}

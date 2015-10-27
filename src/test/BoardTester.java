@@ -5,12 +5,18 @@ import java.util.List;
 import system.board.Board;
 import system.board.PlayerColour;
 import system.move.Move;
+import system.move.Moves;
 import system.piece.PieceType;
 
 public class BoardTester extends Board{
 	BoardTester() {
 		super();
 		
+	}
+	
+	public Moves getAllPossibleAllowedMovesFor(PlayerColour colour)
+	{
+		return super.getAllPossibleAllowedMovesFor(colour);
 	}
 	
 	public List<Integer> getPossibleMoves(PlayerColour colour)

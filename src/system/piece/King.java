@@ -7,6 +7,7 @@ import java.util.List;
 import system.board.Board;
 import system.board.PlayerColour;
 import system.move.Move;
+import system.move.Moves;
 
 public class King extends Piece {
 	
@@ -16,9 +17,9 @@ public class King extends Piece {
 	}
 
 
-	public List<Move> getPossibleMoves(Board board)
+	public Moves getPossibleMoves(Board board)
 	{
-		List<Move> nyLista = new ArrayList<Move>();
+		Moves nyLista = new Moves();
 		int maxX = Math.min(8, xPos + 2);
 		int maxY = Math.min(8, yPos + 2);
 		

@@ -6,6 +6,7 @@ import java.util.List;
 import system.board.Board;
 import system.board.PlayerColour;
 import system.move.Move;
+import system.move.Moves;
 
 public class Knight extends Piece {
 
@@ -14,9 +15,9 @@ public class Knight extends Piece {
 		type = PieceType.Knight;
 	}
 
-	public List<Move> getPossibleMoves(Board board)
+	public Moves getPossibleMoves(Board board)
 	{
-		List<Move> possibleMoves = new ArrayList<Move>();
+		Moves possibleMoves = new Moves();
 
 		for (int dir=0; dir<8; dir++) {
 			

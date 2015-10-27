@@ -7,6 +7,7 @@ import system.board.Board;
 import system.board.PlayerColour;
 import system.move.Move;
 import system.move.MoveType;
+import system.move.Moves;
 
 public class Pawn extends Piece {
 
@@ -16,8 +17,8 @@ public class Pawn extends Piece {
 	}
 
 	@Override
-	public List<Move> getPossibleMoves(Board board) {
-		List<Move> nyLista = new ArrayList<Move>();
+	public Moves getPossibleMoves(Board board) {
+		Moves nyLista = new Moves();
 		
 		 //Move(Piece pieceThatMoves, Piece affectedPiece, int toX, int toY) {
 		int dy = (this.player == PlayerColour.White)? 1: -1;
@@ -43,11 +44,9 @@ public class Pawn extends Piece {
 			goToSquare = board.getPieceOnSquare(xPosPlus, yPosPlus);
 			if (goToSquare != null && goToSquare.player != player)
 			{
-				if (goToSquare.yPos == 0 || goToSquare.yPos == 7) {
-					//nyLista.add(new Move(this, goToSquare, xPosPlus, yPosPlus, PieceType.Pawn.getValue(), MoveType.PROMOTION));	// Promotion
-					nyLista.add(new Move(this, goToSquare, xPosPlus, yPosPlus, goToSquare.type.getValue(), MoveType.PROMOTION));	// Promotion
+				if (goToSquare.yPos == 0 || goToSquare.yPos == 7) {	 // Promotion genom att ta pjäs
+					nyLista.add(new Move(this, goToSquare, xPosPlus, yPosPlus, goToSquare.type.getValue() + PieceType.Queen.getValue() - PieceType.Pawn.getValue(), MoveType.PROMOTION));
 				} else {
-					// nyLista.add(new Move(this, goToSquare, xPosPlus, yPosPlus, PieceType.Pawn.getValue()));
 					nyLista.add(new Move(this, goToSquare, xPosPlus, yPosPlus, goToSquare.type.getValue()));
 				}
 			}

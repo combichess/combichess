@@ -11,16 +11,28 @@ public enum PieceType {
 	private final int value;
 	
 	static private int[] valueTable = new int[] {0, 0, 0, 0, 0, 0};
+	static private int kingSizeMoreThan = 0;
+	static private int kingSizeLessThan = 0;
 	
 	static public void setPieceValues(int[] newValues)
 	{
 		for (int i=0; i<6; i++)
 			valueTable[i] = newValues[i];
+		
+		kingSizeLessThan = valueTable[5] + 2*valueTable[4];
+		kingSizeMoreThan = valueTable[5] - 2*valueTable[4];
 	}
 	
 	static public void unsetPieceValues()
 	{
 		setPieceValues(new int[] {0, 0, 0, 0, 0, 0});
+		kingSizeMoreThan = 0;
+		kingSizeLessThan = 0;
+	}
+	
+	static public boolean isMoveValueKingSize(int moveValue)
+	{
+		return (moveValue < kingSizeLessThan) && (moveValue > kingSizeMoreThan);
 	}
 	
 	public String getLetter()
@@ -48,15 +60,11 @@ public enum PieceType {
 		}
 		return str;
 	}
-	//static protected String descriptiveLetter;
 	
 	private PieceType(int value) {
 		this.value = value;
 	}
 	
-    /*public int getValue() {
-        return value;
-    }*/
 	public int getValue()
 	{
 		return valueTable[value];

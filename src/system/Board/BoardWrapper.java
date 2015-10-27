@@ -38,6 +38,8 @@ public class BoardWrapper extends Board implements Runnable {
 				
 				System.out.println("Board har tagit emot ett meddelande som lyder: " + retrieved.toString());
 				
+				System.out.println(this.toString());
+				
 				switch(retrieved.getMessageType())
 				{
 				case COMMIT_MOVE:

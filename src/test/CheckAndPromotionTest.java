@@ -9,11 +9,12 @@ import java.util.List;
 import system.board.PlayerColour;
 import system.move.Move;
 import system.move.MoveType;
+import system.move.Moves;
 import system.piece.Piece;
 import system.piece.PieceType;
 
 //@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class CheckAndCastlingTest {
+public class CheckAndPromotionTest {
 
 	/*
 	 * Junit-test för bonden av schackbonden (pawn-tests, double step, en passant och uncommit)
@@ -77,7 +78,7 @@ public class CheckAndCastlingTest {
 	 * kolla möjliga drag från B2, B3 och B4 ska existera, flytta till B4
 	 */
 	@Test
-	public void testPawn01() {
+	public void testPromotionAndCheck01() {
 		
 		Move blackMove3 = testBoard.findBestMoveFor(PlayerColour.Black, 3);
 		Move whiteMove3 = testBoard.findBestMoveFor(PlayerColour.White, 3);
@@ -116,6 +117,37 @@ public class CheckAndCastlingTest {
 		System.out.println("possible moves: " + blackPromotionMove);
 		testBoard.commitMove_(blackMove3);
 		assert(true);
+	}
+
+	/**
+	 * kolla så att man inte kan gå o sätta sig i schackat läge
+	 */
+	@Test
+	public void testPromotionAndCheck02() {
+		Piece whiteKing = testBoard.getPieceOnSquare(3, 0);
+		print();
+		//Moves moves = whiteKing.getPossibleMoves(testBoard);
+		Moves moves = testBoard.getAllPossibleAllowedMovesFor(whiteKing.getPlayer()).getMovesByPiece(whiteKing);
+		
+		
+		assert(moves.size() == 2);
+		Move moveLeft = moves.get(moves.get(0).getXmove() == -1? 0: 1);
+		testBoard.commitMove_(moveLeft);
+		print();
+		
+		//moves = whiteKing.getPossibleMoves(testBoard);		
+		moves = testBoard.getAllPossibleAllowedMovesFor(whiteKing.getPlayer()).getMovesByPiece(whiteKing);
+		assert(moves.size() == 2);
+		moveLeft = moves.get(moves.get(0).getXmove() == -1? 0: 1);
+		testBoard.commitMove_(moveLeft);
+		print();
+		
+		//moves = whiteKing.getPossibleMoves(testBoard);
+		moves = testBoard.getAllPossibleAllowedMovesFor(whiteKing.getPlayer()).getMovesByPiece(whiteKing);
+		assert(moves.size() == 2);
+		moveLeft = moves.get(moves.get(0).getXmove() == -1? 0: 1);
+		testBoard.commitMove_(moveLeft);
+		print();
 	}
 	
 	private void print()

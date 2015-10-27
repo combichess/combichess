@@ -1,11 +1,14 @@
 package system.board;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import system.board.PlayerColour;
 import system.move.Move;
+import system.move.Moves;
 import system.piece.Bishop;
 import system.piece.ChessNotation;
 import system.piece.King;
@@ -182,7 +185,7 @@ public class Board {
 		moveToCommit.getPiece().moveX(dx + dy*8, moveNumber);
 		if (newPosId > 63 || newPosId < 0 || oldPosId > 63 || oldPosId < 0)
 		{
-			System.out.println("boardet now: " + this.toString());
+			System.out.println("boardet now:\n" + this.toString());
 			System.out.println("newPosId: " + newPosId + "\t oldPosId: " + oldPosId);
 			// throw exception
 			
@@ -218,16 +221,6 @@ public class Board {
 		
 		moveNumber++;
 		return 0;
-	}
-	
-	protected Move getHighestValueMove(List<Move> moves)
-	{
-		return null;
-	}
-	
-	protected Move getLowestValueMove(List<Move> moves)
-	{
-		return null;
 	}
 	
 	protected int uncommitLastMove()
@@ -335,8 +328,8 @@ public class Board {
 		return str;
 	}
 	
-	protected List<Move> getAllPossibleMovesFor(PlayerColour colour) {
-		List<Move> possibleMoves = new ArrayList<Move>();
+	protected Moves getAllPossibleMovesFor(PlayerColour colour) {
+		Moves possibleMoves = new Moves();
 			
 			//sätt upp spelarens valueTable(pjäsvärden) i PieceType.java så att det snabbt kan returnera rätt värde på 
 		PieceType.setPieceValues((colour == PlayerColour.White? playerWhite: playerBlack).getValueTable());
@@ -349,59 +342,80 @@ public class Board {
 			}
 		}
 		
-		if (possibleMoves.size() == 0)
-		{
-			possibleMoves = possibleMoves;
+		return possibleMoves;
+	}
+	
+	protected Moves getAllPossibleAllowedMovesFor(PlayerColour colour) {
+		Moves possibleMoves = new Moves();
+			
+			//sätt upp spelarens valueTable(pjäsvärden) i PieceType.java så att det snabbt kan returnera rätt värde på 
+		PieceType.setPieceValues((colour == PlayerColour.White? playerWhite: playerBlack).getValueTable());
+		
+		List<Piece> playerPieces = (colour == PlayerColour.White)? whites: blacks;
+		for (Piece piece : playerPieces) {
+			if (piece != null && piece.getActivity()) {
+				possibleMoves.addAll(piece.getPossibleMoves(this));
+			}
 		}
+
+		
+		PlayerColour opponentColour = colour.getOpponentColour();
+		
+		Iterator<Move> iter = possibleMoves.iterator();
+		
+		
+		while (iter.hasNext())
+		{
+			// flytta över detta till en isColourChecked 
+			commitMove(iter.next());
+			Move bestOpponentMove = getAllPossibleMovesFor(opponentColour).getBestMoveFromList();
+			
+			if (PieceType.isMoveValueKingSize(bestOpponentMove.getValue()))
+				iter.remove();	// om kungen kan tas så är colour schackad i föregående drag, därför får inte move vara med i Moves				
+			
+			uncommitLastMove();
+		}
+		
+		/*for (Move move: possibleMoves) {
+			commitMove(move);
+			Move bestOpponentMove = getAllPossibleMovesFor(opponentColour).getBestMoveFromList();
+			
+			if (PieceType.isMoveValueKingSize(bestOpponentMove.getValue()))
+				possibleMoves.remove(move);	// om kungen kan tas så är colour schackad i föregående drag, därför får inte move vara med i Moves				
+			
+			uncommitLastMove();
+		}*/
+		
 		
 		return possibleMoves;
 	}
+	
 	
 		// returnerar alla möjliga tillåtna positioner colour kan flytta från
 		// fixa denna senare, kolla upp om spelare står schack eller om flytt av pjäs kan flytta utan att ställa sig själv schack
 	protected List<Integer> getAllPossibleAllowedSquaresToMoveFrom(PlayerColour colour)
 	{
-		List<Integer> positioner = new LinkedList<Integer>();
-		for (Piece piece : squares)
-		{
-			if (piece != null && piece.getActivity() && piece.getPlayer() == colour)
-				positioner.add(piece.getPosition());
-		}
-		return positioner;
+		List<Integer> listWithMovesFrom = new ArrayList<>();
+		Set<Integer> setWithMovesFrom = getAllPossibleAllowedMovesFor(colour).getAllPossibleSquaresToMoveFrom();
+		listWithMovesFrom.addAll(setWithMovesFrom);
+		return listWithMovesFrom;
+		//return getAllPossibleAllowedMovesFor(colour).getAllPossibleSquaresToMoveFrom();
 	}
 	
 		// returnerar alla möjliga platser pjäs kan flytta till.
 		// fixa denna senare på samma sätt som ovan.
 	protected List<Integer> getAllPossibleAllowedSquaresToMoveToWith(Piece piece)
 	{
-		List<Integer> positioner = new LinkedList<Integer>();
-		List<Move> moves = piece.getPossibleMoves(this);
-		for (Move move: moves)
-			positioner.add(move.getToPos());
-		
-		return positioner;
-	}
-	
-	static private Move getBestMoveFromList(List<Move> moves)
-	{
-		Move bestMove = moves.get(0);
-		int bestValue = bestMove.getValue();
-		
-		for (Move move: moves)
-		{
-			if (move.getValue() > bestValue) {
-				bestMove = move;
-				bestValue = move.getValue();
-			}
-		}
-		
-		return bestMove;		
+		List<Integer> listWithMovesFrom = new ArrayList<>();
+		Set<Integer> setWithMovesFrom = getAllPossibleAllowedMovesFor(piece.getPlayer()).getMovesByPiece(piece).getAllPossibleSquaresToMoveTo();
+		listWithMovesFrom.addAll(setWithMovesFrom);
+		return listWithMovesFrom;
+		//return getAllPossibleAllowedMovesFor(piece.getPlayer()).getMovesByPiece(piece).getAllPossibleSquaresToMoveTo();
 	}
 	
 	private Move findBestMove(PlayerColour colour)
 	{
-		List<Move> moves = getAllPossibleMovesFor(colour);
-		return getBestMoveFromList(moves);
+		return getAllPossibleMovesFor(colour).getBestMoveFromList();
 	}
 	
 	private Move findBestMove(PlayerColour colour, int N)
@@ -411,11 +425,8 @@ public class Board {
 		if (N == 1)
 			return findBestMove(colour);
 		
-		List<Move> moves = getAllPossibleMovesFor(colour);
+		Moves moves = getAllPossibleMovesFor(colour);
 		int rekordMoveValue = -100*PieceType.King.getValue();	// tabort, ändra detta till en konstant i PieceType
-		
-		//tabort
-		List<Move> moves2 = getAllPossibleMovesFor(colour);
 		
 		for (Move thisMove : moves)
 		{
@@ -479,15 +490,10 @@ public class Board {
 		
 		Move bestMove = findBestMove(colour, N);
 		
-		// tabort
-		if (bestMove.getValue() > PieceType.King.getValue()/2 || bestMove.getValue() < -PieceType.King.getValue()/2)
-		{
-			//System.out.println("tjena, hit ska den inte komma: " + bestMove);
-		}
-		//PieceType.setPieceValues(player.getValueTable());
-		//PlayerColour colour = player == playerWhite? PlayerColour.White: PlayerColour.Black;
-		//Move bestMove = findBestMove(colour, N);
-	
+		// hämta alla drag som man faktiskt får utföra, och spåna vidare därifrån.
+		// detta för att undvika att den ställer sig schack.
+		//getAllPossibleMovesFor(colour)
+			
 		// nollställ värderingen av pjäserna när spelaren letat färdigt
 		PieceType.unsetPieceValues();
 		return bestMove;

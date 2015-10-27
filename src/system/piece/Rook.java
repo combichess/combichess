@@ -7,6 +7,7 @@ import java.util.List;
 import system.board.Board;
 import system.board.PlayerColour;
 import system.move.Move;
+import system.move.Moves;
 
 public class Rook extends Piece {
 
@@ -16,9 +17,9 @@ public class Rook extends Piece {
 	}
 
 	
-	public List<Move> getPossibleMoves(Board board)
+	public Moves getPossibleMoves(Board board)
 	{
-		List<Move> possibleMoves = new ArrayList<Move>();
+		Moves possibleMoves = new Moves();
 		getPossibleStraightMoves(possibleMoves, board);
 		return possibleMoves;
 	}

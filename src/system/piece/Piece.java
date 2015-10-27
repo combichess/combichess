@@ -5,6 +5,7 @@ import java.util.List;
 import system.board.Board;
 import system.board.PlayerColour;
 import system.move.Move;
+import system.move.Moves;
 
 public abstract class Piece implements PieceInterface {
 
@@ -120,7 +121,7 @@ public abstract class Piece implements PieceInterface {
 		return toReturn;
 	}
 	
-	protected void getPossibleDiagonalMoves(List<Move> possibleMoves, Board board)
+	protected void getPossibleDiagonalMoves(Moves possibleMoves, Board board)
 	{
 		for (int direction=0; direction<4; direction++) {
 			int dx = ((direction&1) == 1)? 1: -1;
@@ -146,7 +147,7 @@ public abstract class Piece implements PieceInterface {
 		}
 	}
 	
-	protected void getPossibleStraightMoves(List<Move> possibleMoves, Board board)
+	protected void getPossibleStraightMoves(Moves possibleMoves, Board board)
 	{
 		for (int direction=0; direction<4; direction++) {
 			int dx = (((direction&2)==0)? 1: -1) * (((direction & 1)==0)? 1: 0); // -1, 0, 1, 0
