@@ -1,7 +1,5 @@
 package system.piece;
 
-import java.util.List;
-
 import system.board.Board;
 import system.board.PlayerColour;
 import system.move.Move;

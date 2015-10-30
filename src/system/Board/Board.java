@@ -366,7 +366,7 @@ public class Board {
 		
 		while (iter.hasNext())
 		{
-			// flytta över detta till en isColourChecked 
+			// flytta över detta till någon av isPlayerChecked, isPlayerCheckMate, draw 
 			commitMove(iter.next());
 			Move bestOpponentMove = getAllPossibleMovesFor(opponentColour).getBestMoveFromList();
 			
@@ -375,17 +375,6 @@ public class Board {
 			
 			uncommitLastMove();
 		}
-		
-		/*for (Move move: possibleMoves) {
-			commitMove(move);
-			Move bestOpponentMove = getAllPossibleMovesFor(opponentColour).getBestMoveFromList();
-			
-			if (PieceType.isMoveValueKingSize(bestOpponentMove.getValue()))
-				possibleMoves.remove(move);	// om kungen kan tas så är colour schackad i föregående drag, därför får inte move vara med i Moves				
-			
-			uncommitLastMove();
-		}*/
-		
 		
 		return possibleMoves;
 	}
