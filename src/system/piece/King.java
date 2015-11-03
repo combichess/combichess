@@ -4,8 +4,10 @@ package system.piece;
 import system.board.Board;
 import system.board.PlayerColour;
 import system.move.Move;
+import system.move.MoveType;
 import system.move.Moves;
 
+/*
 public class King extends Piece {
 	
 	public King(int xPos, int yPos, PlayerColour player) {
@@ -37,9 +39,9 @@ public class King extends Piece {
 		return nyLista;
 	}
 }
+*/
 
 
-/*
 public class King extends Piece {
     
     private static int[][] SQRS_TO_CHECK = {
@@ -61,21 +63,31 @@ public class King extends Piece {
     }
 
 
-    public List<Move> getPossibleMoves(Board board)
+    public Moves getPossibleMoves(Board board)
     {
         Moves nyLista = new Moves();
         int val = (xPos>0? 1: 0) + (xPos==7? 1: 0) + (yPos>0? 3: 0) + (yPos==7? 3: 0);
         int presentPos = xPos + 8*yPos;
+        
         for (int dPos: SQRS_TO_CHECK[val])
         {
-            Piece pieceOnNewSquare = board.getPieceOnSquare(presentPos + dPos);
+        	int newPos = presentPos + dPos;
+            Piece pieceOnNewSquare = board.getPieceOnSquare(newPos);
             if (pieceOnNewSquare == null)
-                nyLista.add(new Move(this, pieceOnNewSquare, x, y));
+                nyLista.add(new Move(this, pieceOnNewSquare, newPos&7, newPos/8));
             else if (pieceOnNewSquare.getPlayer() != player)
-                nyLista.add(new Move(this, pieceOnNewSquare, x, y, pieceOnNewSquare.type.getValue()));
-                
+                nyLista.add(new Move(this, pieceOnNewSquare, pieceOnNewSquare.xPos, pieceOnNewSquare.yPos, pieceOnNewSquare.type.getValue()));
+        }
+        
+        // check castling
+        int castlingY = getPlayer() == PlayerColour.White? 0: 7; 
+        if (castlingY == yPos && super.getPreviousMoveNumber() == Move.PREVIOUSLY_NEVER_MOVED)
+        {
+        	// Kingside castling
+        	
+        	// Queenside castling
         }
         
         return nyLista;
     }
-*/
+}

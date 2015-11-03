@@ -66,6 +66,11 @@ public class Move {
 	
 	private void create(Piece pieceThatMoves, Piece affectedPiece, int posTo, int value, MoveType moveType)
 	{
+		//tabort
+		if (moveType == MoveType.KING_SIDE_EN_PASSANT && value == 0)
+		{
+			value = value;
+		}
 		this.previousMoveNumber = pieceThatMoves.getPreviousMoveNumber();
 		this.pieceThatMoves = pieceThatMoves;
 		this.posFrom = pieceThatMoves.getPosition();

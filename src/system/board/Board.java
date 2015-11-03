@@ -47,6 +47,11 @@ public class Board {
 	{
 		return squares[(y<<3) + x];
 	}
+	
+	public Piece getPieceOnSquare(int pos)
+	{
+		return squares[pos];
+	}
 
 	protected void setPieceOnSquare(int xPos, int yPos, Piece piece)
 	{

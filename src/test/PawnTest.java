@@ -45,7 +45,8 @@ public class PawnTest {
 	
 	private static boolean printStatus = true;
 	
-	@BeforeTest
+	//@BeforeTest
+	@BeforeClass
 	public void initObjects()
 	{
 		if (!setupIsExecuted) {
@@ -61,8 +62,10 @@ public class PawnTest {
 	/**
 	 * kolla möjliga drag från B2, B3 och B4 ska existera, flytta till B4
 	 */
-	@Test
+	@Test(priority=1)
 	public void testPawn01() {
+		assert(PieceType.Pawn.getValue() == 1);
+		
 		whiteBPawn = testBoard.getPieceOnSquare(1, 1);
 		List<Move> whitePawnMoveList = whiteBPawn.getPossibleMoves(testBoard);
 		System.out.println(whitePawnMoveList);
@@ -92,7 +95,7 @@ public class PawnTest {
 	/**
 	 * kolla möjliga drag från A7, A6 och A5 ska existera
 	 */
-	@Test
+	@Test(priority=2)
 	public void testPawn02() {
 		blackAPawn = testBoard.getPieceOnSquare(0, 6);
 		List<Move> blackPawnMoveList = blackAPawn.getPossibleMoves(testBoard);
@@ -124,7 +127,7 @@ public class PawnTest {
 	 * kolla möjliga drag från B4, B5 och A5 ska existera
 	 * B4->B5        C7->C5
 	 */
-	@Test
+	@Test(priority=3)
 	public void testPawn03() {
 		List<Move> whitePawnMoveList = whiteBPawn.getPossibleMoves(testBoard);
 		System.out.println(whitePawnMoveList);
@@ -161,7 +164,7 @@ public class PawnTest {
 	 * B5->C6
 	 * kolla att C5 inte existerar
 	 */
-	@Test
+	@Test(priority=4)
 	public void testPawn04() {
 		Piece blackBPawn = testBoard.getPieceOnSquare(1, 6);
 		List<Move> blackPawnMoveList = blackBPawn.getPossibleMoves(testBoard);
@@ -198,7 +201,7 @@ public class PawnTest {
 		
 		//blackCPawn = testBoard.getPieceOnSquare(2, 6);
 		print();
-		
+		System.out.println("moveEP: " + moveEP);
 		assert(moveEP.getValue() > 0);
 		
 		
@@ -211,7 +214,7 @@ public class PawnTest {
 	 * kolla att uncommit fungerar för en-passant drag.
 	 * 
 	 */
-	@Test
+	@Test(priority=5)
 	public void testPawn05() {
 		testBoard.uncommit();
 		print();
@@ -236,7 +239,7 @@ public class PawnTest {
 	/**
 	 * 
 	 */
-	@Test
+	@Test(priority=6)
 	public void testPawn06()
 	{
 		blackQueen = testBoard.getPieceOnSquare(3, 7);
@@ -272,7 +275,7 @@ public class PawnTest {
 	 * Uncommit Move, check status
 	 * Redo Promote move
 	 */
-	@Test
+	@Test(priority=7)
 	public void testPawn07()
 	{
 		Move queenMove = new Move(blackQueen, null, 7, blackQueen.getY());
@@ -315,7 +318,7 @@ public class PawnTest {
 	/**
 	 * check that Black is mate
 	 */
-	@Test
+	@Test(priority=8)
 	public void testPawn08()
 	{
 		List<Integer> blackMoves = testBoard.getPossibleMoves(PlayerColour.Black);
