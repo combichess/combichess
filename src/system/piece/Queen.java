@@ -12,6 +12,7 @@ public class Queen extends Piece {
 		type = PieceType.Queen;
 	}
 
+	@Override
 	public Moves getPossibleMoves(Board board)
 	{
 		Moves possibleMoves = new Moves();

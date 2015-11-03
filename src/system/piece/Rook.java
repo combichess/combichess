@@ -12,6 +12,7 @@ public class Rook extends Piece {
 	}
 
 	
+	@Override
 	public Moves getPossibleMoves(Board board)
 	{
 		Moves possibleMoves = new Moves();

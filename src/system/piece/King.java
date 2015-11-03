@@ -14,6 +14,7 @@ public class King extends Piece {
 	}
 
 
+	@Override
 	public Moves getPossibleMoves(Board board)
 	{
 		Moves nyLista = new Moves();

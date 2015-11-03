@@ -184,6 +184,7 @@ public class Move {
 			value -= nextMove.value;
 	}
 	
+	@Override
 	public String toString()
 	{
 		return toString(ChessNotation.ALGEBRAIC);	// det ska även innehålla drag-nummer

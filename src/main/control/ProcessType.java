@@ -12,6 +12,7 @@ public enum ProcessType {
 		this.value = value;
 	}
 	
+	@Override
 	public String toString()
 	{
 		switch(value)

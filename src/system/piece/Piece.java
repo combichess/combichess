@@ -82,6 +82,7 @@ public abstract class Piece implements PieceInterface {
 	}
 	
 	
+	@Override
 	public String toString()
 	{
 		return toString(xPos + yPos*8, ChessNotation.ALGEBRAIC); 

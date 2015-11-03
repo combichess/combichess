@@ -1,0 +1,9 @@
+För att installera TestNG: Klicka Help -> Install new sw
+Work with: http://beust.com/eclipse
+Dra in skiten på datan. Funkar det inte så besöker man:
+http://testng.org/doc/download.html
+
+
+Om man klonar projektet från ett github-konto på annan dato så måste man fixa en ssh-key
+https://help.github.com/articles/generating-ssh-keys/#step-4-add-your-ssh-key-to-your-account
+https://help.github.com/articles/generating-ssh-keys/#platform-windows

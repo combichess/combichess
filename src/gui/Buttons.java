@@ -30,7 +30,8 @@ public enum Buttons {
     	return value;
     }
     
-    public String toString()
+    @Override
+	public String toString()
     {
     	switch(this)
     	{

@@ -14,6 +14,7 @@ public class BoardTester extends Board{
 		
 	}
 	
+	@Override
 	public Moves getAllPossibleAllowedMovesFor(PlayerColour colour)
 	{
 		return super.getAllPossibleAllowedMovesFor(colour);
@@ -30,16 +31,19 @@ public class BoardTester extends Board{
 		clearSetup();
 	}
 	
+	@Override
 	public void addPiece(int xPos, int yPos, PlayerColour player, PieceType type, boolean movedBefore)
 	{
 		super.addPiece(xPos, yPos, player, type, movedBefore);
 	}
 	
+	@Override
 	public Move findBestMoveFor(PlayerColour col, int N)
 	{
 		return super.findBestMoveFor(col, N);
 	}
 	
+	@Override
 	public void standardSetup()
 	{
 		super.standardSetup();

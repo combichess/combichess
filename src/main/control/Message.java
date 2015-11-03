@@ -33,6 +33,7 @@ public class Message {
 		return messageData;
 	}
 	
+	@Override
 	public String toString()
 	{
 		String str = "From: \"" + messageFrom.toString();

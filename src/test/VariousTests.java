@@ -4,11 +4,8 @@ package test;
 
 import org.testng.annotations.*;
 
-import java.util.List;
-
 import system.board.PlayerColour;
 import system.move.Move;
-import system.move.MoveType;
 import system.piece.Piece;
 import system.piece.PieceType;
 

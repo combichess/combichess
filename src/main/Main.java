@@ -6,7 +6,6 @@ package main;
 
 import gui.Gui;
 import system.board.BoardWrapper;
-import system.board.Player;
 
 public class Main {
 	

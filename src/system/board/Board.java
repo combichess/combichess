@@ -303,6 +303,7 @@ public class Board {
 		return squares[horizontal - 9 + 8*vertical];
 	}
 	
+	@Override
 	public String toString()
 	{
 		String str = "";

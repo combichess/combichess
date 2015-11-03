@@ -20,7 +20,8 @@ public enum MessageType {
     	value = val;
     }
     
-    public String toString()
+    @Override
+	public String toString()
     {
     	switch(value)
     	{
