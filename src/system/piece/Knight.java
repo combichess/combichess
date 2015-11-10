@@ -47,4 +47,22 @@ public class Knight extends Piece {
 		}
 		return possibleMoves;
 	}
+
+	@Override
+	public boolean isPieceThreateningPosition(int squarePos, Piece[] squares) {
+		
+		switch(((squarePos&7) - xPos) + ((squarePos/8) - yPos)*8)
+		{
+		case 17:
+		case 15:
+		case 10:
+		case 6:
+		case -6:
+		case -10:
+		case -15:
+		case -17:
+			return true;
+		}
+		return false;
+	}
 }

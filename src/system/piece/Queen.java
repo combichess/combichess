@@ -21,5 +21,11 @@ public class Queen extends Piece {
 		return possibleMoves;
 	}
 	
+	@Override
+	public boolean isPieceThreateningPosition(int pos, Piece[] squares) {
+		return (super.isThreateningSquareStraight(pos, squares) ||
+				super.isThreateningSquareDiagonally(pos, squares)); 
+	}
+	
 	
 }

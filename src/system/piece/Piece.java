@@ -29,6 +29,88 @@ public abstract class Piece implements PieceInterface {
 		this.previousMoveNumber = Move.PREVIOUSLY_NEVER_MOVED;
 	}
 	
+	
+	protected boolean isThreateningSquareDiagonally(int squarePos, Piece[] squares)
+	{
+		int pos = xPos + 8*yPos;
+		
+
+		if (pos == squarePos)
+			return false;
+		int xSquarePos = squarePos&7; 
+		int ySquarePos = squarePos/8;
+		
+		int xDiff = xPos - xSquarePos;
+		int yDiff = yPos - ySquarePos;
+		
+		
+		if (xDiff == yDiff) {
+			int dPos = xDiff>0? 9: -9;
+
+			if (squarePos < 0 || squarePos > 63)
+			{
+				squarePos ++;
+				squarePos--;
+			}
+			
+			for (squarePos += dPos; squarePos != pos; squarePos += dPos)
+			{
+				if (squares[squarePos] != null)
+					return false;
+			}
+			return true;
+		} else if(xDiff == -yDiff) {
+			int dPos = xDiff>0? -7: 7;
+			for (squarePos += dPos; squarePos != pos; squarePos += dPos)
+			{
+				if (squarePos < 0 || squarePos > 63)
+				{
+					squarePos ++;
+					squarePos--;
+				}
+				
+				if (squares[squarePos] != null)
+					return false;
+			}
+			return true;
+		}
+		return false;
+	}
+	
+	protected boolean isThreateningSquareStraight(int squarePos, Piece[] squares)
+	{
+		int pos = xPos + 8*yPos;
+		if (pos == squarePos)
+			return false;
+		
+		int xSquarePos = squarePos&7; 
+		int ySquarePos = squarePos/8;
+		
+		if (xSquarePos == xPos) {
+			int dPos = ySquarePos<yPos? 8: -8;
+			for (squarePos += dPos; squarePos != pos; squarePos += dPos)
+			{
+				if (squarePos > 63 || squarePos < 0)
+				{
+					squarePos = squarePos + 1;
+					squarePos--;
+				}
+				if (squares[squarePos] != null)
+					return false;
+			}
+			return true;
+		} else if(ySquarePos == yPos) {
+			int dPos = xSquarePos<xPos? 1: -1;
+			for (squarePos += dPos; squarePos != pos; squarePos += dPos)
+			{
+				if (squares[squarePos] != null)
+					return false;
+			}
+			return true;
+		}
+		return false;
+	}
+	
 	protected String getPieceCoordsAsString()
 	{
 		char xCharPos = 'a';

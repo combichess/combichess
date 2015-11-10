@@ -95,4 +95,22 @@ public class Pawn extends Piece {
 		
 		return nyLista;
 	}
+
+	@Override
+	public boolean isPieceThreateningPosition(int squarePos, Piece[] squares) {
+		int squareXPos = squarePos&7;
+		int squareYPos = squarePos/8;
+		
+		if (squareYPos != (super.player == PlayerColour.White? (yPos + 1): (yPos - 1)))
+			return false;
+		
+		switch(squareXPos - xPos)
+		{
+		case 1:
+		case -1:
+			return true;
+		}
+		
+		return false;
+	}
 }

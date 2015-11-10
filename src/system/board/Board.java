@@ -497,7 +497,32 @@ public class Board {
 		// ange endast fromPos och toPos, för att beskriva ett drag.
 	protected Move createMoveFromPositions(int fromPos, int toPos)
 	{
-		return null;
+		Piece piece = squares[fromPos];
+		if (piece == null)
+			return null;
+		
+		Moves moves = piece.getPossibleMoves(this).getMovesToPos(toPos);
+		if (moves == null || moves.size() == 0)
+			return null;
+		
+		return moves.get(0);
 		// vid castling krävs mer information
 	}
+	
+	public boolean isSquareThreatnedBy(int pos, PlayerColour pc)
+	{
+		List<Piece> pieces = ((pc == PlayerColour.White)? whites: blacks);
+		
+		for (Piece piece: pieces)
+		{
+			if (piece.isPieceThreateningPosition(pos, squares))
+				return true;
+		}
+		
+		return false;
+	}
 }
+
+
+
+

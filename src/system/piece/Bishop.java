@@ -20,4 +20,8 @@ public class Bishop extends Piece {
 		return possibleMoves;
 	}
 
+	@Override
+	public boolean isPieceThreateningPosition(int pos, Piece[] squares) {
+		return super.isThreateningSquareDiagonally(pos, squares);
+	}
 }
