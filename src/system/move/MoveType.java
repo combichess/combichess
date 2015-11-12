@@ -30,6 +30,17 @@ public enum MoveType {
 			return false;
 		}
 	}
+	
+	public boolean isCastling()
+	{
+		switch(this) {
+		case QUEEN_SIDE_CASTLING:
+		case KING_SIDE_CASTLING:
+			return true;
+		default:
+			return false;
+		}
+	}
 }
 
 /*

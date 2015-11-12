@@ -4,6 +4,7 @@ package system.piece;
 import system.board.Board;
 import system.board.PlayerColour;
 import system.move.Move;
+import system.move.MoveType;
 import system.move.Moves;
 
 public class King extends Piece {
@@ -45,11 +46,35 @@ public class King extends Piece {
         
         // check castling
         int castlingY = getPlayer() == PlayerColour.White? 0: 7; 
-        if (castlingY == yPos && super.getPreviousMoveNumber() == Move.PREVIOUSLY_NEVER_MOVED)
+        PlayerColour opponent = getPlayer().getOpponentColour();
+        int kingPos = getPosition();
+        if (yPos == castlingY && super.getPreviousMoveNumber() == Move.PREVIOUSLY_NEVER_MOVED
+        		&& !board.isSquareThreatnedBy(kingPos, opponent))
         {
         	// Kingside castling
+        	Piece rook = board.getPieceOnSquare(kingPos+3);
+        	if (board.getPieceOnSquare(kingPos+1) == null && 
+        			board.getPieceOnSquare(kingPos+2) == null && 
+        			rook != null &&
+        			rook.getPreviousMoveNumber() == Move.PREVIOUSLY_NEVER_MOVED &&
+        			!board.isSquareThreatnedBy(kingPos+1, opponent) && // <- time consuming comparison is done last
+        			!board.isSquareThreatnedBy(kingPos+2, opponent))
+        	{
+        		nyLista.add(new Move(this, null, xPos+2, yPos, MoveType.KING_SIDE_CASTLING));
+        	}
         	
         	// Queenside castling
+        	rook = board.getPieceOnSquare(kingPos-4);
+        	if (board.getPieceOnSquare(kingPos-1) == null && 
+        			board.getPieceOnSquare(kingPos-2) == null &&
+        			board.getPieceOnSquare(kingPos-3) == null && 
+        			rook != null &&
+        			rook.getPreviousMoveNumber() == Move.PREVIOUSLY_NEVER_MOVED &&
+        			!board.isSquareThreatnedBy(kingPos-1, opponent) && // <- time consuming comparison is done in the end
+        			!board.isSquareThreatnedBy(kingPos-2, opponent))
+        	{
+        		nyLista.add(new Move(this, null, xPos-2, yPos, MoveType.QUEEN_SIDE_CASTLING));
+        	}
         }
         
         return nyLista;

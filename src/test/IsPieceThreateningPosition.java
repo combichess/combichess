@@ -35,27 +35,40 @@ public class IsPieceThreateningPosition {
 	{
 		boolean t = true;
 		boolean f = false;
+		
 		boolean[][] shouldBeThreatened = new boolean[][] {
-			new boolean[] {f, t, f, t, f, t, f, f},
+			new boolean[] {f, t, t, t, f, t, f, f},
 			new boolean[] {f, f, t, f, f, f, t, f}, 
-			new boolean[] {t, t, f, t, f, t, f, f}, 
-			new boolean[] {f, f, t, f, t, t, f, t}, 
-			new boolean[] {f, f, t, t, f, f, f, t}, 
+			new boolean[] {t, t, f, t, t, f, f, f}, 
+			new boolean[] {f, f, t, f, t, t, t, t}, 
+			new boolean[] {f, f, t, t, f, t, f, t}, 
 			new boolean[] {f, f, t, f, t, f, t, f}, 
 			new boolean[] {f, f, t, t, f, f, f, t}, 
 			new boolean[] {f, f, t, f, f, f, f, f}
 		};
 		
+
 		PlayerColour black = PlayerColour.Black;
-		for (int x = 0; x<8; x++)
+		String str1 = "";
+		String str2 = "";
+		for (int y = 7; y>=0; y--)
 		{
-			for (int y=0; y<8; y++)
+			for (int x=0; x<8; x++)
 			{
 				int pos = x + y*8;
 				boolean isThreatened = testBoard.isSquareThreatnedBy(pos, black);
-				if (shouldBeThreatened[y][x] != isThreatened)
+				assert(shouldBeThreatened[7-y][x] == isThreatened);
+				if (shouldBeThreatened[7-y][x] != isThreatened)
 					System.out.println("Kolla upp ruta " + x + ", " + y);
+				
+				str1 += isThreatened? "x": " ";
+				str2 += shouldBeThreatened[7-y][x]? "x": " ";
 			}
+			str1 += "\n";
+			str2 += "\n";
 		}
+		System.out.println(str1);
+		System.out.println("\n\n" + str2);
+		System.out.println(testBoard);
 	}
 }

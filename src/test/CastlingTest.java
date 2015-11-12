@@ -79,8 +79,26 @@ public class CastlingTest {
 	public void testCastling01() {
 		print();
 		Moves moves = whiteKing.getPossibleMoves(testBoard);
-		System.out.println(moves);
 		assert(moves.size() == 4);
+		System.out.println(moves);
+		
+		Move moveKingSide = moves.getMovesByMoveType(MoveType.KING_SIDE_CASTLING).get(0);
+		Move moveQueenSide = moves.getMovesByMoveType(MoveType.QUEEN_SIDE_CASTLING).get(0);
+		
+		System.out.println(moveKingSide);
+		System.out.println(moveQueenSide);
+
+		String preKingSideString = testBoard.toString();
+		testBoard.commitMove_(moveKingSide);
+		testBoard.uncommit();
+		String postKingSideString = testBoard.toString();
+		assert(preKingSideString.compareTo(postKingSideString) == 0);
+		
+		String preQueenSideString = testBoard.toString();
+		testBoard.commitMove_(moveQueenSide);
+		testBoard.uncommit();
+		String postQueenSideString = testBoard.toString();
+		assert(preQueenSideString.compareTo(postQueenSideString) == 0);
 	}
 
 	
