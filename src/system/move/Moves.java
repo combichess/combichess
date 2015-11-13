@@ -87,6 +87,19 @@ public class Moves extends ArrayList<Move> {
 		}
     	return moves;
     }
+	
+	public Moves getMovesToPos(String str)
+	{
+		if (str == null || str.length() != 2)
+			return null;
+		
+		int x = str.toLowerCase().charAt(0) - 'a';
+		int y = str.charAt(1) - '1';
+		if (x<0 || x>7 || y<0 || y>7)
+			return null;
+		
+		return getMovesToPos(x + y*8);
+	}
     
 	public Moves getMovesToPos(int pos)
     {

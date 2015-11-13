@@ -17,14 +17,9 @@ public class BoardWrapper extends Board implements Runnable {
 	private ProcessType processType = ProcessType.Board_1;  
 	private static final int UPDATE_BOARD_IDLE_MILLISECONDS = 10;
 	
-	//@Deprecated
-	//private final int thinkMovesForward = 4;
-	
 	public BoardWrapper() {
 		super();
 	}
-	
-	
 
 	@Override
 	public void run() {
@@ -201,7 +196,10 @@ public class BoardWrapper extends Board implements Runnable {
 		
 		int fr = Integer.parseInt(sqrs[0]);
 		int to = Integer.parseInt(sqrs[1]);
-		Move move = new Move(squares[fr], squares[to], to%8, to/8);
+		
+		Move move = createMoveFromPositions(fr, to);
+		
+		//Move move = new Move(squares[fr], squares[to], to%8, to/8);
 		System.out.println("Move to commit: " + move);
 		super.commitMove(move);
 		

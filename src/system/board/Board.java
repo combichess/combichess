@@ -222,19 +222,19 @@ public class Board {
 			squares[newPosId] = newPiece; 
 			(pc == PlayerColour.White? whites: blacks).add(newPiece);	// byt till addLast för att vara mer specifik, nya pjäser läggs o tas bort sist i kön.
 		} else if(moveType.isCastling()) {
-			Piece king = moveToCommit.getPiece();
+			//Piece king = moveToCommit.getPiece();
 			switch(moveType)
 			{
 			case KING_SIDE_CASTLING: {
-				Piece rook = squares[king.getPosition() + 3];
+				Piece rook = squares[oldPosId + 3];
 				squares[rook.getPosition()] = null;
-				rook.moveX(-2);
+				rook.moveX(-2, moveNumber);
 				squares[rook.getPosition()] = rook;
 				break;}
 			default: {
-				Piece rook = squares[king.getPosition() - 4];
+				Piece rook = squares[oldPosId - 4];
 				squares[rook.getPosition()] = null;
-				rook.moveX(3);
+				rook.moveX(3, moveNumber);
 				squares[rook.getPosition()] = rook;
 				break;}
 			}

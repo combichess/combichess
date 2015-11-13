@@ -62,7 +62,7 @@ public class CastlingTest {
 		PieceType.setPieceValues(new int[] {1, 3, 4, 5, 9, 100});
 		whiteKing = testBoard.getPieceOnSquare(4, 0);
 		kingSideRook = testBoard.getPieceOnSquare(7, 0);
-		queenSideRook = testBoard.getPieceOnSquare(7, 0);
+		queenSideRook = testBoard.getPieceOnSquare(0, 0);
 		
 		blackBKnight = testBoard.getPieceOnSquare(1, 5);
 		blackCKnight = testBoard.getPieceOnSquare(2, 5);
@@ -78,29 +78,109 @@ public class CastlingTest {
 	@Test
 	public void testCastling01() {
 		print();
+
+		String preBoardString = testBoard.toString();
+		
 		Moves moves = whiteKing.getPossibleMoves(testBoard);
 		assert(moves.size() == 4);
 		System.out.println(moves);
 		
 		Move moveKingSide = moves.getMovesByMoveType(MoveType.KING_SIDE_CASTLING).get(0);
-		Move moveQueenSide = moves.getMovesByMoveType(MoveType.QUEEN_SIDE_CASTLING).get(0);
 		
 		System.out.println(moveKingSide);
-		System.out.println(moveQueenSide);
 
+			// Commit kingside castling
 		String preKingSideString = testBoard.toString();
 		testBoard.commitMove_(moveKingSide);
+		print();
+		assert(kingSideRook.getPreviousMoveNumber() != Move.PREVIOUSLY_NEVER_MOVED);
+		assert(whiteKing.getPreviousMoveNumber() != Move.PREVIOUSLY_NEVER_MOVED);
+		
+			// Uncommit previous castling
 		testBoard.uncommit();
+		assert(kingSideRook.getPreviousMoveNumber() == Move.PREVIOUSLY_NEVER_MOVED);
+		assert(whiteKing.getPreviousMoveNumber() == Move.PREVIOUSLY_NEVER_MOVED);
+		print();
 		String postKingSideString = testBoard.toString();
 		assert(preKingSideString.compareTo(postKingSideString) == 0);
 		
-		String preQueenSideString = testBoard.toString();
-		testBoard.commitMove_(moveQueenSide);
+			// commit queenside castling
+		moves = whiteKing.getPossibleMoves(testBoard);
+		assert(moves.size() == 4);
+		Move queenSideCastling = moves.getMovesByMoveType(MoveType.QUEEN_SIDE_CASTLING).get(0);
+		
+		testBoard.commitMove_(queenSideCastling);
+		print();
+		assert(queenSideRook.getPreviousMoveNumber() != Move.PREVIOUSLY_NEVER_MOVED);
+		assert(whiteKing.getPreviousMoveNumber() != Move.PREVIOUSLY_NEVER_MOVED);
+		
+			// Uncommit previous castling
 		testBoard.uncommit();
-		String postQueenSideString = testBoard.toString();
-		assert(preQueenSideString.compareTo(postQueenSideString) == 0);
+		assert(queenSideRook.getPreviousMoveNumber() == Move.PREVIOUSLY_NEVER_MOVED);
+		assert(whiteKing.getPreviousMoveNumber() == Move.PREVIOUSLY_NEVER_MOVED);
+		print();
+		
+		String postBoardString = testBoard.toString();
+		assert(preBoardString.compareTo(postBoardString) == 0);
 	}
 
+
+	@Test
+	public void testCastling02() {
+		Moves kingMoves;
+		boolean kingSideMoveExist;
+		boolean queenSideMoveExist;
+
+		/*		BNb6 -> BNc4 -> BNd2
+		White kan bara göra queenside castling*/
+		Move move = blackBKnight.getPossibleMoves(testBoard).getMovesToPos("C4").get(0);
+		testBoard.commitMove_(move);
+		move = blackBKnight.getPossibleMoves(testBoard).getMovesToPos("D2").get(0);
+		testBoard.commitMove_(move);
+		kingMoves = whiteKing.getPossibleMoves(testBoard);
+		kingSideMoveExist = kingMoves.getMovesByMoveType(MoveType.KING_SIDE_CASTLING).size() > 0;
+		queenSideMoveExist = kingMoves.getMovesByMoveType(MoveType.QUEEN_SIDE_CASTLING).size() > 0;
+		assert(!kingSideMoveExist && queenSideMoveExist);
+		testBoard.uncommit();
+		testBoard.uncommit();
+
+		/*		BNc6 -> BNd4 -> BNe2
+		inga castlings*/
+		move = blackCKnight.getPossibleMoves(testBoard).getMovesToPos("D4").get(0);
+		testBoard.commitMove_(move);
+		move = blackCKnight.getPossibleMoves(testBoard).getMovesToPos("E2").get(0);
+		testBoard.commitMove_(move);
+		kingMoves = whiteKing.getPossibleMoves(testBoard);
+		kingSideMoveExist = kingMoves.getMovesByMoveType(MoveType.KING_SIDE_CASTLING).size() > 0;
+		queenSideMoveExist = kingMoves.getMovesByMoveType(MoveType.QUEEN_SIDE_CASTLING).size() > 0;
+		assert(!kingSideMoveExist && !queenSideMoveExist);
+		testBoard.uncommit();
+		testBoard.uncommit();
+
+
+		/*BBe6 -> BBa1
+		White kan bara göra kingside castling*/
+		move = blackEBishop.getPossibleMoves(testBoard).getMovesToPos("a2").get(0);
+		testBoard.commitMove_(move);
+		kingMoves = whiteKing.getPossibleMoves(testBoard);
+		kingSideMoveExist = kingMoves.getMovesByMoveType(MoveType.KING_SIDE_CASTLING).size() > 0;
+		queenSideMoveExist = kingMoves.getMovesByMoveType(MoveType.QUEEN_SIDE_CASTLING).size() > 0;
+		assert(kingSideMoveExist && queenSideMoveExist);
+		testBoard.uncommit();
+
+		/*BNh6 -> BNg4 -> BNf2
+		White kan bara göra kingside castling*/
+		move = blackHKnight.getPossibleMoves(testBoard).getMovesToPos("G4").get(0);
+		testBoard.commitMove_(move);
+		move = blackHKnight.getPossibleMoves(testBoard).getMovesToPos("F2").get(0);
+		testBoard.commitMove_(move);
+		kingMoves = whiteKing.getPossibleMoves(testBoard);
+		kingSideMoveExist = kingMoves.getMovesByMoveType(MoveType.KING_SIDE_CASTLING).size() > 0;
+		queenSideMoveExist = kingMoves.getMovesByMoveType(MoveType.QUEEN_SIDE_CASTLING).size() > 0;
+		assert(kingSideMoveExist && !queenSideMoveExist);
+		testBoard.uncommit();
+		testBoard.uncommit();
+	}
 	
 	private void print()
 	{
