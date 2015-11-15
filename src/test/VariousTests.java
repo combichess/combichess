@@ -1,25 +1,15 @@
 package test;
 
-//import static org.junit.Assert.*;
-
 import org.testng.annotations.*;
 
 import system.board.PlayerColour;
 import system.move.Move;
-import system.piece.Piece;
 import system.piece.PieceType;
 
-//@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class VariousTests {
 
 	private static BoardTester testBoard = null;
-	private static Piece whiteBPawn = null;
-	private static Piece blackAPawn = null;
-	private static Piece blackCPawn = null;
-	private static Piece blackQueen = null;
 	private static boolean setupIsExecuted = false;
-	
-	private static boolean printStatus = true;
 	
 	@BeforeTest
 	public void initObjects()
@@ -127,13 +117,6 @@ public class VariousTests {
 
 	}
 
-	
-	private void print()
-	{
-		if (printStatus)
-			System.out.println(testBoard.toString());
-	}
-	 
 	@AfterTest
 	public void destroy()
 	{

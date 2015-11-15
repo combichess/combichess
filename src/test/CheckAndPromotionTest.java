@@ -1,14 +1,9 @@
 package test;
 
-//import static org.junit.Assert.*;
-
 import org.testng.annotations.*;
-
-import java.util.List;
 
 import system.board.PlayerColour;
 import system.move.Move;
-import system.move.MoveType;
 import system.move.Moves;
 import system.piece.Piece;
 import system.piece.PieceType;

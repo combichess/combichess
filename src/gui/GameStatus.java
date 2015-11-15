@@ -5,13 +5,8 @@ public class GameStatus {
 	
 	public static final int UNDEFINED = -1; 
 	public static final int WHITE_TO_MOVE = 0;
-	//public static final int WHITE_HAS_CHOSEN_PIECE = 1;
-	@Deprecated
-	public static final int WHITE_COMMITTED_MOVE = 2;
 	public static final int BLACK_TO_MOVE = 3;
-	//public static final int BLACK_HAS_CHOSEN_PIECE = 4;
-	@Deprecated
-	public static final int BLACK_COMMITTED_MOVE = 5;
+	public static final int GAME_OVER = 4;
 	
 	private int status;
 	private int chosenSquareFrom;
@@ -29,16 +24,9 @@ public class GameStatus {
 		return status;
 	}
 	
-	public void updateStatus(int newStatus)
+	public void setGameOver()
 	{
-		if (!isStatusUpdatePossible(status, newStatus))
-		{
-			System.out.println("Changed status from " + status + " to " + newStatus + " is not possible");
-			return;
-		}
-		chosenSquareFrom = UNDEFINED;
-		chosenSquareTo = UNDEFINED;
-		status = newStatus;
+		status = GAME_OVER;
 	}
 	
 	public void setChosenSquareFrom(int chosenSquareFrom)
@@ -63,7 +51,14 @@ public class GameStatus {
 	
 	public boolean isWhitesTurn()
 	{
-		return (status == WHITE_TO_MOVE || status == WHITE_COMMITTED_MOVE);
+		return status == WHITE_TO_MOVE;
+		//return (status==WHITE_TO_MOVE || status==BLACK_TO_MOVE)? status: UNDEFINED;
+		/*switch(status)
+		{
+		case WHITE_TO_MOVE:
+			return WHITE_TO_MOVE;
+		}
+		return (status == WHITE_TO_MOVE);// || status == WHITE_COMMITTED_MOVE);*/
 	}
 	
 	public void switchPlayer()
@@ -73,22 +68,6 @@ public class GameStatus {
  		chosenSquareTo = UNDEFINED;
 	}
 	
-	private static boolean isStatusUpdatePossible(int preStatus, int postStatus)
-	{
-		switch(preStatus)
-		{
-		case WHITE_TO_MOVE:
-			return postStatus == WHITE_COMMITTED_MOVE;
-		case WHITE_COMMITTED_MOVE:
-			return postStatus == BLACK_TO_MOVE;
-		case BLACK_TO_MOVE:
-			return postStatus == BLACK_COMMITTED_MOVE;
-		case BLACK_COMMITTED_MOVE:
-			return postStatus == WHITE_TO_MOVE;
-		}
-		
-		return false;
-	}
 	
 	@Override
 	public String toString()
@@ -99,17 +78,13 @@ public class GameStatus {
 		case WHITE_TO_MOVE:
 			str += "White To Move";
 			break;
-		case WHITE_COMMITTED_MOVE:
-			str += "White Committed a move";
-			break;
 		case BLACK_TO_MOVE:
 			str += "Black To Move";
 			break;
-		case BLACK_COMMITTED_MOVE:
-			str += "Black Committed a move";
+		case GAME_OVER:
+			str += "Game over";
 			break;
 		}
-		
 		if (chosenSquareFrom != UNDEFINED)
 			str += "\tchosenSquareFrom = " + chosenSquareFrom;
 		

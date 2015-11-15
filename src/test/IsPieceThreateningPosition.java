@@ -2,21 +2,13 @@ package test;
 
 import org.testng.annotations.*;
 
-import java.util.List;
-
+import main.control.PlayerStatus;
 import system.board.PlayerColour;
-import system.move.Move;
-import system.move.MoveType;
-import system.piece.Piece;
 import system.piece.PieceType;
 
 public class IsPieceThreateningPosition {
 	
 	private BoardTester testBoard = null;
-	private Piece blackPawn = null;
-	private Piece whiteKing = null;
-	private static boolean printStatus = true;
-	
 	
 	//@BeforeTest
 	@BeforeMethod
@@ -70,5 +62,51 @@ public class IsPieceThreateningPosition {
 		System.out.println(str1);
 		System.out.println("\n\n" + str2);
 		System.out.println(testBoard);
+	}
+	
+	@Test
+	public void isPieceThreateningPositionTest02() {
+		testBoard = new BoardTester();
+		testBoard.addPiece(0,  0, PlayerColour.White, PieceType.Rook, false);
+		testBoard.addPiece(1,  0, PlayerColour.White, PieceType.Knight, false);
+		testBoard.addPiece(2,  0, PlayerColour.White, PieceType.Bishop, false);
+		testBoard.addPiece(4,  0, PlayerColour.White, PieceType.King, false);
+		testBoard.addPiece(5,  0, PlayerColour.White, PieceType.Bishop, false);
+		testBoard.addPiece(6,  0, PlayerColour.White, PieceType.Knight, false);
+		testBoard.addPiece(7,  0, PlayerColour.White, PieceType.Rook, false);
+		
+		testBoard.addPiece(0, 1, PlayerColour.White, PieceType.Pawn, false);
+		testBoard.addPiece(1, 2, PlayerColour.White, PieceType.Pawn, true);
+		testBoard.addPiece(2, 1, PlayerColour.White, PieceType.Pawn, false);
+		testBoard.addPiece(5, 1, PlayerColour.White, PieceType.Pawn, false);
+		testBoard.addPiece(6, 1, PlayerColour.White, PieceType.Pawn, false);
+		testBoard.addPiece(7, 1, PlayerColour.White, PieceType.Pawn, false);
+		
+		testBoard.addPiece(1, 6, PlayerColour.White, PieceType.Queen, true);
+		
+		// ----------------------------
+		
+		testBoard.addPiece(0,  7, PlayerColour.Black, PieceType.Rook, false);
+		testBoard.addPiece(1,  7, PlayerColour.Black, PieceType.Knight, false);
+		testBoard.addPiece(6,  7, PlayerColour.Black, PieceType.Knight, false);
+		testBoard.addPiece(7,  7, PlayerColour.Black, PieceType.Rook, false);
+		
+		testBoard.addPiece(0,  6, PlayerColour.Black, PieceType.Pawn, false);
+		testBoard.addPiece(5,  6, PlayerColour.Black, PieceType.Pawn, false);
+		testBoard.addPiece(7,  6, PlayerColour.Black, PieceType.Pawn, false);
+		
+		testBoard.addPiece(3, 5, PlayerColour.Black, PieceType.Bishop, false);
+		testBoard.addPiece(4, 5, PlayerColour.Black, PieceType.King, true);
+		testBoard.addPiece(6, 5, PlayerColour.Black, PieceType.Pawn, false);
+		
+		testBoard.addPiece(5, 4, PlayerColour.Black, PieceType.Queen, false);
+		
+		// -----------------------------------------
+		PlayerStatus whiteStatus = testBoard.getPlayerStatus(PlayerColour.White);
+		PlayerStatus blackStatus = testBoard.getPlayerStatus(PlayerColour.Black);
+		
+		System.out.println("white: " + whiteStatus);
+		System.out.println("black: " + blackStatus);
+		
 	}
 }

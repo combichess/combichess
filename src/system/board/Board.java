@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import main.control.PlayerStatus;
 import system.board.PlayerColour;
 import system.move.Move;
 import system.move.MoveType;
@@ -564,11 +565,110 @@ public class Board {
 		
 		for (Piece piece: pieces)
 		{
-			if (piece.isPieceThreateningPosition(pos, squares))
+			if (piece.getActivity() && piece.isPieceThreateningPosition(pos, squares))
+			{
+				/*System.out.println(this);
+				System.out.println("securityTest = " + securityCheck());
+				System.out.println("piece:" + piece);
+				System.out.println("pos:" + pos);*/
 				return true;
+			}
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * Returns if player is check, stalemate, checkmate or nothing
+	 * 
+	 * @param pc
+	 * @return situation
+	 */
+	public PlayerStatus getPlayerStatus(PlayerColour pc)
+	{
+		LinkedList<Piece> pieces = (pc == PlayerColour.White)? whites: blacks;
+		Piece king = null;
+		for(Piece piece: pieces)
+		{
+			if (piece instanceof King)
+			{
+				king = piece;
+				break;
+			}
+		}
+		if (king == null)
+		{
+			System.out.println("Det gick fel för att den inte hittar kungen bland " + pc + " pjäser. Board->isPlayerCheck()");
+			return PlayerStatus.UNDEFINED;
+		}
+		
+		boolean playerIsChecked = isSquareThreatnedBy(king.getPosition(), pc.getOpponentColour());
+		boolean playerCantMove = getAllPossibleAllowedMovesFor(pc).isEmpty();
+		PlayerStatus ps;
+		if (playerIsChecked)
+		{
+			if (playerCantMove)
+				ps = PlayerStatus.CHECK_MATE;
+			else
+				ps = PlayerStatus.CHECK;
+		} else {
+			if (playerCantMove)
+				ps = PlayerStatus.STALE_MATE;
+			else
+				ps = PlayerStatus.NO_STATUS;
+		}
+		
+		if (ps != PlayerStatus.NO_STATUS)
+			System.out.println("securityCheck = " + securityCheck());
+		
+		return ps;
+	}
+	
+	/**
+	 * @return true if everything is alright
+	 */
+	protected boolean securityCheck()
+	{
+		boolean test = true;
+		
+		for (int pos=0; pos<64; pos++)
+		{
+			Piece piece = squares[pos];
+			if (piece != null && piece.getPosition() != pos)
+			{
+				System.out.println("squares[" + pos + "].getPosition() = " + piece.getPosition());
+				test = false;
+			}
+		}
+		
+		//////////////////
+		List<Piece> allPieces = new ArrayList<>();
+		allPieces.addAll(whites);
+		allPieces.addAll(blacks);
+		
+		List<Piece> activePieces = new ArrayList<>();
+		for (Piece piece : allPieces)
+		{
+			if (piece.getActivity())
+				activePieces.add(piece);
+		}
+		
+		for (int i=0; i<activePieces.size(); i++)
+		{
+			for (int j=i+1; j<activePieces.size(); j++)
+			{
+				int iPos = activePieces.get(i).getPosition();
+				int jPos = activePieces.get(j).getPosition();
+				if (iPos == jPos)
+				{
+					System.out.println("Samma position på " + activePieces.get(i) + " och " + activePieces.get(j) + ", squares[" + iPos + "] = " + squares[iPos]);
+					test = false;
+				}
+			}
+		}
+		
+		
+		return test;
 	}
 }
 

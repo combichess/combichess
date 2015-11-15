@@ -3,6 +3,7 @@ package system.board;
 import java.util.List;
 
 import system.move.Move;
+import system.move.Moves;
 import system.piece.Piece;
 
 
@@ -10,6 +11,7 @@ import main.Communicator;
 import main.control.ControlValue;
 import main.control.Message;
 import main.control.MessageType;
+import main.control.PlayerStatus;
 import main.control.ProcessType;
 
 public class BoardWrapper extends Board implements Runnable { 
@@ -146,13 +148,16 @@ public class BoardWrapper extends Board implements Runnable {
 	private void sendPossibleMovesFromSquare(int square)
 	{
 		Piece piece = squares[square];
+		PlayerColour pc = piece.getPlayer();
 		if (piece == null || piece.getActivity() == false)
 		{
 			System.out.println("error in sendPossibleMovesFromSquare(" + square + ")");
 			return;
 		}
 		
-		List<Move> pieceMoves = piece.getPossibleMoves(this);
+		// todo
+		Moves pieceMoves = getAllPossibleAllowedMovesFor(pc).getMovesFromPos(square);
+		//List<Move> pieceMoves = piece.getPossibleMoves(this);
 		int val[] = new int[64];
 		for (int i=0; i<64; i++)
 			val[i] = 0;
@@ -167,6 +172,7 @@ public class BoardWrapper extends Board implements Runnable {
 		Communicator.addMessage(new Message(processType, ProcessType.Gui_1, MessageType.AVAILABLE_SQUARES, str));
 	}
 	
+	/*
 	@Deprecated
 	public void returnBoardAvailability()
 	{
@@ -184,7 +190,7 @@ public class BoardWrapper extends Board implements Runnable {
 			tjena += (i==0? "": ",") + (availables[i]? "1": "0");
 		
 		Communicator.addMessage(new Message(processType, ProcessType.Gui_1, MessageType.AVAILABLE_SQUARES, tjena));
-	}
+	}*/
 	
 	public void commitMove(String strMove)
 	{
@@ -198,6 +204,7 @@ public class BoardWrapper extends Board implements Runnable {
 		int to = Integer.parseInt(sqrs[1]);
 		
 		Move move = createMoveFromPositions(fr, to);
+		PlayerColour pc = move.getPiece().getPlayer();
 		
 		//Move move = new Move(squares[fr], squares[to], to%8, to/8);
 		System.out.println("Move to commit: " + move);
@@ -206,6 +213,12 @@ public class BoardWrapper extends Board implements Runnable {
 		returnBoardSetup();
 		returnCommittedMoveAsText(move);
 		//returnBoardAvailability();
+		
+		PlayerStatus ps = super.getPlayerStatus(pc.getOpponentColour());
+		if (ps != PlayerStatus.NO_STATUS) {
+			returnPlayerStatus(ps, pc.getOpponentColour());
+			System.out.println("Here 1 is it " + ps);
+		}
 	}
 	
 	public void proposeMove(String messData)
@@ -215,28 +228,20 @@ public class BoardWrapper extends Board implements Runnable {
 		PlayerColour pc = getPlayerColourFromString(datas[0]);
 		int numberOfMovesForward = Integer.parseInt(datas[1]);
 		
+			// ska inte denna vara kvar?
+		/*PlayerStatus ps = super.getPlayerStatus(pc);
+		if (ps != PlayerStatus.NO_STATUS) {
+			returnPlayerStatus(ps, pc);
+			return;
+		}*/
+
 		if (messData == null || datas.length != 2)
 		{
 			System.out.println("BoardWrapper.proposeMove failed, playerChar == " + messData);
 			return;
 		}
 		
-		Move mov = null;
-		
-		switch(pc)
-		{
-		case White:
-			//mov = findBestMoveFor(this.playerWhite, numberOfMovesForward);
-			mov = findBestMoveFor(PlayerColour.White, numberOfMovesForward);
-			break;
-		case Black:
-			//mov = findBestMoveFor(this.playerBlack, numberOfMovesForward);
-			mov = findBestMoveFor(PlayerColour.Black, numberOfMovesForward);
-			break;
-		default:
-			System.out.println("BoardWrapper.proposeMove failed, playerChar == " + messData);
-			return;
-		}
+		Move mov = findBestMoveFor(pc, numberOfMovesForward);
 		
 		if (mov == null)
 		{
@@ -246,15 +251,34 @@ public class BoardWrapper extends Board implements Runnable {
 		
 		super.commitMove(mov);
 		returnCommittedMoveAsText(mov);
+		
+		
+		PlayerStatus ps = super.getPlayerStatus(pc.getOpponentColour());
+		if (ps != PlayerStatus.NO_STATUS) {
+			returnPlayerStatus(ps, pc.getOpponentColour());
+			System.out.println("Here 2 is it " + ps);
+			return;
+		}
 		//returnBoardSetup();
 		//returnBoardAvailability();
 	}
 	
-	private void sendPossibleMovesForPlayer(String messData)
+	private void returnPlayerStatus(PlayerStatus ps, PlayerColour pc)
 	{
-		PlayerColour pc = getPlayerColourFromString(messData);
+		String string = ps.toString() + "," + pc.toString();
+		Communicator.addMessage(new Message(processType, ProcessType.Gui_1, MessageType.ANNOUNCE_PLAYER_STATUS, string));
+	}
+	
+	/**
+	 * Sends available piece positions to move from as a list of integers
+	 * 
+	 * @param playerColourAsString
+	 */
+	private void sendPossibleMovesForPlayer(String playerColourAsString)
+	{
+		PlayerColour pc = getPlayerColourFromString(playerColourAsString);
 		
-		List<Integer> possiblePositions = this.getAllPossibleAllowedSquaresToMoveFrom(pc);
+		List<Integer> possiblePositions = getAllPossibleAllowedSquaresToMoveFrom(pc);
 		
 		boolean[] availables = new boolean[64];
 		for (int i=0; i<64; i++)

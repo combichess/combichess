@@ -12,7 +12,8 @@ public enum MessageType {
     SET_BOARD_PIECES(8),
     AVAILABLE_SQUARES(9),
     GET_MOVABLE_PIECES(10),	//ControlValue.BLACK el ControlValue.WHITE
-    SET_MOVE_AS_STRING(11);		//null
+    SET_MOVE_AS_STRING(11),		//null
+	ANNOUNCE_PLAYER_STATUS(12);	// with one of the enum members in PlayerStatus.java
     int value;
     
     private MessageType(int val)

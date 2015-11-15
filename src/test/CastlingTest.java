@@ -1,10 +1,7 @@
 package test;
 
-//import static org.junit.Assert.*;
-
 import org.testng.annotations.*;
 
-import java.util.List;
 
 import system.board.PlayerColour;
 import system.move.Move;
@@ -180,6 +177,24 @@ public class CastlingTest {
 		assert(kingSideMoveExist && !queenSideMoveExist);
 		testBoard.uncommit();
 		testBoard.uncommit();
+	}
+	
+	@Test
+	public void testCastling03() {
+		Move kingMove = whiteKing.getPossibleMoves(testBoard).getMovesToPos(whiteKing.getPosition()-1).get(0);
+		testBoard.commitMove_(kingMove);
+		int numOfMoves = whiteKing.getPossibleMoves(testBoard).size();
+		assert(numOfMoves == 2);
+		
+		kingMove = whiteKing.getPossibleMoves(testBoard).getMovesToPos(whiteKing.getPosition()+1).get(0);
+		testBoard.commitMove_(kingMove);
+		numOfMoves = whiteKing.getPossibleMoves(testBoard).size();
+		assert(numOfMoves == 2);
+		
+		testBoard.uncommit();
+		testBoard.uncommit();
+		numOfMoves = whiteKing.getPossibleMoves(testBoard).size();
+		assert(numOfMoves == 4);		
 	}
 	
 	private void print()

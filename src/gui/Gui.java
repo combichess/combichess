@@ -34,7 +34,9 @@ import main.Communicator;
 import main.control.ControlValue;
 import main.control.Message;
 import main.control.MessageType;
+import main.control.PlayerStatus;
 import main.control.ProcessType;
+import system.board.PlayerColour;
 
 
 //exempelkod från:
@@ -67,6 +69,7 @@ public class Gui extends JFrame implements Runnable {
 	//private boolean whiteVisibleAtBottom;
 	//private boolean whitesTurn;
 	private GameStatus gameStatus = null;
+	
 	
 	private GameSettings gameSettings = null;
 
@@ -111,11 +114,7 @@ public class Gui extends JFrame implements Runnable {
         int b = 0;
         for (int i=0; i<81; i++) {
         	if (i>72) {
-        		//char c = 'A';
-        		//c += (i-73);
-        		//horizontalCoordLabels[i-73] = new JLabel("" + c);
         		horizontalCoordLabels[i-73] = new JLabel();
-        		//JLabel label = new JLabel("" + c);
         		horizontalCoordLabels[i-73].setHorizontalAlignment(SwingConstants.CENTER);
         		horizontalCoordLabels[i-73].setVerticalAlignment(SwingConstants.TOP);// SwingConstants.CENTER);
         		boardPanel.add(horizontalCoordLabels[i-73]);
@@ -126,7 +125,6 @@ public class Gui extends JFrame implements Runnable {
         		
         			// gör dessa labels till klassmedlemmar så att man kan byta sida 
         		int verticalCoord = i/9;
-        		//verticalCoordLabels[verticalCoord] = new JLabel(Integer.toString(8-(i/9))); 
         		verticalCoordLabels[verticalCoord] = new JLabel();
 	    		verticalCoordLabels[verticalCoord].setHorizontalAlignment(SwingConstants.RIGHT);
 	    		verticalCoordLabels[verticalCoord].setVerticalAlignment(SwingConstants.CENTER);
@@ -135,7 +133,6 @@ public class Gui extends JFrame implements Runnable {
         		squares[b] = new JButton();
             	squares[b].setMargin(new Insets(0, 0, 0, 0));
             	squares[b].setForeground(Color.red);
-    			//squares[b].setBackground(Color.blue);
             	squares[b].setBackground(((9*b / 8) % 2) == 0? WHITE_SQUARE_COLOUR: BLACK_SQUARE_COLOUR);
     			squares[b].setBorder(null);
     			squares[b].addActionListener(new AL(b, this));
@@ -197,6 +194,9 @@ public class Gui extends JFrame implements Runnable {
 	{
 		boolean isWhitePlayerAtBottomOfScreenBefore = gameSettings.isWhitePlayerAtBottomOfScreen();
 		gameSettings.runAlert();
+		
+		CheckAlert.createCheckAlert("Tjoho!");
+		
 		//boolean isWhitePlayerAtBottomOfScreenAfter = !(gameSettings.isBlackPlayerHuman() == true && gameSettings.isWhitePlayerHuman() == false);
 		boolean isWhitePlayerAtBottomOfScreenAfter = gameSettings.isWhitePlayerAtBottomOfScreen();
 		
@@ -227,17 +227,6 @@ public class Gui extends JFrame implements Runnable {
 			horizontalCoordLabels[i].setText("" + (char)(whiteDown? ('A' + i): ('H' - i)));
 		}
 	}
-	
-	/*private void updateBoard()
-	{
-		updateCoordinateLabelTexts();
-		
-			// gör alla squares disabled
-		setAllSquaresEnabled(false);
-
-			// skicka ett hämta-alla-pjäser från boardet
-		Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_BOARD_PIECES, null));
-	}*/
 	
 	private void setAllSquaresEnabled(boolean enabled)
 	{
@@ -274,6 +263,16 @@ public class Gui extends JFrame implements Runnable {
 				gameStatus.switchPlayer();
 				updateMove();
 				break;}
+			case ANNOUNCE_PLAYER_STATUS: {
+				System.out.println(mess.getMessageData());
+				String[] arr = mess.getMessageData().split(",");
+				PlayerStatus ps = PlayerStatus.createFromString(arr[0]);
+				 
+				System.out.println(arr);
+				if (ps == PlayerStatus.CHECK_MATE || ps == PlayerStatus.STALE_MATE)
+					CheckAlert.createCheckAlert(mess.getMessageData());
+				break;
+			}
 			default:
 				break;
 			}
@@ -416,8 +415,11 @@ public class Gui extends JFrame implements Runnable {
 			
 			}
 		} else if (buttonId >= 100) {
-			if (buttonId == Buttons.Nytt.getValue())
+			if (buttonId == Buttons.Nytt.getValue()){
 				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.STANDARD_SETUP, null));
+				//gameStatus = new GameStatus();
+				startGameSettingsAlert();
+			}
 			
 			if (buttonId == Buttons.Exit.getValue())
 				closeGUI();
