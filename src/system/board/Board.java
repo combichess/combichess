@@ -520,18 +520,10 @@ public class Board {
 	}
 	
 	//protected Move findBestMoveFor(Player player, int N)
-	protected Move findBestMoveFor(PlayerColour colour, int N)
+	/*protected Move findBestMoveFor(PlayerColour colour, int N)
 	{		
 			// sätt värdering av pjäserna åt spelaren som spelar.
 		PieceType.setPieceValues((colour == PlayerColour.White? playerWhite: playerBlack).getValueTable());
-		
-		//tabort
-		if (whites.size() != 16 || blacks.size() != 16)
-		{
-			
-			//System.out.println(whites);
-			//System.out.println(blacks);
-		}
 		
 		Move bestMove = findBestMove(colour, N);
 		
@@ -542,6 +534,27 @@ public class Board {
 		// nollställ värderingen av pjäserna när spelaren letat färdigt
 		PieceType.unsetPieceValues();
 		return bestMove;
+	}*/
+	
+	protected Move findBestMoveFor(PlayerColour colour, int N)
+	{		
+			// sätt värdering av pjäserna åt spelaren som spelar.
+		PieceType.setPieceValues((colour == PlayerColour.White? playerWhite: playerBlack).getValueTable());
+		Moves allMoves = getAllPossibleAllowedMovesFor(colour);
+		
+		if (allMoves.size() == 0)
+			return null;
+		
+		for (Move move: allMoves)
+		{
+			commitMove(move);
+			move.addValueFromNextMove(findBestMove(colour.getOpponentColour(), N-1));
+			uncommitLastMove();
+		}
+		
+		Move oneOfTheBestMoves = allMoves.getMovesByValue(allMoves.getBestMoveFromList().getValue()).getRandomMove();
+		PieceType.unsetPieceValues();
+		return oneOfTheBestMoves;
 	}
 	
 		// ange endast fromPos och toPos, för att beskriva ett drag.
@@ -566,13 +579,7 @@ public class Board {
 		for (Piece piece: pieces)
 		{
 			if (piece.getActivity() && piece.isPieceThreateningPosition(pos, squares))
-			{
-				/*System.out.println(this);
-				System.out.println("securityTest = " + securityCheck());
-				System.out.println("piece:" + piece);
-				System.out.println("pos:" + pos);*/
 				return true;
-			}
 		}
 		
 		return false;

@@ -9,14 +9,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
@@ -25,6 +20,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;    
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
@@ -36,7 +32,6 @@ import main.control.Message;
 import main.control.MessageType;
 import main.control.PlayerStatus;
 import main.control.ProcessType;
-import system.board.PlayerColour;
 
 
 //exempelkod från:
@@ -65,9 +60,6 @@ public class Gui extends JFrame implements Runnable {
 	private Timer idleTimer;
 	private static final int UPDATE_GUI_IDLE_MILLISECONDS = 10; 
 	private HashMap<String, ImageIcon> imageIcons = null;
-	private int moveFrom;
-	//private boolean whiteVisibleAtBottom;
-	//private boolean whitesTurn;
 	private GameStatus gameStatus = null;
 	
 	
@@ -103,7 +95,13 @@ public class Gui extends JFrame implements Runnable {
         {
         	JButton nyKnapp = new JButton(butt.toString());
         	nyKnapp.setPreferredSize(new Dimension(40, 50));
-        	nyKnapp.addActionListener(new AL(butt.getValue(), this));
+        	nyKnapp.setActionCommand("" + butt.getValue());
+        	nyKnapp.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent buttonId) {
+					buttonIdClick(Integer.parseInt(buttonId.getActionCommand()));
+				}
+        	});
         	bottomPanel.add(nyKnapp);
         }
         
@@ -135,7 +133,13 @@ public class Gui extends JFrame implements Runnable {
             	squares[b].setForeground(Color.red);
             	squares[b].setBackground(((9*b / 8) % 2) == 0? WHITE_SQUARE_COLOUR: BLACK_SQUARE_COLOUR);
     			squares[b].setBorder(null);
-    			squares[b].addActionListener(new AL(b, this));
+    			squares[b].setActionCommand("" + b);
+    			squares[b].addActionListener(new ActionListener() {
+    				@Override
+    				public void actionPerformed(ActionEvent buttonId) {
+    					buttonIdClick(Integer.parseInt(buttonId.getActionCommand()));
+    				}
+            	});
     			boardPanel.add(squares[b]);
     			b++;
         	}
@@ -145,7 +149,9 @@ public class Gui extends JFrame implements Runnable {
         
         textAreaRight = new JTextArea("");
         textAreaRight.setPreferredSize(new Dimension(100, 400));
-        informationPanel.add(textAreaRight);
+        //textAreaRight.ad
+        JScrollPane sp = new JScrollPane(textAreaRight);
+        informationPanel.add(sp);
         topPanel.add(informationPanel);
         
         windowPanel.add(topPanel);
@@ -179,7 +185,6 @@ public class Gui extends JFrame implements Runnable {
         setLocationRelativeTo(null);
 
 		setVisible(true);
-		moveFrom = -1;
 		setAllSquaresEnabled(false);
 		Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_MOVABLE_PIECES, "" + ControlValue.WHITE));
 		gameStatus = new GameStatus();
@@ -203,9 +208,6 @@ public class Gui extends JFrame implements Runnable {
 		if (isWhitePlayerAtBottomOfScreenAfter != isWhitePlayerAtBottomOfScreenBefore)
 		{
 			// redraw board
-			//whiteVisibleAtBottom = newWhiteVisibleAtBottom;
-			
-			//updateBoard();
 			updateCoordinateLabelTexts();
 			
 			// gör alla squares disabled
@@ -223,7 +225,8 @@ public class Gui extends JFrame implements Runnable {
 		boolean whiteDown = gameSettings.isWhitePlayerAtBottomOfScreen();
 		for (int i=0; i<8; i++)
 		{
-			verticalCoordLabels[i].setText(Integer.toString(whiteDown? i+1: 8-i));
+			//verticalCoordLabels[i].setText(Integer.toString(whiteDown? i+1: 8-i));
+			verticalCoordLabels[i].setText(Integer.toString(whiteDown? 8-i: i+1));
 			horizontalCoordLabels[i].setText("" + (char)(whiteDown? ('A' + i): ('H' - i)));
 		}
 	}
@@ -325,7 +328,6 @@ public class Gui extends JFrame implements Runnable {
 		57= B8
 		63= H8*
 	 */
-		// 
 	private void updateBoardPieces(String messData) 
 	{
 		String boardSetupAsString[] = messData.split(",");

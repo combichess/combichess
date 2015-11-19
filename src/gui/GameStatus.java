@@ -52,13 +52,6 @@ public class GameStatus {
 	public boolean isWhitesTurn()
 	{
 		return status == WHITE_TO_MOVE;
-		//return (status==WHITE_TO_MOVE || status==BLACK_TO_MOVE)? status: UNDEFINED;
-		/*switch(status)
-		{
-		case WHITE_TO_MOVE:
-			return WHITE_TO_MOVE;
-		}
-		return (status == WHITE_TO_MOVE);// || status == WHITE_COMMITTED_MOVE);*/
 	}
 	
 	public void switchPlayer()

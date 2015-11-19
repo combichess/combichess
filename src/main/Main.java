@@ -37,8 +37,5 @@ public class Main {
 		threadGui.join();
 		System.out.println("MAIN: Tråd Gui joinad");
 		System.out.println("MAIN: Programmet avslutas");
-		
-		//Test test01 = new Test(new Player("Herr vit"), new Player("Herr svart"));
-		//System.out.println("Resultat från test01: " + (test01.getResult()? "Wohoo!": "Pipsvängen"));
 	}
 }

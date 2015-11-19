@@ -100,6 +100,17 @@ public class Moves extends ArrayList<Move> {
 		
 		return getMovesToPos(x + y*8);
 	}
+	
+	public Moves getMovesByValue(int value)
+	{
+		Moves moves = new Moves();
+		for (Move move: this)
+		{
+			if (move.getValue() == value)
+				moves.add(move);
+		}
+		return moves; 
+	}
     
 	public Moves getMovesToPos(int pos)
     {
