@@ -12,6 +12,7 @@ public class Move {
 	private int posFrom;
 	private int posTo;
 	private MoveType moveType;
+	private static ChessNotation STANDARD_CHESS_NOTATION = ChessNotation.ALGEBRAIC;
 	private int previousMoveNumber;	// previously moveNumber for moving piece
 	private int value;	// värdet på detta draget och alla efterföljande drag.
 						// om draget ger 4 poäng, motspelares bästa drag ger 5 poäng och
@@ -66,22 +67,13 @@ public class Move {
 	
 	private void create(Piece pieceThatMoves, Piece affectedPiece, int posTo, int value, MoveType moveType)
 	{
-		//tabort
-		if (moveType == MoveType.KING_SIDE_EN_PASSANT && value == 0)
-		{
-			value = value;
-		}
 		this.previousMoveNumber = pieceThatMoves.getPreviousMoveNumber();
 		this.pieceThatMoves = pieceThatMoves;
 		this.posFrom = pieceThatMoves.getPosition();
 		this.posTo = posTo;
 		this.affectedPiece = affectedPiece;
 		this.moveType = moveType;
-		this.value = value;		
-		if (value > 200 || value < -200) 
-		{
-			value = value;
-		}
+		this.value = value;
 	}
 	
 	public boolean setPromotionType(MoveType moveType)
@@ -158,14 +150,36 @@ public class Move {
 	
 	public String toString(ChessNotation not)	// det ska även innehålla drag-nummer
 	{
-		String str = pieceThatMoves.toString(posFrom, not);
-		str += " -> ";
-		if (affectedPiece != null)
-			str += affectedPiece.toString(not);
-		else 
-			str += not.getCo(posTo);
+		String str = "";
+		switch(not)
+		{
+		case ALGEBRAIC: {
+			if (moveType == MoveType.KING_SIDE_CASTLING)
+				str = "O-O";
+			else if (moveType == MoveType.QUEEN_SIDE_CASTLING)
+				str = "O-O-O";
+			else {
+				str = pieceThatMoves.getType().getLetter();
+				str += (affectedPiece == null)? "": "x";
+				str += not.getCo(this.getToPos());
+			}
+			break;}
 		
-		str += ", val: " + value;
+		case LONG_ALGEBRAIC: {
+			str = pieceThatMoves.toString(posFrom, not);
+			str += " -> ";
+			if (affectedPiece != null)
+				str += affectedPiece.toString(not);
+			else 
+				str += not.getCo(posTo);
+			
+			str += ", val: " + value;
+			break;}
+		
+		default:
+			str = "Finns ingen toString anpassad för denna chessNotation: " + not;
+		}
+		
 		return str; 
 	}
 	
@@ -192,6 +206,6 @@ public class Move {
 	@Override
 	public String toString()
 	{
-		return toString(ChessNotation.ALGEBRAIC);	// det ska även innehålla drag-nummer
+		return toString(STANDARD_CHESS_NOTATION);	// det ska även innehålla drag-nummer
 	}
 }

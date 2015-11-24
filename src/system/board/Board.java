@@ -60,6 +60,9 @@ public class Board {
 		squares[(yPos<<3) + xPos] = piece;
 	}
 	
+	/**
+	 * @return Totalt antal förflyttningar, Riktiga Dragnumret = (moveNumber+1)/2
+	 */
 	public int getMoveNumber()
 	{
 		return moveNumber;
@@ -193,8 +196,10 @@ public class Board {
 		moveToCommit.getPiece().moveX(dx + dy*8, moveNumber);
 		if (newPosId > 63 || newPosId < 0 || oldPosId > 63 || oldPosId < 0)
 		{
-			System.out.println("boardet now:\n" + this.toString());
-			System.out.println("newPosId: " + newPosId + "\t oldPosId: " + oldPosId);
+			//System.out.println("boardet now:\n" + this.toString());
+			//System.out.println("newPosId: " + newPosId + "\t oldPosId: " + oldPosId);
+			System.out.println("Hit ska den absolut inte komma");
+			return -1;
 			// throw exception
 			
 		} 
@@ -373,7 +378,7 @@ public class Board {
 			{
 				Piece tjena = getPiece(x, y);
 				if (tjena != null)
-					str += tjena.toString(ChessNotation.ALGEBRAIC);
+					str += tjena.toString(ChessNotation.LONG_ALGEBRAIC);
 				str += (x<8)? "\t": "";
 			}
 			
@@ -537,7 +542,10 @@ public class Board {
 	}*/
 	
 	protected Move findBestMoveFor(PlayerColour colour, int N)
-	{		
+	{
+		if (N <= 0)
+			return null;
+		
 			// sätt värdering av pjäserna åt spelaren som spelar.
 		PieceType.setPieceValues((colour == PlayerColour.White? playerWhite: playerBlack).getValueTable());
 		Moves allMoves = getAllPossibleAllowedMovesFor(colour);
@@ -548,7 +556,9 @@ public class Board {
 		for (Move move: allMoves)
 		{
 			commitMove(move);
-			move.addValueFromNextMove(findBestMove(colour.getOpponentColour(), N-1));
+			if (N > 1)
+				move.addValueFromNextMove(findBestMove(colour.getOpponentColour(), N-1));
+			
 			uncommitLastMove();
 		}
 		
@@ -624,9 +634,6 @@ public class Board {
 			else
 				ps = PlayerStatus.NO_STATUS;
 		}
-		
-		if (ps != PlayerStatus.NO_STATUS)
-			System.out.println("securityCheck = " + securityCheck());
 		
 		return ps;
 	}

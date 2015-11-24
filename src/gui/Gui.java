@@ -148,9 +148,9 @@ public class Gui extends JFrame implements Runnable {
         topPanel.add(boardPanel);
         
         textAreaRight = new JTextArea("");
-        textAreaRight.setPreferredSize(new Dimension(100, 400));
-        //textAreaRight.ad
+        textAreaRight.setEditable(false);
         JScrollPane sp = new JScrollPane(textAreaRight);
+        sp.setPreferredSize(new Dimension(200, 500));
         informationPanel.add(sp);
         topPanel.add(informationPanel);
         
@@ -199,8 +199,6 @@ public class Gui extends JFrame implements Runnable {
 	{
 		boolean isWhitePlayerAtBottomOfScreenBefore = gameSettings.isWhitePlayerAtBottomOfScreen();
 		gameSettings.runAlert();
-		
-		CheckAlert.createCheckAlert("Tjoho!");
 		
 		//boolean isWhitePlayerAtBottomOfScreenAfter = !(gameSettings.isBlackPlayerHuman() == true && gameSettings.isWhitePlayerHuman() == false);
 		boolean isWhitePlayerAtBottomOfScreenAfter = gameSettings.isWhitePlayerAtBottomOfScreen();
@@ -262,16 +260,16 @@ public class Gui extends JFrame implements Runnable {
 				updateBoardAvailability(mess.getMessageData());
 				break;
 			case SET_MOVE_AS_STRING: {		// detta är bekräftelse på att ett drag är flyttat och turen flyttas över till nästa spelare.
-				textAreaRight.setText(textAreaRight.getText() + mess.getMessageData() + '\n');
+				textAreaRight.setText(textAreaRight.getText() + mess.getMessageData());// + '\n');
 				gameStatus.switchPlayer();
 				updateMove();
 				break;}
 			case ANNOUNCE_PLAYER_STATUS: {
-				System.out.println(mess.getMessageData());
+				//System.out.println(mess.getMessageData());
 				String[] arr = mess.getMessageData().split(",");
 				PlayerStatus ps = PlayerStatus.createFromString(arr[0]);
 				 
-				System.out.println(arr);
+				//System.out.println(arr);
 				if (ps == PlayerStatus.CHECK_MATE || ps == PlayerStatus.STALE_MATE)
 					CheckAlert.createCheckAlert(mess.getMessageData());
 				break;
@@ -287,7 +285,7 @@ public class Gui extends JFrame implements Runnable {
 	{
 		if (idleTimer != null)
 			idleTimer.stop();
-		System.out.println("Nu avslutas GUI:et och därför sänds avslutningsmeddelande till Boarden");
+		//System.out.println("Nu avslutas GUI:et och därför sänds avslutningsmeddelande till Boarden");
 		Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.KILL_PROCESS_IMMEDIATELY, null));
 		setVisible(false);
 		dispose();
@@ -331,12 +329,7 @@ public class Gui extends JFrame implements Runnable {
 	private void updateBoardPieces(String messData) 
 	{
 		String boardSetupAsString[] = messData.split(",");
-		if (boardSetupAsString.length != 64)
-		{
-			System.out.println("strs.length = " + boardSetupAsString.length + " != 64");
-			return;
-		}
-        
+		
 		int squareId=0;
 		for (String controlValueStr: boardSetupAsString)
 		{
@@ -372,8 +365,6 @@ public class Gui extends JFrame implements Runnable {
 			if (squares[buttonId].getIcon() == null && squareEnabled)
 				squares[buttonId].setText("*");
 		}
-		
-		System.out.println("updateBoardAvailability run");
 	}
 	
 	
@@ -398,7 +389,6 @@ public class Gui extends JFrame implements Runnable {
 	
 	public void buttonIdClick(int buttonId)		// man får anta att det är en människa för annars är inte knapparna enabled
 	{
-		System.out.println("Button Id: " + buttonId);
 		if (buttonId >= 0 && buttonId < 64) {
 			int squareId = getSquareIdFromButtonId(buttonId);
 			int status = gameStatus.getStatus();

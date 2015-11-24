@@ -32,11 +32,6 @@ public class BoardWrapper extends Board implements Runnable {
 		do {
 				// hämta meddelanden till mig som ligger i kommunikatorn från andra världar.
 			while((retrieved = Communicator.getMessage(processType)) != null) {
-				
-				System.out.println("Board har tagit emot ett meddelande som lyder: " + retrieved.toString());
-				
-				System.out.println(this.toString());
-				
 				switch(retrieved.getMessageType())
 				{
 				case COMMIT_MOVE:
@@ -57,11 +52,9 @@ public class BoardWrapper extends Board implements Runnable {
 					break;
 				case STANDARD_SETUP:
 					standardSetup();
-					//returnBoardAvailability();
 					returnBoardSetup();
 					break;
 				case GET_BOARD_PIECES:
-					//returnBoardAvailability();
 					returnBoardSetup();
 					break;
 				case GET_MOVABLE_PIECES:
@@ -69,7 +62,6 @@ public class BoardWrapper extends Board implements Runnable {
 					break;
 				default:
 					break;
-						
 				}
 			}
 			
@@ -140,7 +132,6 @@ public class BoardWrapper extends Board implements Runnable {
 			}	
 		}
 		
-		System.out.println("skicka följande sträng från Board till Gui: " + tjena);
 		Message mess = new Message(processType, ProcessType.Gui_1, MessageType.SET_BOARD_PIECES, tjena);
 		Communicator.addMessage(mess);
 	}
@@ -206,8 +197,6 @@ public class BoardWrapper extends Board implements Runnable {
 		Move move = createMoveFromPositions(fr, to);
 		PlayerColour pc = move.getPiece().getPlayer();
 		
-		//Move move = new Move(squares[fr], squares[to], to%8, to/8);
-		System.out.println("Move to commit: " + move);
 		super.commitMove(move);
 		
 		returnBoardSetup();
@@ -217,7 +206,6 @@ public class BoardWrapper extends Board implements Runnable {
 		PlayerStatus ps = super.getPlayerStatus(pc.getOpponentColour());
 		if (ps != PlayerStatus.NO_STATUS) {
 			returnPlayerStatus(ps, pc.getOpponentColour());
-			System.out.println("Here 1 is it " + ps);
 		}
 	}
 	
@@ -256,7 +244,6 @@ public class BoardWrapper extends Board implements Runnable {
 		PlayerStatus ps = super.getPlayerStatus(pc.getOpponentColour());
 		if (ps != PlayerStatus.NO_STATUS) {
 			returnPlayerStatus(ps, pc.getOpponentColour());
-			System.out.println("Here 2 is it " + ps);
 			return;
 		}
 		//returnBoardSetup();
@@ -314,6 +301,29 @@ public class BoardWrapper extends Board implements Runnable {
 	
 	private void returnCommittedMoveAsText(Move move)
 	{
-		Communicator.addMessage(new Message(processType, ProcessType.Gui_1, MessageType.SET_MOVE_AS_STRING, move.toString()));
+		String returnStr = "";
+		String moveStr = move.toString();
+		
+		switch(getPlayerStatus(move.getPiece().getPlayer().getOpponentColour()))
+		{
+		case CHECK:
+			moveStr += "+";
+			break;
+		case CHECK_MATE:
+			moveStr += "++";
+			break;
+		case STALE_MATE:
+			moveStr += ", ½ - ½";
+			break;
+		default:
+			break;
+		}
+		
+		if (move.getPiece().getPlayer() == PlayerColour.White)
+			returnStr = "" + (getMoveNumber()+1)/2 + ". " + moveStr;
+		else
+			returnStr = "\t " + moveStr + "\n";
+		
+		Communicator.addMessage(new Message(processType, ProcessType.Gui_1, MessageType.SET_MOVE_AS_STRING, returnStr));
 	}
 }

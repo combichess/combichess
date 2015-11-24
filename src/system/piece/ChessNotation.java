@@ -6,8 +6,8 @@ package system.piece;
 
 public enum ChessNotation {
 	ALGEBRAIC,
-	FIGURINE_ALGEBRAIC,
 	LONG_ALGEBRAIC,
+	FIGURINE_ALGEBRAIC,
 	CONCISE_REVERSIBLE,
 	SMITH,
 	DESCRIPTIVE,

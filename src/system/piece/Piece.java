@@ -177,7 +177,7 @@ public abstract class Piece implements PieceInterface {
 	
 	public String toString(int customPos)
 	{
-		return toString(customPos, ChessNotation.ALGEBRAIC); 
+		return toString(customPos, ChessNotation.LONG_ALGEBRAIC); 
 	}
 	
 	public String toString(int customPos, ChessNotation not)
@@ -188,11 +188,11 @@ public abstract class Piece implements PieceInterface {
 					"";
 		switch (not) 
 		{
-		case ALGEBRAIC:
+		case LONG_ALGEBRAIC:
 			toReturn = (player==PlayerColour.White? "W": "B") + "" + type.getLetter() + not.getCo(customPos);
 			break;
-		case MY_OWN_FULL_NOTATION:
-			toReturn = "Piece: xxx, [" + (customPos%8) + ", " + customPos/8 + "]";
+		case ALGEBRAIC:
+			toReturn = type.getLetter() + not.getCo(customPos); 
 			break;
 		default:
 			toReturn = "No real piece-notation in Piece.toString(int, ChessNotation)";
