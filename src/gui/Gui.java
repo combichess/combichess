@@ -62,6 +62,7 @@ public class Gui extends JFrame implements Runnable {
 	private HashMap<String, ImageIcon> imageIcons = null;
 	private GameStatus gameStatus = null;
 	
+	private String saveAsFileName = null;
 	
 	private GameSettings gameSettings = null;
 
@@ -404,13 +405,13 @@ public class Gui extends JFrame implements Runnable {
 					System.out.println("Både chosenSquareFrom och To är defined :(");
 				updateMove();
 				break;
-			
 			}
 		} else if (buttonId >= 100) {
 			if (buttonId == Buttons.Nytt.getValue()){
 				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.STANDARD_SETUP, null));
 				//gameStatus = new GameStatus();
 				startGameSettingsAlert();
+				saveAsFileName = null;
 			}
 			
 			if (buttonId == Buttons.Exit.getValue())
@@ -418,6 +419,14 @@ public class Gui extends JFrame implements Runnable {
 			
 			if (buttonId == Buttons.Difficult.getValue())
 				startGameSettingsAlert();
+			
+			if (buttonId == Buttons.Save.getValue() || buttonId == Buttons.SaveAs.getValue())
+			{
+				saveGame(buttonId == Buttons.SaveAs.getValue());
+			}
+			
+			if (buttonId == Buttons.Get.getValue())
+				loadGame();
 		}
 	}
 	
@@ -452,6 +461,26 @@ public class Gui extends JFrame implements Runnable {
 		} else {
 			System.out.println("Gui.java r.467\tDen ska inte komma hit för då är gameStatus ett värde som det inte ska ha.");
 		}
+	}
+	
+	
+	private void loadGame()
+	{
+		String fileName = FileSelector.load();
+		if (fileName != null)
+			Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.LOAD_GAME, fileName));
+	}
+	
+	private void saveGame(boolean saveAs) 
+	{
+		String fileName = null;
+		if ((saveAs) || (!saveAs && saveAsFileName == null))
+			fileName = FileSelector.save();
+		else
+			fileName = saveAsFileName;
+		
+		if (fileName != null)
+			Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.SAVE_GAME, fileName));
 	}
 }
 

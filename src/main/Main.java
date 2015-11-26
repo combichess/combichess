@@ -36,8 +36,8 @@ https://help.github.com/articles/error-permission-denied-publickey/
 Efter "ssh -T git@github.com" skickar det här förbannade jävla gitskämtet ur sig:
 Hi annatUserName!
 
-Ett försök att logga in via github-windows-skiten falerade. Tog först 5min att hitta logout-knappen och sen blev det
-"login failed 
+Ett försök att logga in via github-windows-skiten falerade. Tog först 5min att hitta logout-knappen, därefter logga in och 
+sen blev det "login failed 
 Unable to retrieve your user info from the server. A proxy server might be interfering with the request"
 
 Tyvärr vet jag inte vad en proxy server är och vad den måste interfera med.
@@ -52,7 +52,11 @@ ge mig på ett hokuspokustest att pusha med:
 git push https://github.com/combichess/combichess.git master
 och det fungerade, fy fan vad jag avskyr git.
 
+git push origin master 
+där "origin" = "git@github.com:combichess/combichess.git" 
+blir fel
 
+istället måste tydligen "origin" vara = "https://github.com/combichess/combichess.git"
 */
 
 

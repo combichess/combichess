@@ -13,7 +13,10 @@ public enum MessageType {
     AVAILABLE_SQUARES(9),
     GET_MOVABLE_PIECES(10),	//ControlValue.BLACK el ControlValue.WHITE
     SET_MOVE_AS_STRING(11),		//null
-	ANNOUNCE_PLAYER_STATUS(12);	// with one of the enum members in PlayerStatus.java
+	ANNOUNCE_PLAYER_STATUS(12),	// with one of the enum members in PlayerStatus.java
+	SAVE_GAME(13),
+	LOAD_GAME(14);
+	
     int value;
     
     private MessageType(int val)
@@ -24,34 +27,6 @@ public enum MessageType {
     @Override
 	public String toString()
     {
-    	switch(value)
-    	{
-    	case 0:
-    		return "Commit Move";
-    	case 1:
-    		return "Propose Move";
-    	case 2:
-    		return "Get Player Piece Values";
-    	case 3:
-    		return "Set Player Piece Values";
-    	case 4:
-    		return "Kill Process immediately";
-    	case 5:
-    		return "Standard Setup";
-    	case 6:
-    		return "Get Possible Moves From";
-    	case 7:
-    		return "Get Board pieces";
-    	case 8:
-    		return "Set Board Pieces";
-    	case 9:
-    		return "Available Squares";
-    	case 10:
-    		return "Get Movable Pieces for Player";
-    	case 11:
-    		return "Move as string";
-    		
-    	}
-    	return null;
+    	return this.name();
     }
 }
