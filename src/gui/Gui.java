@@ -483,5 +483,3 @@ public class Gui extends JFrame implements Runnable {
 			Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.SAVE_GAME, fileName));
 	}
 }
-
-
