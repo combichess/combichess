@@ -148,7 +148,13 @@ public class Move {
 		return posTo - posFrom;
 	}
 	
-	public String toString(ChessNotation not)	// det ska även innehålla drag-nummer
+	/**
+	 * @param not - chess notation
+	 * @param withFile "The vertical columns of squares (called files) from White's left"
+	 * @param withRank "The horizontal rows of squares (called ranks) are numbered 1 to 8 starting from White's side of the board"
+	 * @return
+	 */
+	public String toString(ChessNotation not, boolean withFile, boolean withRank)
 	{
 		String str = "";
 		switch(not)
@@ -160,6 +166,8 @@ public class Move {
 				str = "O-O-O";
 			else {
 				str = pieceThatMoves.getType().getLetter();
+				str += withFile? STANDARD_CHESS_NOTATION.getCo(getFromPos()).charAt(0): "";
+				str += withRank? STANDARD_CHESS_NOTATION.getCo(getFromPos()).charAt(1): "";
 				str += (affectedPiece == null)? "": "x";
 				str += not.getCo(this.getToPos());
 			}
@@ -180,7 +188,12 @@ public class Move {
 			str = "Finns ingen toString anpassad för denna chessNotation: " + not;
 		}
 		
-		return str; 
+		return str;
+	}
+	
+	public String toString(ChessNotation not)	// det ska även innehålla drag-nummer
+	{
+		 return toString(not, false, false);
 	}
 	
 	// special om kungen blir tagen, då ska detta visas som konstant (+-)kunga-värde.
@@ -207,5 +220,16 @@ public class Move {
 	public String toString()
 	{
 		return toString(STANDARD_CHESS_NOTATION);	// det ska även innehålla drag-nummer
+	}
+	
+	
+	/**
+	 * @param withRank "The horizontal rows of squares (called ranks) are numbered 1 to 8 starting from White's side of the board"
+	 * @param withFile "The vertical columns of squares (called files) from White's left"
+	 * @return
+	 */
+	public String toString(boolean withFile, boolean withRank)
+	{
+		return toString(STANDARD_CHESS_NOTATION, withRank, withFile);	// det ska även innehålla drag-nummer
 	}
 }

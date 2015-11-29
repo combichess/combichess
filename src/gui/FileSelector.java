@@ -1,72 +1,68 @@
 package gui;
 
-import java.awt.CardLayout;
 import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 public class FileSelector extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-	
-	private static final String CPU_OPPONENT_LEVEL_1 = "Åke (3/5)";	// tänker 3 drag framåt
-	private static final String CPU_OPPONENT_LEVEL_2 = "Sixten (4/5)";	// tänker 4 drag framåt
-	private static final String CPU_OPPONENT_LEVEL_3 = "Elisabeth (5/5)";	// tänker 5 drag framåt
-		
-	private static final String STARTUP_HUMAN = "human";
-	private static final String STARTUP_CPU = "cpu";
+	private static final String FILE_ENDING = ".txt";
 	
 	private JPanel panel = null;
+	List<String> fileNames = null;
 	
 	private JPanel midPanel = null;		// Mitten
-	private JPanel btmPanel = null;		// Nere
-	
-	private JList filenameList = null;	// Uppe
+	private JList<String> filenameList = null;	// Uppe
 	private JLabel filenameLabel = null;	// Mitten <-
-	private JTextArea filenameTextarea = null;	// Mitten ->
-	private JButton okButton = null;	// Nere <-
-	private JButton cancelButton = null;	// Nere ->
+	private JTextField filenameTextfield = null;	// Mitten ->
 	
 	
 	private FileSelector()
 	{
 		
 		panel = new JPanel();
-	    //panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		fileNames = new ArrayList<>();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		
 	
 	
 	        // rad 1
-	    filenameList = new JList<String>();
+	    DefaultListModel<String> listModel = new DefaultListModel<String>();
+	    fileNames = getFileNames();
+	    for (String fileName: fileNames)
+	    	listModel.addElement(fileName);
+		
+		
+	    filenameList = new JList<String>(listModel);
 	    filenameList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	    filenameList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
-	    //filenameList.setVisibleRowCount(-1);
-	    
-	    filenameList = new JList<String>(getFileNames());
+	    filenameList.addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				if (e.getValueIsAdjusting())
+					filenameTextfield.setText(fileNames.get(filenameList.getSelectedIndex()));
+			}
+		});
+        JScrollPane sp = new JScrollPane(filenameList);
 
-        //filenameList.setPreferredSize(new Dimension(200, 300));
-	    panel.add(filenameList);
+        sp.setPreferredSize(new Dimension(100, 100));
+	    panel.add(sp);
 	
-	    
-		
-
 
 	
 	        // rad 2
@@ -74,64 +70,47 @@ public class FileSelector extends JFrame {
 		midPanel.setLayout(new BoxLayout(midPanel, BoxLayout.LINE_AXIS));
 		filenameLabel = new JLabel("Filnamn: ");
 		midPanel.add(filenameLabel);
-		filenameTextarea = new JTextArea();
-		midPanel.add(filenameTextarea);
+		filenameTextfield = new JTextField();
+		midPanel.add(filenameTextfield);
 	    panel.add(midPanel);
-	    
-	    /*checkWhite.addActionListener(new ActionListener() {
-	    	@Override
-	        public void actionPerformed(ActionEvent actionEvent)
-	        {
-	            AbstractButton abstractButton = (AbstractButton) actionEvent.getSource();
-	            boolean selected = abstractButton.getModel().isSelected();
-	            System.out.println("actionPerformed on vit checkbox");
-	        }
-	    });
-	    panel.add(checkWhite);*/
-
-		
-		    // rad 3
-	    btmPanel = new JPanel();
-		btmPanel.setLayout(new BoxLayout(btmPanel, BoxLayout.LINE_AXIS));
-		
-		okButton = new JButton("Ok");
-		cancelButton = new JButton("Cancel");
-		btmPanel.add(okButton);
-		btmPanel.add(cancelButton);
-		panel.add(btmPanel);
 	}
 	
-	private DefaultListModel<String> getFileNames()
+	private List<String> getFileNames()
 	{
-		
-		DefaultListModel<String> listModel = new DefaultListModel<String>();
-
+		List<String> filenamesToReturn = new ArrayList<>();
 		File folder = new File("./saved games/");
 		File[] listOfFiles = folder.listFiles();
 		
 		for (File file : listOfFiles) {
 		    if (file.isFile()) {
-			    listModel.addElement(file.getName());
+		    		// Fixa detta, för här kommer det bli fel väldigt ofta.
+		    	String fullFilename = file.getName();
+		    	String toCompareWith = fullFilename.substring(fullFilename.length() - FILE_ENDING.length()); 
+		    	if (toCompareWith.equals(FILE_ENDING))
+		    		filenamesToReturn.add(fullFilename.substring(0, fullFilename.length() - FILE_ENDING.length()));
 		    }
 		}
-	    return listModel;
+		return filenamesToReturn;
 	}
 	
-	static public String saveAs()
+	static private String start(boolean isSaving)
 	{
-		return null;
+		FileSelector fileSelector = new FileSelector();
+		
+		fileSelector.filenameTextfield.setEnabled(isSaving);
+		int answer = JOptionPane.showConfirmDialog(null, fileSelector.panel, "FileSelector: ", JOptionPane.OK_CANCEL_OPTION);
+		
+		//System.out.println("Result: " + fileSelector.filenameTextfield.getText());
+		return answer == JOptionPane.OK_OPTION? (fileSelector.filenameTextfield.getText() + FILE_ENDING): null;
 	}
 	
 	static public String load()
 	{
-		FileSelector fileSelector = new FileSelector();
-		int result = JOptionPane.showConfirmDialog(null, fileSelector.panel, "Settings: ", JOptionPane.OK_CANCEL_OPTION);
-		return null;
+		return start(false);
 	}
 	
 	static public String save()
-	{
-		return null;
+	{		
+		return start(true);
 	}
-	
 }

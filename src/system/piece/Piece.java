@@ -254,6 +254,7 @@ public abstract class Piece implements PieceInterface {
 		}
 	}
 	
+	@Deprecated
 	public PieceType getType()
 	{
 		return type;

@@ -1,5 +1,7 @@
 package system.board;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.List;
 
 import system.move.Move;
@@ -59,6 +61,12 @@ public class BoardWrapper extends Board implements Runnable {
 					break;
 				case GET_MOVABLE_PIECES:
 					sendPossibleMovesForPlayer(retrieved.getMessageData());
+					break;
+				case LOAD_GAME:
+					loadGame(retrieved.getMessageData());
+					break;
+				case SAVE_GAME:
+					saveGame(retrieved.getMessageData());
 					break;
 				default:
 					break;
@@ -326,4 +334,24 @@ public class BoardWrapper extends Board implements Runnable {
 		
 		Communicator.addMessage(new Message(processType, ProcessType.Gui_1, MessageType.SET_MOVE_AS_STRING, returnStr));
 	}
+	
+	private void loadGame(String filename)
+	{
+		
+	}
+	
+	private void saveGame(String filename)
+	{
+		String toSave = super.toString();
+		try {
+			 PrintWriter out = new PrintWriter("saved games/" + filename);
+			 out.print(toSave);
+			 out.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
 }

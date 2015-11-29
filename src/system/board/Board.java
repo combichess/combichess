@@ -363,8 +363,7 @@ public class Board {
 		return squares[horizontal - 9 + 8*vertical];
 	}
 	
-	@Override
-	public String toString()
+	public String toString2()
 	{
 		String str = "";
 		char c = 'A';
@@ -387,6 +386,66 @@ public class Board {
 		for (int x=1; x<=8; x++)
 			str += "   " + ((char)(c+x)) + ((x==8)? "\n": "\t");
 		return str;
+	}
+	
+	@Override
+	public String toString()
+	{
+			// skapa ett helt nytt schackbräde och gör om allting från grunden
+		Board board = new Board();
+		board.standardSetup();
+		String str = "";
+		int moveNumber = 0;
+		
+		for (Move move: committedMoves)
+		{
+				/* https://en.wikipedia.org/wiki/Algebraic_notation_(chess)#Disambiguating_moves
+				 * 
+				 * For example, with knights on g1 and d2, 
+				 * either of which might move to f3, 
+				 * the move is specified as Ngf3 or Ndf3, 
+				 * as appropriate. With knights on g5 and g1, 
+				 * the moves are N5f3 or N1f3
+				 */
+
+			moveNumber++;
+			boolean rankNeeded = false;
+			boolean fileNeeded = false;
+			Piece piece = move.getPiece();
+			Moves otherMoves = board.getAllPossibleAllowedMovesFor(piece.getPlayer());
+			
+			//but the file(x-value) takes precedence over the rank
+			otherMoves.getMovesToPos(move.getToPos());
+
+			int fromX = move.getFromPos()&7;
+			int fromY = move.getFromPos()/8;
+			
+			for (Move otherMove: otherMoves)
+			{
+				boolean sameXValue = (otherMove.getFromPos()&7) == fromX;
+				boolean sameYValue = (otherMove.getFromPos()/8) == fromY;
+				
+					// Om exempelvis det finns två pjäser av samma typ som kan gå till denna rutan
+				//if (piece.getClass() == otherMove.getPiece().getClass())
+				if (piece.getType() == otherMove.getPiece().getType())
+				{
+					if (!sameXValue && sameYValue)
+						fileNeeded = true;
+					else  if (!sameXValue && sameYValue)
+						rankNeeded = true;
+				}
+			}
+			
+			str += move.toString(fileNeeded, rankNeeded);
+			board.commitMove(move);
+		}
+		
+		return str;
+	}
+	
+	public Move moveFromString(String str)
+	{
+		return null;
 	}
 	
 	protected Moves getAllPossibleMovesFor(PlayerColour colour) {
