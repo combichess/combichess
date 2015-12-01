@@ -230,6 +230,6 @@ public class Move {
 	 */
 	public String toString(boolean withFile, boolean withRank)
 	{
-		return toString(STANDARD_CHESS_NOTATION, withRank, withFile);	// det ska även innehålla drag-nummer
+		return toString(STANDARD_CHESS_NOTATION, withFile, withRank);	// det ska även innehålla drag-nummer
 	}
 }
