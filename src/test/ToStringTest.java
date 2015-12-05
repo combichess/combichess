@@ -6,9 +6,7 @@ import org.testng.annotations.*;
 
 import system.board.PlayerColour;
 import system.move.Move;
-import system.move.Moves;
 import system.piece.Piece;
-import system.piece.PieceType;
 
 public class ToStringTest {
 
@@ -19,12 +17,6 @@ public class ToStringTest {
 	{
 		testBoard = new BoardTester();
 		testBoard.clearAllData();
-		/*testBoard.addPiece(4, 2, PlayerColour.Black, PieceType.King, true);
-		testBoard.addPiece(4, 3, PlayerColour.White, PieceType.Pawn, true);
-		testBoard.addPiece(2, 4, PlayerColour.Black, PieceType.Knight, true);
-		testBoard.addPiece(4, 5, PlayerColour.White, PieceType.Knight, true);
-		testBoard.addPiece(5, 5, PlayerColour.White, PieceType.King, true);
-		testBoard.addPiece(5, 7, PlayerColour.White, PieceType.Queen, true);*/
 		testBoard.standardSetup();
 	}
 	
@@ -88,5 +80,19 @@ public class ToStringTest {
 		
 		str = testBoard.toString2();
 		assert(str.get(14).equals("N2f3"));
+		
+		///// Återställ allting och gör om allting med utskriften från .toString2()
+		testBoard.standardSetup();
+		
+		PlayerColour pc = PlayerColour.White;
+		for (String moveStr: str)
+		{
+			Move move = testBoard.getMoveFromString(moveStr, pc);
+			pc = pc.getOpponentColour();
+			testBoard.commitMove_(move);
+		}
+		
+		str2 = testBoard.toString2();
+		assert(str.equals(str2));
 	}
 }

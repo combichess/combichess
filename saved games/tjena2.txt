@@ -1,0 +1,1 @@
+e4,g6,d4,Bg7,e5,b6,Bc4,c6,Nf3,Kf8,O-O,e6,c3,a5,Qb3,Ke8,Be3,Bf8,d5,exd5,Bxb6,xc4,Bxd8,xb3,Bf6,Nxf6,xf6,xa2,Rxa2,Bc5

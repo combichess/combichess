@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import main.control.PlayerStatus;
 import system.board.PlayerColour;
@@ -33,6 +35,7 @@ public class Board {
 	protected Player playerBlack;
 	protected Player playerWhite;
 	protected int moveNumber;
+	private final Pattern pat = Pattern.compile("^([NBRQK]?)(\\w|\\W)*([a-h][1-8])$");
 	
 		// setup
 	protected Board()
@@ -164,11 +167,79 @@ public class Board {
 		return numOfErrors == 0;
 	}
 	
-	protected void commitMove(String moveString) 
+	public Move getMoveFromString(String moveString, PlayerColour pc)
 	{
-		// todo
+		moveString = moveString.replace("+", "").replace("x", "");
+		Moves moves = getAllPossibleAllowedMovesFor(pc);
+		
+		if (moveString.equals("O-O-O")) {
+			return moves.getMovesByMoveType(MoveType.QUEEN_SIDE_CASTLING).get(0); 
+		} else if (moveString.equals("O-O")) {
+			return moves.getMovesByMoveType(MoveType.KING_SIDE_CASTLING).get(0);
+		}
+		
+		Matcher mat = pat.matcher(moveString);
+		mat.find();
+		int toPos = (mat.group(3).charAt(0) - 'a') + 8*(mat.group(3).charAt(1) - '1');
+		moves = moves.getMovesToPos(toPos);
+		
+		switch(moves.size())
+		{
+		case 0:
+			System.out.println("Board.getMoveToString()\tMove: " + moveString + " is not an alternative");
+			return null;
+		case 1:
+			return moves.get(0);
+		default:
+			break;
+		}
+		String grupp1 = mat.group(1);
+		char c = grupp1.length() == 1? mat.group(1).charAt(0): 'x'; 
+		switch(c)
+		{
+		case 'N':
+			moves = moves.getMovesByPieceType(PieceType.Knight);
+			break;
+		case 'B':
+			moves = moves.getMovesByPieceType(PieceType.Bishop);
+			break;
+		case 'R':
+			moves = moves.getMovesByPieceType(PieceType.Rook);
+			break;
+		case 'Q':
+			moves = moves.getMovesByPieceType(PieceType.Queen);
+			break;
+		case 'K':
+			moves = moves.getMovesByPieceType(PieceType.King);
+			break;
+		default:
+			moves = moves.getMovesByPieceType(PieceType.Pawn);
+			break;
+		}
+		
+		if (moves.size() == 1)
+			return moves.get(0);
+		
+		if (mat.group(2) == null)
+			return null;
+		
+		char p = mat.group(2).charAt(0); 
+		if (p >= '1' && p <= '8') {
+			for (Move move: moves)
+			{
+				if (move.getFromPos()/8 == (p-'1'))
+					return move;
+			}
+		} else if (p >= 'a' && p <= 'h') {
+			for (Move move: moves)
+			{
+				if ((move.getFromPos()&7) == (p-'a'))
+					return move;
+			}
+		}
+		return null;
 	}
-	
+		
 	protected int commitMove(Move moveToCommit)
 	{
 		committedMoves.add(moveToCommit);

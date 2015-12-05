@@ -1,8 +1,11 @@
 package system.board;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Scanner;
 
 import system.move.Move;
 import system.move.Moves;
@@ -335,17 +338,52 @@ public class BoardWrapper extends Board implements Runnable {
 		Communicator.addMessage(new Message(processType, ProcessType.Gui_1, MessageType.SET_MOVE_AS_STRING, returnStr));
 	}
 	
-	private void loadGame(String filename)
+	public void loadGame(String filePath)
 	{
+		String[] movesAsStr = null;
+		try {
+			Scanner in = new Scanner(new FileReader("./saved games/" + filePath));
+			if (in.hasNext())
+				movesAsStr = in.next().split(",");
+			
+			in.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 		
+		if (movesAsStr == null)
+		{
+			System.out.println("Misslyckades med att hämta filen: " + filePath);
+			return;
+		}
+		
+		standardSetup();
+		PlayerColour pc = PlayerColour.White;
+		for (String moveAsStr: movesAsStr)
+		{
+			Move move = getMoveFromString(moveAsStr, pc);
+			if (move == null)
+				System.out.println("Move is null");
+			
+			commitMove(move);
+			System.out.println("Move: " + move + "\tMoveString: " + moveAsStr + '\n' + this);
+			pc = pc.getOpponentColour();
+		}
+	
+		returnBoardSetup();
 	}
 	
 	private void saveGame(String filename)
 	{
-		String toSave = super.toString();
+		List<String> movesToSave = super.toString2();
+		String stringToSave = "";
+			// bygg string av movesen
+		for (int i=0; i<movesToSave.size(); i++)
+			stringToSave += (i>0? ",": "") + movesToSave.get(i);
+		
 		try {
 			 PrintWriter out = new PrintWriter("saved games/" + filename);
-			 out.print(toSave);
+			 out.print(stringToSave);
 			 out.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

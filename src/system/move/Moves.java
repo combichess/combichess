@@ -29,6 +29,17 @@ public class Moves extends ArrayList<Move> {
 		return newMoves;
 	}
 	
+	public Moves getMovesByPieceType(PieceType type)
+	{
+		Moves newMoves = new Moves();
+		for (Move move: this)
+		{
+			if (move.getPiece().getType() == type)
+				newMoves.add(move);
+		}
+		return newMoves;
+	}
+	
 	public Move getBestMoveFromList() {
 		Move recordMove = null;
 		int recordValue = -2*PieceType.King.getValue();
