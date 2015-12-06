@@ -1,7 +1,5 @@
 package system.board;
 
-import system.piece.PieceType;
-
 public class Player {
 	private int valueTable[];
 	
@@ -22,10 +20,5 @@ public class Player {
 	public int[] getValueTable()
 	{
 		return valueTable;
-	}
-		
-	public int getValue(PieceType type)
-	{
-		return valueTable[type.getValue()];
 	}
 }

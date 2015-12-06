@@ -9,7 +9,6 @@ public class Queen extends Piece {
 
 	public Queen(int xPos, int yPos, PlayerColour player) {
 		super(xPos, yPos, player);
-		type = PieceType.Queen;
 	}
 
 	@Override
@@ -25,6 +24,11 @@ public class Queen extends Piece {
 	public boolean isPieceThreateningPosition(int pos, Piece[] squares) {
 		return (super.isThreateningSquareStraight(pos, squares) ||
 				super.isThreateningSquareDiagonally(pos, squares)); 
+	}
+
+	@Override
+	public String getLetter() {
+		return "Q";
 	}
 	
 	

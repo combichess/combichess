@@ -13,7 +13,6 @@ public class Pawn extends Piece {
 
 	public Pawn(int xPos, int yPos, PlayerColour player) {
 		super(xPos, yPos, player);
-		type = PieceType.Pawn;	
 	}
 
 	@Override
@@ -45,9 +44,9 @@ public class Pawn extends Piece {
 			if (goToSquare != null && goToSquare.player != player)
 			{
 				if (goToSquare.yPos == 0 || goToSquare.yPos == 7) {	 // Promotion genom att ta pjäs
-					nyLista.add(new Move(this, goToSquare, xPosPlus, yPosPlus, goToSquare.type.getValue() + PieceType.Queen.getValue() - PieceType.Pawn.getValue(), MoveType.PROMOTION));
+					nyLista.add(new Move(this, goToSquare, xPosPlus, yPosPlus, goToSquare.getValue() + PieceType.getValue(Queen.class) - PieceType.getValue(Pawn.class), MoveType.PROMOTION));
 				} else {
-					nyLista.add(new Move(this, goToSquare, xPosPlus, yPosPlus, goToSquare.type.getValue()));
+					nyLista.add(new Move(this, goToSquare, xPosPlus, yPosPlus, goToSquare.getValue()));
 				}
 			}
 			
@@ -59,10 +58,10 @@ public class Pawn extends Piece {
 				
 					// activity för takenSquare behöver inte kontrolleras då man hämtar piece från board, och board har inte inaktiva pieces
 				if (goToSquare == null && takenSquare != null && takenSquare.getPlayer() != this.player 
-						&& takenSquare.getPreviousMoveNumber() == board.getMoveNumber() - 1 && takenSquare.getType() == PieceType.Pawn
+						&& takenSquare.getPreviousMoveNumber() == board.getMoveNumber() - 1 && (takenSquare instanceof Pawn)
 						&& board.getLastCommittedMove().getMoveType() == MoveType.DOUBLE_PAWN_MOVE)
 				{
-					nyLista.add(new Move(this, takenSquare, xPosPlus, yPosPlus, PieceType.Pawn.getValue(), 
+					nyLista.add(new Move(this, takenSquare, xPosPlus, yPosPlus, PieceType.getValue(Pawn.class), 
 							dx>0? MoveType.KING_SIDE_EN_PASSANT: MoveType.QUEEN_SIDE_EN_PASSANT));
 				}
 			}
@@ -75,7 +74,7 @@ public class Pawn extends Piece {
 			{
 			case 0:
 			case 7:	// promotion
-				nyLista.add(new Move(this, goToSquare, xPos, yPosPlus, PieceType.Queen.getValue() - PieceType.Pawn.getValue(), MoveType.PROMOTION_QUEEN));
+				nyLista.add(new Move(this, goToSquare, xPos, yPosPlus, PieceType.getValue(Queen.class) - PieceType.getValue(Pawn.class), MoveType.PROMOTION_QUEEN));
 				break;
 			default:
 				nyLista.add(new Move(this, goToSquare, xPos, yPosPlus));
@@ -112,5 +111,10 @@ public class Pawn extends Piece {
 		}
 		
 		return false;
+	}
+
+	@Override
+	public String getLetter() {
+		return "";
 	}
 }

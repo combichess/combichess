@@ -8,9 +8,7 @@ public class Bishop extends Piece {
 
 	public Bishop(int xPos, int yPos, PlayerColour player) {
 		super(xPos, yPos, player);
-		type = PieceType.Bishop;
 	}
-
 
 	@Override
 	public Moves getPossibleMoves(Board board)
@@ -23,5 +21,11 @@ public class Bishop extends Piece {
 	@Override
 	public boolean isPieceThreateningPosition(int pos, Piece[] squares) {
 		return super.isThreateningSquareDiagonally(pos, squares);
+	}
+
+
+	@Override
+	public String getLetter() {
+		return "B";
 	}
 }

@@ -9,8 +9,11 @@ import java.util.List;
 import system.board.PlayerColour;
 import system.move.Move;
 import system.move.MoveType;
+import system.piece.Knight;
+import system.piece.Pawn;
 import system.piece.Piece;
 import system.piece.PieceType;
+import system.piece.Queen;
 
 //@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PawnTest {
@@ -43,7 +46,6 @@ public class PawnTest {
 	private static Piece blackQueen = null;
 	private static boolean setupIsExecuted = false;
 	
-	private static boolean printStatus = true;
 	
 	//@BeforeTest
 	@BeforeClass
@@ -64,11 +66,11 @@ public class PawnTest {
 	 */
 	@Test(priority=1)
 	public void testPawn01() {
-		assert(PieceType.Pawn.getValue() == 1);
+		assert(PieceType.getValue(Pawn.class) == 1);
 		
 		whiteBPawn = testBoard.getPieceOnSquare(1, 1);
 		List<Move> whitePawnMoveList = whiteBPawn.getPossibleMoves(testBoard);
-		System.out.println(whitePawnMoveList);
+		//System.out.println(whitePawnMoveList);
 		assert(whitePawnMoveList.size() == 2);
 		//assertEquals("Vit bonde ska ha två flyttmöjligheter från b2", 2, whitePawnMoveList.size());
 		
@@ -88,8 +90,6 @@ public class PawnTest {
 		assert(1 + 3*8 == move2.getToPos());
 		
 		testBoard.commitMove_(move2);
-		
-		print();
 	}
 	
 	/**
@@ -99,7 +99,7 @@ public class PawnTest {
 	public void testPawn02() {
 		blackAPawn = testBoard.getPieceOnSquare(0, 6);
 		List<Move> blackPawnMoveList = blackAPawn.getPossibleMoves(testBoard);
-		System.out.println(blackPawnMoveList);
+		//System.out.println(blackPawnMoveList);
 		//assertEquals("Svart bonde ska ha två flyttmöjligheter från b6", 2, blackPawnMoveList.size());
 		assert(2 == blackPawnMoveList.size());
 		
@@ -119,8 +119,6 @@ public class PawnTest {
 		assert(0 + 4*8 == move2.getToPos());
 		
 		testBoard.commitMove_(move2);
-		
-		print();
 	}
 	
 	/**
@@ -130,7 +128,7 @@ public class PawnTest {
 	@Test(priority=3)
 	public void testPawn03() {
 		List<Move> whitePawnMoveList = whiteBPawn.getPossibleMoves(testBoard);
-		System.out.println(whitePawnMoveList);
+		//System.out.println(whitePawnMoveList);
 		//assertEquals("Vit bonde ska ha två flyttmöjligheter från b4", 2, whitePawnMoveList.size());
 		assert(2 == whitePawnMoveList.size());
 		
@@ -156,7 +154,6 @@ public class PawnTest {
 			testBoard.commitMove_(blackPawnMoveList.get(0));
 		else
 			testBoard.commitMove_(blackPawnMoveList.get(1));
-		print();
 	}
 	
 	/**
@@ -176,7 +173,7 @@ public class PawnTest {
 		assert(1+5*8 == blackPawnMoveList.get(0).getToPos());
 		
 		List<Move> whitePawnMoveList = whiteBPawn.getPossibleMoves(testBoard);
-		System.out.println(whitePawnMoveList);
+		//System.out.println(whitePawnMoveList);
 		//assertEquals("Vit bonde ska ha två flyttmöjligheter från b5", 2, whitePawnMoveList.size());
 		assert(2 == whitePawnMoveList.size());
 		
@@ -194,14 +191,11 @@ public class PawnTest {
 		assert(2 + 5*8 == moveEP.getToPos());
 		assert(1 + 5*8 == move1.getToPos());
 
-		print();
 		testBoard.commitMove_(moveEP);
 		//assertFalse("C-bonde är inaktiv", blackCPawn.getActivity());
 		assert(!blackCPawn.getActivity());
 		
-		//blackCPawn = testBoard.getPieceOnSquare(2, 6);
-		print();
-		System.out.println("moveEP: " + moveEP);
+		//System.out.println("moveEP: " + moveEP);
 		assert(moveEP.getValue() > 0);
 		
 		
@@ -217,7 +211,6 @@ public class PawnTest {
 	@Test(priority=5)
 	public void testPawn05() {
 		testBoard.uncommit();
-		print();
 		
 		Piece blackCPawn2 = testBoard.getPieceOnSquare(2, 4);
 		assert(blackCPawn2 != null);
@@ -244,7 +237,7 @@ public class PawnTest {
 	{
 		blackQueen = testBoard.getPieceOnSquare(3, 7);
 		assert(blackQueen != null);
-		assert(blackQueen.getType() == PieceType.Queen);
+		assert(blackQueen instanceof Queen);
 		
 		List<Move> queenMoves = blackQueen.getPossibleMoves(testBoard);
 		Move moveToMake = null;
@@ -266,8 +259,6 @@ public class PawnTest {
 		assert(bPawnMoves.size() == 3);
 		
 		testBoard.commitMove_(moveToMake);
-
-		print();
 	}
 	
 	/**
@@ -294,10 +285,9 @@ public class PawnTest {
 		Piece pieceAfterPromotion = testBoard.getPieceOnSquare(2, 7);
 		assert(pieceAfterPromotion != null);
 		assert(pieceAfterPromotion.getActivity() == true);
-		assert(pieceAfterPromotion.getType() == PieceType.Knight);
+		assert(pieceAfterPromotion instanceof Knight);
 		assert(takenBlackBishop.getActivity() == false);
 		assert(whiteBPawn.getActivity() == false);
-		print();
 		
 		testBoard.uncommit();
 		
@@ -306,13 +296,11 @@ public class PawnTest {
 		assert(takenBlackBishop.getActivity() == true);
 		assert(takenBlackBishop.getPosition() == 2 + 7*8);
 		assert(testBoard.getPieceOnSquare(2, 7) == takenBlackBishop);
-		print();
 		
 		moveToMake.setPromotionType(MoveType.PROMOTION_QUEEN);
 		assert(moveToMake.getMoveType() == MoveType.PROMOTION_QUEEN);
 		testBoard.commitMove_(moveToMake);	// redo promotion
-		assert(testBoard.getPieceOnSquare(2, 7).getType() == PieceType.Queen);
-		print();
+		assert(testBoard.getPieceOnSquare(2, 7) instanceof Queen);
 	}
 	
 	/**
@@ -325,12 +313,6 @@ public class PawnTest {
 		assert(blackMoves.size() == 0);
 	}
 	
-	private void print()
-	{
-		if (printStatus)
-			System.out.println(testBoard.toString());
-	}
-	 
 	@AfterTest
 	public void destroy()
 	{

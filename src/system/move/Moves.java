@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
+import system.piece.King;
 import system.piece.Piece;
 import system.piece.PieceType;
 
@@ -29,12 +30,12 @@ public class Moves extends ArrayList<Move> {
 		return newMoves;
 	}
 	
-	public Moves getMovesByPieceType(PieceType type)
+	public Moves getMovesByPieceType(@SuppressWarnings("rawtypes") Class type)
 	{
 		Moves newMoves = new Moves();
 		for (Move move: this)
 		{
-			if (move.getPiece().getType() == type)
+			if (move.getPiece().getClass() == type)
 				newMoves.add(move);
 		}
 		return newMoves;
@@ -42,7 +43,7 @@ public class Moves extends ArrayList<Move> {
 	
 	public Move getBestMoveFromList() {
 		Move recordMove = null;
-		int recordValue = -2*PieceType.King.getValue();
+		int recordValue = -2*PieceType.getValue(King.class);
 		for (Move move: this)
 		{
 			if (move.getValue() > recordValue)
@@ -166,81 +167,4 @@ public class Moves extends ArrayList<Move> {
 		}
     	return moves;
     }
-	
-	
-	/*
-	 * 		För att hitta rätt drag.	 
-	 * 
-	 * public static HashMap<String, Integer> getHighest(HashMap<String, Integer> map)
-    {
-        int topValue = map.values().iterator().next().intValue();
-        for (Integer val: map.values())
-            topValue = topValue>val? topValue: val;
-        
-        HashMap<String, Integer> toReturn = new HashMap<>();
-        for (Entry<String, Integer> en: map.entrySet())
-            if (en.getValue() == topValue)
-                toReturn.put(en.getKey(), en.getValue());
-        
-        return toReturn;
-    }
-    
-    public static String getHighest2(HashMap<String, Integer> map)
-    {
-        int topValue = map.values().iterator().next().intValue();
-        int numOfValue = 0;
-        for (Integer val: map.values())
-        {
-            if (val == topValue)
-                numOfValue++;
-            else if (val > topValue)
-            {
-                numOfValue = 1;
-                topValue = val;
-            }
-        }
-        
-        int index = (int)(Math.random()*numOfValue);
-        for (Entry<String, Integer> en: map.entrySet()) {
-            if (en.getValue() == topValue && --index < 0)
-                return en.getKey();
-            
-        }
-        return null;
-    }
-    
-    
-    public static String getRandomHighest2(final HashMap<String, Integer> map)
-    {
-        int topValue = map.values().iterator().next().intValue();
-        int bottomValue = topValue;
-        double totalValue = 0;
-        for (Integer val: map.values()) {
-            topValue = topValue>val? topValue: val;
-            bottomValue = bottomValue<val? bottomValue: val;
-        }
-        Set<Integer> hej = new HashSet<>();
-            
-        HashMap<String, Double> doubleMap = new HashMap<>();
-        for (Entry<String, Integer> en: map.entrySet())
-        {
-            double value = Math.exp((en.getValue()-topValue)*2);
-            totalValue += value;
-            doubleMap.put(en.getKey(), value);
-        }
-        
-        double catchValue = Math.random()*totalValue;
-
-        for (Entry<String, Double> en: doubleMap.entrySet())
-        {
-            catchValue -= en.getValue();
-            if (catchValue < 0)
-                return en.getKey();
-        }
-        
-        return null;
-    }
-	 * */
-	
-	
 }

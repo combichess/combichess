@@ -76,7 +76,7 @@ public class Board {
 		return committedMoves.getLast();
 	}
 	
-	protected void addPiece(int xPos, int yPos, PlayerColour player, PieceType type, boolean touchedBefore) {
+	protected void addPiece(int xPos, int yPos, PlayerColour player, @SuppressWarnings("rawtypes") Class classType, boolean touchedBefore) {
 		Piece newPiece = null;
 		
 		if ((xPos & (~7)) != 0 || (yPos & (~7)) != 0)
@@ -85,27 +85,20 @@ public class Board {
 		if (getPieceOnSquare(xPos, yPos) != null)
 			return;
 		
-		switch(type) 
-		{
-		case Pawn:
+		if (classType.equals(Pawn.class)) {
 			newPiece = new Pawn(xPos, yPos, player);
-			break;
-		case Knight:
+		} else if (classType.equals(Knight.class)) {
 			newPiece = new Knight(xPos, yPos, player);
-			break;
-		case Bishop:
+		} else if (classType.equals(Bishop.class)) {
 			newPiece = new Bishop(xPos, yPos, player);
-			break;
-		case Rook:
+		} else if (classType.equals(Rook.class)) {
 			newPiece = new Rook(xPos, yPos, player);
-			break;
-		case Queen:
+		} else if (classType.equals(Queen.class)) {
 			newPiece = new Queen(xPos, yPos, player);
-			break;
-		case King:
+		} else if (classType.equals(King.class)) {
 			newPiece = new King(xPos, yPos, player);
-			break;
 		}
+		
 		newPiece.setPreviousMoveNumber(touchedBefore? 0: Move.PREVIOUSLY_NEVER_MOVED);
 		(player == PlayerColour.White? whites: blacks).add(newPiece);
 		setPieceOnSquare(xPos, yPos, newPiece);
@@ -198,22 +191,22 @@ public class Board {
 		switch(c)
 		{
 		case 'N':
-			moves = moves.getMovesByPieceType(PieceType.Knight);
+			moves = moves.getMovesByPieceType(Knight.class);
 			break;
 		case 'B':
-			moves = moves.getMovesByPieceType(PieceType.Bishop);
+			moves = moves.getMovesByPieceType(Bishop.class);
 			break;
 		case 'R':
-			moves = moves.getMovesByPieceType(PieceType.Rook);
+			moves = moves.getMovesByPieceType(Rook.class);
 			break;
 		case 'Q':
-			moves = moves.getMovesByPieceType(PieceType.Queen);
+			moves = moves.getMovesByPieceType(Queen.class);
 			break;
 		case 'K':
-			moves = moves.getMovesByPieceType(PieceType.King);
+			moves = moves.getMovesByPieceType(King.class);
 			break;
 		default:
-			moves = moves.getMovesByPieceType(PieceType.Pawn);
+			moves = moves.getMovesByPieceType(Pawn.class);
 			break;
 		}
 		
@@ -243,22 +236,12 @@ public class Board {
 	protected int commitMove(Move moveToCommit)
 	{
 		committedMoves.add(moveToCommit);
-		
-			// <------------förändra allt detta, det är fult skrivet och helt onödigt---
-		// tabort
-		int oldXPos = moveToCommit.getPiece().getX();
-		int oldYPos = moveToCommit.getPiece().getY();
-		
-		int dx = moveToCommit.getXmove();
-		int dy = moveToCommit.getYmove();
-		
-		int newXPos = oldXPos + dx;
-		int newYPos = oldYPos + dy;
-		
-		int newPosId = (newYPos<<3) + newXPos;
-		int oldPosId = (oldYPos<<3) + oldXPos;
-			// --------------------------------------------->
-			
+
+		//int dx = moveToCommit.getXmove();
+		//int dy = moveToCommit.getYmove();
+
+		int newPosId = moveToCommit.getToPos();
+		int oldPosId = moveToCommit.getFromPos();
 		
 			// i fall det är en "en passant" så är den tagna pjäsen inte på samma position som den committande pjäsen vandrar till, därför utförs raden här nedan.
 		Piece takenPiece = moveToCommit.getAffectedPiece();
@@ -268,21 +251,16 @@ public class Board {
 			takenPiece.setActivity(false);
 		}
 		
-		//moveToCommit.getPiece().moveX(dx, dy);
-		moveToCommit.getPiece().moveX(dx + dy*8, moveNumber);
+		moveToCommit.getPiece().moveTo(newPosId, moveNumber);
+		//moveToCommit.getPiece().moveX(dx + dy*8, moveNumber);
 		if (newPosId > 63 || newPosId < 0 || oldPosId > 63 || oldPosId < 0)
 		{
-			//System.out.println("boardet now:\n" + this.toString());
-			//System.out.println("newPosId: " + newPosId + "\t oldPosId: " + oldPosId);
 			System.out.println("Hit ska den absolut inte komma");
 			return -1;
-			// throw exception
-			
 		} 
 		MoveType moveType = moveToCommit.getMoveType();
 		if (moveType.isPromotion()) {
 			Piece oldPawn = moveToCommit.getPiece();
-			//PlayerColour pc = moveToCommit.getPiece().getPlayer();
 			PlayerColour pc = oldPawn.getPlayer();
 			oldPawn.setActivity(false);
 			Piece newPiece = null;
@@ -304,22 +282,26 @@ public class Board {
 			squares[newPosId] = newPiece; 
 			(pc == PlayerColour.White? whites: blacks).add(newPiece);	// byt till addLast för att vara mer specifik, nya pjäser läggs o tas bort sist i kön.
 		} else if(moveType.isCastling()) {
-			//Piece king = moveToCommit.getPiece();
 			switch(moveType)
 			{
 			case KING_SIDE_CASTLING: {
 				Piece rook = squares[oldPosId + 3];
-				squares[rook.getPosition()] = null;
-				rook.moveX(-2, moveNumber);
-				squares[rook.getPosition()] = rook;
+				int rookPos = rook.getPosition();				
+				squares[rookPos] = null;
+				rookPos -= 2;
+				rook.moveTo(rookPos, moveNumber);
+				squares[rookPos] = rook;
 				break;}
 			default: {
 				Piece rook = squares[oldPosId - 4];
-				squares[rook.getPosition()] = null;
-				rook.moveX(3, moveNumber);
-				squares[rook.getPosition()] = rook;
+				int rookPos = rook.getPosition();
+				squares[rookPos] = null;
+				rookPos += 3;
+				rook.moveTo(rookPos,moveNumber);
+				squares[rookPos] = rook;
 				break;}
 			}
+			
 			squares[newPosId] = moveToCommit.getPiece();
 			
 		} else {
@@ -338,55 +320,47 @@ public class Board {
 		Piece uncommittingPiece = toUncommit.getPiece();
 		Piece takenPiece = toUncommit.getAffectedPiece();
 		int posPostCommit = uncommittingPiece.getPosition(); 
-		int posPreCommit = posPostCommit - toUncommit.getPositionChange();
-		
-		
-		//System.out.println("nuvarande position: " + (toUncommit.getPiece().getPosition()%8) + ", " + (toUncommit.getPiece().getPosition()/8));
-		//System.out.println("förändring: " + (toUncommit.getPositionChange()%8) + ", " + (toUncommit.getPositionChange()/8));
-		//System.out.println("det ändras med: " + (gammalPosition%8) + ", " + (gammalPosition/8));
+		int posPreCommit = toUncommit.getFromPos();
 		
 		MoveType moveType = toUncommit.getMoveType();
 		
 		if (moveType.isPromotion()) {
-			//Piece promotedPiece = squares[uncommittingPiece.getPosition()];
 			// sist i listan är den nya pjäsen och den ska tas bort.
 			(uncommittingPiece.getPlayer() == PlayerColour.White? whites: blacks).removeLast();
 			uncommittingPiece.setActivity(true);
 			
-			int positionChangeBack = -toUncommit.getPositionChange();
-			uncommittingPiece.moveX(positionChangeBack, toUncommit.getPreviousMoveNumber());
+			uncommittingPiece.moveTo(toUncommit.getFromPos(), toUncommit.getPreviousMoveNumber());
 			squares[posPreCommit] = uncommittingPiece;
 			squares[posPostCommit] = null;
 			
 		} else if (moveType.isCastling()) {
 			if (moveType == MoveType.KING_SIDE_CASTLING) {
 				Piece rook = squares[posPostCommit-1];
+				int rookPos = rook.getPosition();
+				int kingPos = uncommittingPiece.getPosition();
 				
-				rook.moveX(2);
-				uncommittingPiece.moveX(-2);
-				
-				rook.setPreviousMoveNumber(Move.PREVIOUSLY_NEVER_MOVED);
-				uncommittingPiece.setPreviousMoveNumber(Move.PREVIOUSLY_NEVER_MOVED);
+				rook.moveTo(rookPos + 2, Move.PREVIOUSLY_NEVER_MOVED);
+				uncommittingPiece.moveTo(kingPos - 2, Move.PREVIOUSLY_NEVER_MOVED);
 				
 				squares[posPostCommit+1] = rook;
 				squares[posPostCommit-2] = uncommittingPiece;
 				squares[posPostCommit] = squares[posPostCommit-1] = null;
 			} else {
 				Piece rook = squares[posPostCommit+1];
+				int rookPos = rook.getPosition();
+				int kingPos = uncommittingPiece.getPosition();
 				
-				rook.moveX(-3);
-				uncommittingPiece.moveX(2);
-				
-				rook.setPreviousMoveNumber(Move.PREVIOUSLY_NEVER_MOVED);
-				uncommittingPiece.setPreviousMoveNumber(Move.PREVIOUSLY_NEVER_MOVED);
+				rook.moveTo(rookPos - 3, Move.PREVIOUSLY_NEVER_MOVED);
+				uncommittingPiece.moveTo(kingPos + 2, Move.PREVIOUSLY_NEVER_MOVED);
 				
 				squares[posPostCommit-2] = rook;
 				squares[posPostCommit+2] = uncommittingPiece;
 				squares[posPostCommit] = squares[posPostCommit+1] = null;
 			}
 		} else {
-			int positionChangeBack = -toUncommit.getPositionChange();		
-			uncommittingPiece.moveX(positionChangeBack, toUncommit.getPreviousMoveNumber());
+			//int positionChangeBack = -toUncommit.getPositionChange();	
+			uncommittingPiece.moveTo(toUncommit.getFromPos(), toUncommit.getPreviousMoveNumber());
+			//uncommittingPiece.moveX(positionChangeBack, toUncommit.getPreviousMoveNumber());
 			squares[posPreCommit] = uncommittingPiece;
 			squares[posPostCommit] = null;
 		}
@@ -415,21 +389,21 @@ public class Board {
 		
 		for (int i=0; i<8; i++)
 		{
-			addPiece(i, 1, PlayerColour.White, PieceType.Pawn, false);
-			addPiece(i, 6, PlayerColour.Black, PieceType.Pawn, false);
+			addPiece(i, 1, PlayerColour.White, Pawn.class, false);
+			addPiece(i, 6, PlayerColour.Black, Pawn.class, false);
 		}
 		for (int i=0; i<2; i++)
 		{
 			PlayerColour plr = i==0? PlayerColour.White: PlayerColour.Black;
 			
-			addPiece(0, i*7, plr, PieceType.Rook, false);
-			addPiece(1, i*7, plr, PieceType.Knight, false);
-			addPiece(2, i*7, plr, PieceType.Bishop, false);
-			addPiece(3, i*7, plr, PieceType.Queen, false);
-			addPiece(4, i*7, plr, PieceType.King, false);
-			addPiece(5, i*7, plr, PieceType.Bishop, false);
-			addPiece(6, i*7, plr, PieceType.Knight, false);
-			addPiece(7, i*7, plr, PieceType.Rook, false);	
+			addPiece(0, i*7, plr, Rook.class, false);
+			addPiece(1, i*7, plr, Knight.class, false);
+			addPiece(2, i*7, plr, Bishop.class, false);
+			addPiece(3, i*7, plr, Queen.class, false);
+			addPiece(4, i*7, plr, King.class, false);
+			addPiece(5, i*7, plr, Bishop.class, false);
+			addPiece(6, i*7, plr, Knight.class, false);
+			addPiece(7, i*7, plr, Rook.class, false);	
 		}
 		
 	}
@@ -451,9 +425,9 @@ public class Board {
 			str += "" + y + "[";
 			for (int x=1; x<=8; x++)
 			{
-				Piece tjena = getPiece(x, y);
-				if (tjena != null)
-					str += tjena.toString(ChessNotation.LONG_ALGEBRAIC);
+				Piece piece = getPiece(x, y);
+				if (piece != null)
+					str += piece.toString(ChessNotation.LONG_ALGEBRAIC);
 				str += (x<8)? "\t": "";
 			}
 			
@@ -463,8 +437,9 @@ public class Board {
 			str += "   " + ((char)(c+x)) + ((x==8)? "\n": "\t");
 		return str;
 	}
+
 	
-	public List<String> toString2()
+	public List<String> getMoveHistory()
 	{
 			// skapa ett helt nytt schackbräde och gör om allting från grunden
 		Moves moves = new Moves();
@@ -494,7 +469,8 @@ public class Board {
 				
 					// Om exempelvis det finns två pjäser av samma typ som kan gå till denna rutan
 				//if (piece.getClass() == otherMove.getPiece().getClass())
-				if (piece.getType() == otherMove.getPiece().getType())
+				//if (piece.getType() == otherMove.getPiece().getType())
+				if (piece.getClass().equals(otherMove.getPiece().getClass()))
 				{
 					if (!sameFile)
 						fileNeeded = true;
@@ -602,7 +578,7 @@ public class Board {
 			return findBestMove(colour);
 		
 		Moves moves = getAllPossibleMovesFor(colour);
-		int rekordMoveValue = -100*PieceType.King.getValue();	// tabort, ändra detta till en konstant i PieceType
+		int rekordMoveValue = -100*PieceType.getValue(King.class);	// tabort, ändra detta till en konstant i PieceType
 		
 		for (Move thisMove : moves)
 		{
@@ -611,7 +587,7 @@ public class Board {
 			if (thisMove == null)
 			{
 				thisMove = null;
-			} else if (thisMove.getValue() == PieceType.King.getValue()) {
+			} else if (thisMove.getValue() == PieceType.getValue(King.class)) {
 				// fortsätt inte leta djupare om kungen blir tagen, då är spelet avslutat
 				// annars så fortsätter den byta kungarna för att sen fortsätta spelet (strictly foh-bid'n)
 				return thisMove;
@@ -689,7 +665,6 @@ public class Board {
 		}
 		
 		Move oneOfTheBestMoves = allMoves.getMovesByValue(allMoves.getBestMoveFromList().getValue()).getRandomMove();
-		PieceType.unsetPieceValues();
 		return oneOfTheBestMoves;
 	}
 	

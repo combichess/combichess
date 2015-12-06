@@ -28,9 +28,9 @@ public class ToStringTest {
 			testBoard.commitMove_(testBoard.findBestMoveFor(PlayerColour.Black, 4));
 		}
 		
-		List<String> str = testBoard.toString2();
-		List<String> str2 = testBoard.toString2();
-		List<String> str3 = testBoard.toString2();
+		List<String> str = testBoard.getMoveHistory();
+		List<String> str2 = testBoard.getMoveHistory();
+		List<String> str3 = testBoard.getMoveHistory();
 		
 		assert(str.equals(str2));
 		assert(str.equals(str3));
@@ -48,9 +48,9 @@ public class ToStringTest {
 		testBoard.commitMove_(blackPawnG.getPossibleMoves(testBoard).get(0));
 		testBoard.commitMove_(testBoard.getAllPossibleAllowedMovesFor(PlayerColour.White).getMovesToPos(5 + 2*8).getMovesFromPos(6 + 0*8).get(0));
 		
-		List<String> str = testBoard.toString2();
-		List<String> str2 = testBoard.toString2();
-		List<String> str3 = testBoard.toString2();
+		List<String> str = testBoard.getMoveHistory();
+		List<String> str2 = testBoard.getMoveHistory();
+		List<String> str3 = testBoard.getMoveHistory();
 		
 		assert(str.equals(str2));
 		assert(str.equals(str3));
@@ -66,7 +66,7 @@ public class ToStringTest {
 		testBoard.commitMove_(blackPawnH.getPossibleMoves(testBoard).getMovesToPos(7 + 5*8).get(0));
 		testBoard.commitMove_(testBoard.getAllPossibleAllowedMovesFor(PlayerColour.White).getMovesToPos(3 + 3*8).getMovesFromPos(1 + 2*8).get(0));
 		
-		str = testBoard.toString2();
+		str = testBoard.getMoveHistory();
 		assert(str.get(8).equals("hxg3"));
 		assert(str.get(10).equals("Nbd4"));
 		
@@ -78,7 +78,7 @@ public class ToStringTest {
 		testBoard.commitMove_(blackPawnH.getPossibleMoves(testBoard).get(0));
 		testBoard.commitMove_(testBoard.getAllPossibleAllowedMovesFor(PlayerColour.White).getMovesToPos(5 + 2*8).getMovesFromPos(3 + 1*8).get(0));
 		
-		str = testBoard.toString2();
+		str = testBoard.getMoveHistory();
 		assert(str.get(14).equals("N2f3"));
 		
 		///// Återställ allting och gör om allting med utskriften från .toString2()
@@ -92,7 +92,7 @@ public class ToStringTest {
 			testBoard.commitMove_(move);
 		}
 		
-		str2 = testBoard.toString2();
+		str2 = testBoard.getMoveHistory();
 		assert(str.equals(str2));
 	}
 }

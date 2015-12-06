@@ -1,6 +1,5 @@
 package system.board;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.PrintWriter;
@@ -9,9 +8,13 @@ import java.util.Scanner;
 
 import system.move.Move;
 import system.move.Moves;
+import system.piece.Bishop;
+import system.piece.King;
+import system.piece.Knight;
+import system.piece.Pawn;
 import system.piece.Piece;
-
-
+import system.piece.Queen;
+import system.piece.Rook;
 import main.Communicator;
 import main.control.ControlValue;
 import main.control.Message;
@@ -96,54 +99,44 @@ public class BoardWrapper extends Board implements Runnable {
 	
 	public void returnBoardSetup()
 	{
-		String tjena = "";
+		String boardSetup = "";
 		for (int i=0; i<squares.length; i++)
 		{
-			tjena += (i==0? "": ",");
+			boardSetup += (i==0? "": ",");
 			if (squares[i] == null)
-				tjena += "  ";
+				boardSetup += "  ";
 			else {
 				switch(squares[i].getPlayer())
 				{
 				case White:
-					tjena += ControlValue.WHITE;
+					boardSetup += ControlValue.WHITE;
 					break;
 				case Black:
-					tjena += ControlValue.BLACK;
+					boardSetup += ControlValue.BLACK;
 					break;
 				default:
-					tjena += ControlValue.UNDEFINED;
+					boardSetup += ControlValue.UNDEFINED;
 					break;
 				}
 				
-				switch(squares[i].getType())
-				{
-				case Pawn:
-					tjena += ControlValue.PAWN;
-					break;
-				case Knight:
-					tjena += ControlValue.KNIGHT;
-					break;
-				case Bishop:
-					tjena += ControlValue.BISHOP;
-					break;
-				case Rook:
-					tjena += ControlValue.ROOK;
-					break;
-				case Queen:
-					tjena += ControlValue.QUEEN;
-					break;
-				case King:
-					tjena += ControlValue.KING;
-					break;
-				default:
-					tjena += ControlValue.UNDEFINED;
-					break;
-				}
+				@SuppressWarnings("rawtypes")
+				Class classType = squares[i].getClass();
+				if (classType == Pawn.class)
+					boardSetup += ControlValue.PAWN;
+				else if (classType == Knight.class)
+					boardSetup += ControlValue.KNIGHT;
+				else if (classType == Bishop.class)
+					boardSetup += ControlValue.BISHOP;
+				else if (classType == Rook.class)
+					boardSetup += ControlValue.ROOK;
+				else if (classType == Queen.class)
+					boardSetup += ControlValue.QUEEN;
+				else if (classType == King.class)
+					boardSetup += ControlValue.KING;
 			}	
 		}
 		
-		Message mess = new Message(processType, ProcessType.Gui_1, MessageType.SET_BOARD_PIECES, tjena);
+		Message mess = new Message(processType, ProcessType.Gui_1, MessageType.SET_BOARD_PIECES, boardSetup);
 		Communicator.addMessage(mess);
 	}
 	
@@ -157,9 +150,7 @@ public class BoardWrapper extends Board implements Runnable {
 			return;
 		}
 		
-		// todo
 		Moves pieceMoves = getAllPossibleAllowedMovesFor(pc).getMovesFromPos(square);
-		//List<Move> pieceMoves = piece.getPossibleMoves(this);
 		int val[] = new int[64];
 		for (int i=0; i<64; i++)
 			val[i] = 0;
@@ -173,26 +164,6 @@ public class BoardWrapper extends Board implements Runnable {
 		
 		Communicator.addMessage(new Message(processType, ProcessType.Gui_1, MessageType.AVAILABLE_SQUARES, str));
 	}
-	
-	/*
-	@Deprecated
-	public void returnBoardAvailability()
-	{
-		List<Integer> possiblePositions = this.getAllPossibleAllowedSquaresToMoveFrom(PlayerColour.White);
-		
-		boolean[] availables = new boolean[64];
-		for (int i=0; i<64; i++)
-			availables[i] = false;
-		
-		for (int pos : possiblePositions)
-			availables[pos] = true;
-		
-		String tjena = "";
-		for (int i=0; i<squares.length; i++)
-			tjena += (i==0? "": ",") + (availables[i]? "1": "0");
-		
-		Communicator.addMessage(new Message(processType, ProcessType.Gui_1, MessageType.AVAILABLE_SQUARES, tjena));
-	}*/
 	
 	public void commitMove(String strMove)
 	{
@@ -227,13 +198,6 @@ public class BoardWrapper extends Board implements Runnable {
 		PlayerColour pc = getPlayerColourFromString(datas[0]);
 		int numberOfMovesForward = Integer.parseInt(datas[1]);
 		
-			// ska inte denna vara kvar?
-		/*PlayerStatus ps = super.getPlayerStatus(pc);
-		if (ps != PlayerStatus.NO_STATUS) {
-			returnPlayerStatus(ps, pc);
-			return;
-		}*/
-
 		if (messData == null || datas.length != 2)
 		{
 			System.out.println("BoardWrapper.proposeMove failed, playerChar == " + messData);
@@ -375,7 +339,7 @@ public class BoardWrapper extends Board implements Runnable {
 	
 	private void saveGame(String filename)
 	{
-		List<String> movesToSave = super.toString2();
+		List<String> movesToSave = super.getMoveHistory();
 		String stringToSave = "";
 			// bygg string av movesen
 		for (int i=0; i<movesToSave.size(); i++)

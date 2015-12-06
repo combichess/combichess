@@ -1,33 +1,30 @@
 package system.piece;
 
-public enum PieceType {
-	Pawn(0),
-	Knight(1),
-	Bishop(2),
-	Rook(3),
-	Queen(4),
-	King(5);
+public class PieceType {
 	
-	private final int value;
+	private static int PawnValue;
+	private static int KnightValue;
+	private static int BishopValue;
+	private static int RookValue;
+	private static int QueenValue;
+	private static int KingValue;
 	
-	static private int[] valueTable = new int[] {0, 0, 0, 0, 0, 0};
+	@Deprecated
 	static private int kingSizeMoreThan = 0;
+	@Deprecated
 	static private int kingSizeLessThan = 0;
 	
 	static public void setPieceValues(int[] newValues)
 	{
-		for (int i=0; i<6; i++)
-			valueTable[i] = newValues[i];
-		
-		kingSizeLessThan = valueTable[5] + 2*valueTable[4];
-		kingSizeMoreThan = valueTable[5] - 2*valueTable[4];
-	}
-	
-	static public void unsetPieceValues()
-	{
-		setPieceValues(new int[] {0, 0, 0, 0, 0, 0});
-		kingSizeMoreThan = 0;
-		kingSizeLessThan = 0;
+		PawnValue = newValues[0];
+		KnightValue = newValues[1];
+		BishopValue = newValues[2];
+		RookValue = newValues[3];
+		QueenValue = newValues[4];
+		KingValue = newValues[5];
+			
+		kingSizeLessThan = newValues[5] + 2*newValues[4];
+		kingSizeMoreThan = newValues[5] - 2*newValues[4];
 	}
 	
 	static public boolean isMoveValueKingSize(int moveValue)
@@ -35,39 +32,23 @@ public enum PieceType {
 		return (moveValue < kingSizeLessThan) && (moveValue > kingSizeMoreThan);
 	}
 	
-	public String getLetter()
-	{
-		String str = "";
-		switch(this)
-		{
-		case Knight:
-			str = "N";
-			break;
-		case Bishop:
-			str = "B";
-			break;
-		case Rook:
-			str = "R";
-			break;
-		case Queen:
-			str = "Q";
-			break;
-		case King:
-			str = "K";
-			break;
-		default:
-			break;
+	static public int getValue(@SuppressWarnings("rawtypes") Class pieceClass)
+	{		
+		if (pieceClass.equals(Pawn.class)) {
+			return PawnValue;
+		} else if (pieceClass.equals(Knight.class)) {
+			return KnightValue;
+		} else if (pieceClass.equals(Bishop.class)) {
+			return BishopValue;
+		} else if (pieceClass.equals(Rook.class)) {
+			return RookValue;
+		} else if (pieceClass.equals(Queen.class)) {
+			return QueenValue;
+		} else if (pieceClass.equals(King.class)) {
+			return KingValue;
 		}
-		return str;
-	}
-	
-	private PieceType(int value) {
-		this.value = value;
-	}
-	
-	public int getValue()
-	{
-		return valueTable[value];
+
+		return -1;
 	}
 	
 }

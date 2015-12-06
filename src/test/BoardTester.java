@@ -6,7 +6,6 @@ import system.board.Board;
 import system.board.PlayerColour;
 import system.move.Move;
 import system.move.Moves;
-import system.piece.PieceType;
 
 public class BoardTester extends Board{
 	BoardTester() {
@@ -32,9 +31,9 @@ public class BoardTester extends Board{
 	}
 	
 	@Override
-	public void addPiece(int xPos, int yPos, PlayerColour player, PieceType type, boolean movedBefore)
+	public void addPiece(int xPos, int yPos, PlayerColour player, @SuppressWarnings("rawtypes") Class classType, boolean movedBefore)
 	{
-		super.addPiece(xPos, yPos, player, type, movedBefore);
+		super.addPiece(xPos, yPos, player, classType, movedBefore);
 	}
 	
 	@Override

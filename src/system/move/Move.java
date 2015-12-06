@@ -1,6 +1,7 @@
 package system.move;
 
 import system.piece.ChessNotation;
+import system.piece.King;
 import system.piece.Piece;
 import system.piece.PieceType;
 
@@ -112,16 +113,6 @@ public class Move {
 		return pieceThatMoves;
 	}
 	
-	public int getXmove()
-	{
-		return (posTo%8) - (posFrom%8);
-	}
-	
-	public int getYmove()
-	{
-		return (posTo/8) - (posFrom/8);
-	}
-	
 	public int getFromPos()
 	{
 		return posFrom;
@@ -142,12 +133,6 @@ public class Move {
 		return value;
 	}
 	
-	public int getPositionChange()
-	{
-		//return dx + dy*8;
-		return posTo - posFrom;
-	}
-	
 	/**
 	 * @param not - chess notation
 	 * @param withFile "The vertical columns of squares (called files) from White's left"
@@ -165,7 +150,7 @@ public class Move {
 			else if (moveType == MoveType.QUEEN_SIDE_CASTLING)
 				str = "O-O-O";
 			else {
-				str = pieceThatMoves.getType().getLetter();
+				str = pieceThatMoves.getLetter();
 				str += withFile? STANDARD_CHESS_NOTATION.getCo(getFromPos()).charAt(0): "";
 				str += withRank? STANDARD_CHESS_NOTATION.getCo(getFromPos()).charAt(1): "";
 				str += (affectedPiece == null)? "": "x";
@@ -204,14 +189,12 @@ public class Move {
 		if (nextMove == null) {
 			//tabort
 			nextMove = null;
-		} else if (nextMove.value == PieceType.King.getValue()) {
+		} else if (nextMove.value == PieceType.getValue(King.class)) {
 			//tabort
-			if (value == PieceType.King.getValue())
-			{
-				value = 100;
+			if (value == PieceType.getValue(King.class))
 				System.out.println("Hit ska den inte komma alls");
-			}
-			value = -PieceType.King.getValue();
+			
+			value = -PieceType.getValue(King.class);
 		} else
 			value -= nextMove.value;
 	}

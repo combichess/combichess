@@ -9,7 +9,6 @@ public class Knight extends Piece {
 
 	public Knight(int xPos, int yPos, PlayerColour player) {
 		super(xPos, yPos, player);
-		type = PieceType.Knight;
 	}
 
 	@Override
@@ -40,7 +39,7 @@ public class Knight extends Piece {
 				if (pieceOnNewSquare != null)
 				{
 					if (pieceOnNewSquare.getPlayer() != player)
-						possibleMoves.add(new Move(this, pieceOnNewSquare, xPosNew, yPosNew, pieceOnNewSquare.type.getValue()));
+						possibleMoves.add(new Move(this, pieceOnNewSquare, xPosNew, yPosNew, pieceOnNewSquare.getValue()));
 				} else 
 					possibleMoves.add(new Move(this, pieceOnNewSquare, xPosNew, yPosNew));
 			}
@@ -64,5 +63,10 @@ public class Knight extends Piece {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public String getLetter() {
+		return "N";
 	}
 }

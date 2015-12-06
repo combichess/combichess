@@ -9,19 +9,13 @@ public abstract class Piece implements PieceInterface {
 
 	protected int xPos;
 	protected int yPos;
-	//protected String descriptiveLetter; 
-	PieceType type;
-	//int numberOfMoves;
 	int previousMoveNumber;
 	PlayerColour player;
 	protected boolean active;
-	//static private int valueTable[] = new int[] {0, 0, 0, 0, 0, 0};
 	
 
 	protected Piece(int xPos, int yPos, PlayerColour player)
 	{
-		//numberOfMoves = 0;
-		
 		this.active = true;
 		this.xPos = xPos;
 		this.yPos = yPos;
@@ -115,7 +109,7 @@ public abstract class Piece implements PieceInterface {
 	{
 		char xCharPos = 'a';
 		xCharPos += xPos;
-		return (player==PlayerColour.White? "W": "B") + " " + type.getLetter() + xCharPos + "" + yPos;
+		return (player==PlayerColour.White? "W": "B") + " " + getLetter() + xCharPos + yPos;
 	}
 	
 	public PlayerColour getPlayer()
@@ -148,6 +142,20 @@ public abstract class Piece implements PieceInterface {
 		return this.previousMoveNumber;
 	}
 	
+	public void moveTo(int pos)
+	{
+		xPos = pos&7;
+		yPos = pos/8;
+	}
+	
+	public void moveTo(int pos, int previousMoveNumber)
+	{
+		this.previousMoveNumber = previousMoveNumber;
+		xPos = pos&7;
+		yPos = pos/8;
+	}
+	
+	@Deprecated
 	public void moveX(int dPos)
 	{
 		int nyPos = (xPos + 8*yPos) + dPos;
@@ -155,6 +163,7 @@ public abstract class Piece implements PieceInterface {
 		yPos = nyPos>>3; 
 	}
 	
+	@Deprecated
 	public void moveX(int dPos, int previousMoveNumber)
 	{
 		this.previousMoveNumber = previousMoveNumber;
@@ -189,10 +198,10 @@ public abstract class Piece implements PieceInterface {
 		switch (not) 
 		{
 		case LONG_ALGEBRAIC:
-			toReturn = (player==PlayerColour.White? "W": "B") + "" + type.getLetter() + not.getCo(customPos);
+			toReturn = (player==PlayerColour.White? "W": "B") + "" + getLetter() + not.getCo(customPos);
 			break;
 		case ALGEBRAIC:
-			toReturn = type.getLetter() + not.getCo(customPos); 
+			toReturn = getLetter() + not.getCo(customPos); 
 			break;
 		default:
 			toReturn = "No real piece-notation in Piece.toString(int, ChessNotation)";
@@ -217,7 +226,7 @@ public abstract class Piece implements PieceInterface {
 				if (pieceOnNewSquare != null)
 				{
 					if (pieceOnNewSquare.player != player)
-						possibleMoves.add(new Move(this, pieceOnNewSquare, xPosNew, yPosNew, pieceOnNewSquare.type.getValue()));
+						possibleMoves.add(new Move(this, pieceOnNewSquare, xPosNew, yPosNew, pieceOnNewSquare.getValue()));
 					break;
 				} else
 					possibleMoves.add(new Move(this, null, xPosNew, yPosNew));
@@ -243,7 +252,7 @@ public abstract class Piece implements PieceInterface {
 				if (pieceOnNewSquare != null)
 				{
 					if (pieceOnNewSquare.getPlayer() != player)
-						possibleMoves.add(new Move(this, pieceOnNewSquare, xPosNew, yPosNew, pieceOnNewSquare.type.getValue()));
+						possibleMoves.add(new Move(this, pieceOnNewSquare, xPosNew, yPosNew, pieceOnNewSquare.getValue()));
 					break;
 				} else 
 					possibleMoves.add(new Move(this, pieceOnNewSquare, xPosNew, yPosNew));
@@ -254,10 +263,11 @@ public abstract class Piece implements PieceInterface {
 		}
 	}
 	
-	@Deprecated
-	public PieceType getType()
+	public abstract String getLetter();
+	
+	public int getValue()
 	{
-		return type;
+		return PieceType.getValue(this.getClass());
 	}
 	
 	public boolean getActivity()

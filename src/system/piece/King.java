@@ -8,7 +8,7 @@ import system.move.MoveType;
 import system.move.Moves;
 
 public class King extends Piece {
-    
+	
     private static int[][] SQRS_TO_CHECK = {
         {1, 8, 9},
         {-1, 1, 7, 8, 9},
@@ -24,7 +24,7 @@ public class King extends Piece {
     
     public King(int xPos, int yPos, PlayerColour player) {
         super(xPos, yPos, player);
-        type = PieceType.King;
+        //type = PieceType.King;
     }
 
 
@@ -41,7 +41,7 @@ public class King extends Piece {
             if (pieceOnNewSquare == null)
                 nyLista.add(new Move(this, pieceOnNewSquare, newPos&7, newPos/8));
             else if (pieceOnNewSquare.getPlayer() != player)
-                nyLista.add(new Move(this, pieceOnNewSquare, pieceOnNewSquare.xPos, pieceOnNewSquare.yPos, pieceOnNewSquare.type.getValue()));
+                nyLista.add(new Move(this, pieceOnNewSquare, pieceOnNewSquare.xPos, pieceOnNewSquare.yPos, pieceOnNewSquare.getValue()));
         }
         
         // check castling
@@ -79,7 +79,12 @@ public class King extends Piece {
         
         return nyLista;
     }
-
+    
+    @Override
+    public String getLetter()
+    {
+    	return "K";
+    }
 
 	@Override
 	public boolean isPieceThreateningPosition(int squarePos, Piece[] squares) {
