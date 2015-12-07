@@ -182,7 +182,8 @@ public class BoardWrapper extends Board implements Runnable {
 		super.commitMove(move);
 		
 		returnBoardSetup();
-		returnCommittedMoveAsText(move);
+		//returnCommittedMovesAsText(move);
+		returnCommittedMovesAsText();
 		//returnBoardAvailability();
 		
 		PlayerStatus ps = super.getPlayerStatus(pc.getOpponentColour());
@@ -213,7 +214,8 @@ public class BoardWrapper extends Board implements Runnable {
 		}
 		
 		super.commitMove(mov);
-		returnCommittedMoveAsText(mov);
+		//returnCommittedMovesAsText(mov);
+		returnCommittedMovesAsText();
 		
 		
 		PlayerStatus ps = super.getPlayerStatus(pc.getOpponentColour());
@@ -274,35 +276,26 @@ public class BoardWrapper extends Board implements Runnable {
 		return pc;
 	}
 	
-	private void returnCommittedMoveAsText(Move move)
+	//private void returnCommittedMovesAsText(Move move)
+	private void returnCommittedMovesAsText()
 	{
+		List<String> strs = getMoveHistory();
 		String returnStr = "";
-		String moveStr = move.toString();
 		
-		switch(getPlayerStatus(move.getPiece().getPlayer().getOpponentColour()))
+		int moveNum = 1;
+		PlayerColour pc = PlayerColour.White;
+		
+		for (String str: strs)
 		{
-		case CHECK:
-			moveStr += "+";
-			break;
-		case CHECK_MATE:
-			moveStr += "++";
-			break;
-		case STALE_MATE:
-			moveStr += ", ½ - ½";
-			break;
-		default:
-			break;
+			returnStr += (pc == PlayerColour.White)? (moveNum++ + ". " + str): ("\t" + str + "\n"); 
+			pc = pc.getOpponentColour();
+			
 		}
-		
-		if (move.getPiece().getPlayer() == PlayerColour.White)
-			returnStr = "" + (getMoveNumber()+1)/2 + ". " + moveStr;
-		else
-			returnStr = "\t " + moveStr + "\n";
 		
 		Communicator.addMessage(new Message(processType, ProcessType.Gui_1, MessageType.SET_MOVE_AS_STRING, returnStr));
 	}
 	
-	public void loadGame(String filePath)
+	private void loadGame(String filePath)
 	{
 		String[] movesAsStr = null;
 		try {
@@ -333,8 +326,16 @@ public class BoardWrapper extends Board implements Runnable {
 			System.out.println("Move: " + move + "\tMoveString: " + moveAsStr + '\n' + this);
 			pc = pc.getOpponentColour();
 		}
-	
+		setPlayersTurn(pc.getOpponentColour());
 		returnBoardSetup();
+		returnCommittedMovesAsText();
+	}
+	
+	private void setPlayersTurn(PlayerColour pc)
+	{
+		Message mess = new Message(processType, ProcessType.Gui_1, MessageType.SET_PLAYERS_TURN, pc == PlayerColour.White? "W": "B");
+		System.out.println("Nu blir det " + pc + "s tur att spela");
+		Communicator.addMessage(mess);
 	}
 	
 	private void saveGame(String filename)

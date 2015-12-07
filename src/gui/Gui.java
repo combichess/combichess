@@ -32,12 +32,13 @@ import main.control.Message;
 import main.control.MessageType;
 import main.control.PlayerStatus;
 import main.control.ProcessType;
+import system.board.PlayerColour;
 
 
 //exempelkod från:
 //http://zetcode.com/tutorials/javaswingtutorial/firstprograms/
 
-public class Gui extends JFrame implements Runnable {
+public class Gui extends JFrame {// implements Runnable {
 	/**
 	 * 
 	 */
@@ -62,13 +63,10 @@ public class Gui extends JFrame implements Runnable {
 	private HashMap<String, ImageIcon> imageIcons = null;
 	private GameStatus gameStatus = null;
 	
-	private String saveAsFileName = null;
-	
+	private String saveAsFileName = null;	
 	private GameSettings gameSettings = null;
 
-		// skit i att skapa en egen tråd och låt GUI:et köra på den tråd som skapas med guiet. Byt run() till konstruktor
-	@Override
-	public void run() {
+	public Gui() {
 		
 		loadImages();
 		
@@ -180,20 +178,20 @@ public class Gui extends JFrame implements Runnable {
         
         setTitle("*** Combichess ***");
         setSize(750, 770);
-        
-        //setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	// nu ska windowClosing köras om programmet avslutas.
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         setLocationRelativeTo(null);
-
+			// Sätt upp Board:en, låt detta göras efter hur användaren väljer förvald setup. 
+			// I förvald setup väljs vilken färg spelaren ska ha, betänketid, standardsetup eller något annat magiskt.
+	}
+	
+	public void start()
+	{
 		setVisible(true);
 		setAllSquaresEnabled(false);
 		Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.GET_MOVABLE_PIECES, "" + ControlValue.WHITE));
+		
 		gameStatus = new GameStatus();
 		startGameSettingsAlert();
-		
-			// Sätt upp Board:en, låt detta göras efter hur användaren väljer förvald setup. 
-			// I förvald setup väljs vilken färg spelaren ska ha, betänketid, standardsetup eller något annat magiskt.
-		//Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.STANDARD_SETUP, null));
 	}
 	
 	private void startGameSettingsAlert()
@@ -261,7 +259,8 @@ public class Gui extends JFrame implements Runnable {
 				updateBoardAvailability(mess.getMessageData());
 				break;
 			case SET_MOVE_AS_STRING: {		// detta är bekräftelse på att ett drag är flyttat och turen flyttas över till nästa spelare.
-				textAreaRight.setText(textAreaRight.getText() + mess.getMessageData());// + '\n');
+				//textAreaRight.setText(textAreaRight.getText() + mess.getMessageData());// + '\n');
+				textAreaRight.setText(mess.getMessageData());// + '\n');
 				gameStatus.switchPlayer();
 				updateMove();
 				break;}
@@ -275,6 +274,9 @@ public class Gui extends JFrame implements Runnable {
 					CheckAlert.createCheckAlert(mess.getMessageData());
 				break;
 			}
+			case SET_PLAYERS_TURN: {
+				gameStatus.setPlayerTurn(mess.getMessageData().equals("W")? PlayerColour.White: PlayerColour.Black);
+				break;}
 			default:
 				break;
 			}
@@ -395,6 +397,8 @@ public class Gui extends JFrame implements Runnable {
 			int status = gameStatus.getStatus();
 			switch (status)
 			{
+			case GameStatus.GAME_OVER:
+				return;
 			case GameStatus.WHITE_TO_MOVE:
 			case GameStatus.BLACK_TO_MOVE:
 				if (gameStatus.getChosenSquareFrom() == GameStatus.UNDEFINED)
@@ -407,11 +411,17 @@ public class Gui extends JFrame implements Runnable {
 				break;
 			}
 		} else if (buttonId >= 100) {
+			
 			if (buttonId == Buttons.Nytt.getValue()){
+				gameStatus.setGameOver();
+				System.out.println("Nu är det game over");
 				Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.STANDARD_SETUP, null));
-				//gameStatus = new GameStatus();
 				startGameSettingsAlert();
+				System.out.println("Nu är status = " + gameStatus);
+				gameStatus.setPlayerTurn(PlayerColour.White);
 				saveAsFileName = null;
+				textAreaRight.setText("");
+				updateMove();
 			}
 			
 			if (buttonId == Buttons.Exit.getValue())
@@ -432,6 +442,12 @@ public class Gui extends JFrame implements Runnable {
 	
 	public void updateMove()
 	{
+		if (gameStatus.isGameOver())
+		{
+			System.out.println("updateMove(): gameStatus = GAME_OVER");
+			return;
+		}
+		
 		boolean isWhite = gameStatus.isWhitesTurn();
 		String stringColour = "" + (isWhite? ControlValue.WHITE: ControlValue.BLACK);
 		boolean isHuman = isWhite? gameSettings.isWhitePlayerHuman(): gameSettings.isBlackPlayerHuman();
@@ -469,6 +485,7 @@ public class Gui extends JFrame implements Runnable {
 		String fileName = FileSelector.load();
 		if (fileName != null)
 			Communicator.addMessage(new Message(processType, ProcessType.Board_1, MessageType.LOAD_GAME, fileName));
+		startGameSettingsAlert();
 	}
 	
 	private void saveGame(boolean saveAs) 

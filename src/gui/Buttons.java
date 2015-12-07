@@ -25,6 +25,12 @@ public enum Buttons {
     	this.value = value;
     }
     
+    /**
+     * Hela den här metoden ska bort, använd enums som enums om enums ska användas annars skiter jag i enums
+     * 
+     * @return sluta returnera någonting från en sån här metod
+     */
+    @Deprecated
     public int getValue()
     {
     	return value;

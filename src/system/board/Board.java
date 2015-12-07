@@ -468,8 +468,6 @@ public class Board {
 				boolean sameRank = (otherMove.getFromPos()/8) == fromY;
 				
 					// Om exempelvis det finns två pjäser av samma typ som kan gå till denna rutan
-				//if (piece.getClass() == otherMove.getPiece().getClass())
-				//if (piece.getType() == otherMove.getPiece().getType())
 				if (piece.getClass().equals(otherMove.getPiece().getClass()))
 				{
 					if (!sameFile)
@@ -478,9 +476,25 @@ public class Board {
 						rankNeeded = true;
 				}	
 			}
-			
-			moveList.add(move.toString(fileNeeded, rankNeeded));
+			String toBeAdded = move.toString(fileNeeded, rankNeeded); 
 			commitMove(move);
+			switch(getPlayerStatus(move.getPiece().getPlayer().getOpponentColour()))
+			{
+			case CHECK:
+				toBeAdded += "+";
+				break;
+			case CHECK_MATE:
+				toBeAdded += "++";
+				break;
+			case STALE_MATE:
+				// todo tabort
+				toBeAdded += "";
+				break;
+			default:
+				break;
+			}
+			
+			moveList.add(toBeAdded);
 		}
 		
 		return moveList;

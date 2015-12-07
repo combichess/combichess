@@ -1,5 +1,6 @@
 package gui;
 
+import system.board.PlayerColour;
 
 public class GameStatus {
 	
@@ -29,6 +30,12 @@ public class GameStatus {
 		status = GAME_OVER;
 	}
 	
+	public void setPlayerTurn(PlayerColour pc)
+	{
+		chosenSquareFrom = chosenSquareTo = UNDEFINED;
+		status = pc == PlayerColour.White? WHITE_TO_MOVE: BLACK_TO_MOVE;
+	}
+	
 	public void setChosenSquareFrom(int chosenSquareFrom)
 	{
 		this.chosenSquareFrom = chosenSquareFrom;
@@ -54,8 +61,16 @@ public class GameStatus {
 		return status == WHITE_TO_MOVE;
 	}
 	
+	public boolean isGameOver()
+	{
+		return status == GAME_OVER;
+	}
+	
 	public void switchPlayer()
 	{
+		if (status == GAME_OVER)
+			return;
+		
  		status = (status == WHITE_TO_MOVE? BLACK_TO_MOVE: WHITE_TO_MOVE);
  		chosenSquareFrom = UNDEFINED;
  		chosenSquareTo = UNDEFINED;

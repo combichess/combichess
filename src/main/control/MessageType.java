@@ -15,7 +15,8 @@ public enum MessageType {
     SET_MOVE_AS_STRING(11),		//null
 	ANNOUNCE_PLAYER_STATUS(12),	// with one of the enum members in PlayerStatus.java
 	SAVE_GAME(13),
-	LOAD_GAME(14);
+	LOAD_GAME(14),
+	SET_PLAYERS_TURN(15);
 	
     int value;
     

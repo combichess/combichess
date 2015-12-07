@@ -13,8 +13,7 @@ import system.board.BoardWrapper;
 
 För att kunna pusha till combichess så måste man ta itu med:
 
-"Warning: Permanantly added ´github.com,192.30.252.131´ (RSA to the list of known hosts.
-Error: Permission to combichess/combichess.git denied to gralm.
+"Warning: Permanantly added ´github.com,192.30.x.y´ (RSA to the list of known hosts.
 fatal: Could not read from remote repository.
 
 Please make sure you have the correct access rights and the repository exists."
@@ -74,21 +73,16 @@ public class Main {
 		Gui gui = new Gui();
 
 		Thread threadBoard = new Thread(bord, "t-board");
-		Thread threadGui = new Thread(gui, "t-gui");
-		
-		System.out.println("MAIN: Trådar skapade");
-		
+		System.out.println("Startar System-tråd");
 		threadBoard.start();
-		System.out.println("MAIN: Tråd board startad");
 		
-		threadGui.start();
-		System.out.println("MAIN: Tråd gui startad, vänta på avslut");
+		System.out.println("Startar GUI:et");
+		gui.start();
+		
+		System.out.println("Nu kör båda trådarna");
 		
 		threadBoard.join();
-		System.out.println("MAIN: Tråd board joinad");
-		
-		threadGui.join();
-		System.out.println("MAIN: Tråd Gui joinad");
+		System.out.println("Joinar System-tråd");
 		System.out.println("MAIN: Programmet avslutas");
 	}
 }
