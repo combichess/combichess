@@ -155,59 +155,21 @@ public abstract class Piece implements PieceInterface {
 		yPos = pos/8;
 	}
 	
-	@Deprecated
-	public void moveX(int dPos)
+	public String toString(boolean useColour)
 	{
-		int nyPos = (xPos + 8*yPos) + dPos;
-		xPos = nyPos&7;
-		yPos = nyPos>>3; 
-	}
-	
-	@Deprecated
-	public void moveX(int dPos, int previousMoveNumber)
-	{
-		this.previousMoveNumber = previousMoveNumber;
-		int nyPos = (xPos + 8*yPos) + (dPos);
-		xPos = nyPos%8;
-		yPos = nyPos/8; 
-	}
-	
-	
-	@Override
-	public String toString()
-	{
-		return toString(xPos + yPos*8, ChessNotation.ALGEBRAIC); 
-	}
-	
-	public String toString(ChessNotation not)
-	{
-		return toString(xPos + yPos*8, not);  
+		return toString(xPos + yPos*8, useColour);  
 	}
 	
 	public String toString(int customPos)
 	{
-		return toString(customPos, ChessNotation.LONG_ALGEBRAIC); 
+		return toString(customPos, true); 
 	}
 	
-	public String toString(int customPos, ChessNotation not)
+	public String toString(int customPos, boolean useColour)
 	{
 		
-		String toReturn = (customPos<0 || customPos>63)? 
-				"err": 
-					"";
-		switch (not) 
-		{
-		case LONG_ALGEBRAIC:
-			toReturn = (player==PlayerColour.White? "W": "B") + "" + getLetter() + not.getCo(customPos);
-			break;
-		case ALGEBRAIC:
-			toReturn = getLetter() + not.getCo(customPos); 
-			break;
-		default:
-			toReturn = "No real piece-notation in Piece.toString(int, ChessNotation)";
-			break;
-		}
-		
+		String toReturn = (customPos<0 || customPos>63)? "err": "";
+		toReturn = (useColour? (player==PlayerColour.White? "W": "B"): "") + "" + getLetter() + Move.getCo(customPos);
 		return toReturn;
 	}
 	

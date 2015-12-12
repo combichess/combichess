@@ -162,7 +162,20 @@ public class Moves extends ArrayList<Move> {
 		Moves moves = new Moves();
 		for (Move move: this)
 		{
-			if (move.getMoveType() == mt)
+			if (mt == MoveType.PROMOTION) {
+				switch(move.getMoveType())
+				{
+				case PROMOTION:
+				case PROMOTION_BISHOP:
+				case PROMOTION_KNIGHT:
+				case PROMOTION_QUEEN:
+				case PROMOTION_ROOK:
+					moves.add(move);
+					break;
+				default:
+					break;
+				}
+			} else if (move.getMoveType() == mt)
 				moves.add(move);
 		}
     	return moves;

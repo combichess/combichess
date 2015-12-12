@@ -1,6 +1,5 @@
 package system.move;
 
-import system.piece.ChessNotation;
 import system.piece.King;
 import system.piece.Piece;
 import system.piece.PieceType;
@@ -13,7 +12,7 @@ public class Move {
 	private int posFrom;
 	private int posTo;
 	private MoveType moveType;
-	private static ChessNotation STANDARD_CHESS_NOTATION = ChessNotation.ALGEBRAIC;
+	
 	private int previousMoveNumber;	// previously moveNumber for moving piece
 	private int value;	// värdet på detta draget och alla efterföljande drag.
 						// om draget ger 4 poäng, motspelares bästa drag ger 5 poäng och
@@ -139,61 +138,29 @@ public class Move {
 	 * @param withRank "The horizontal rows of squares (called ranks) are numbered 1 to 8 starting from White's side of the board"
 	 * @return
 	 */
-	public String toString(ChessNotation not, boolean withFile, boolean withRank)
+	public String toString(boolean withFile, boolean withRank)
 	{
 		String str = "";
-		switch(not)
-		{
-		case ALGEBRAIC: {
-			if (moveType == MoveType.KING_SIDE_CASTLING)
-				str = "O-O";
-			else if (moveType == MoveType.QUEEN_SIDE_CASTLING)
-				str = "O-O-O";
-			else {
-				str = pieceThatMoves.getLetter();
-				str += withFile? STANDARD_CHESS_NOTATION.getCo(getFromPos()).charAt(0): "";
-				str += withRank? STANDARD_CHESS_NOTATION.getCo(getFromPos()).charAt(1): "";
-				str += (affectedPiece == null)? "": "x";
-				str += not.getCo(this.getToPos());
-			}
-			break;}
-		
-		case LONG_ALGEBRAIC: {
-			str = pieceThatMoves.toString(posFrom, not);
-			str += " -> ";
-			if (affectedPiece != null)
-				str += affectedPiece.toString(not);
-			else 
-				str += not.getCo(posTo);
-			
-			str += ", val: " + value;
-			break;}
-		
-		default:
-			str = "Finns ingen toString anpassad för denna chessNotation: " + not;
+		if (moveType == MoveType.KING_SIDE_CASTLING)
+			str = "O-O";
+		else if (moveType == MoveType.QUEEN_SIDE_CASTLING)
+			str = "O-O-O";
+		else {
+			str = pieceThatMoves.getLetter();
+			str += withFile? Move.getCo(getFromPos()).charAt(0): "";
+			str += withRank? Move.getCo(getFromPos()).charAt(1): "";
+			str += (affectedPiece == null)? "": "x";
+			str += Move.getCo(this.getToPos());
 		}
-		
+
 		return str;
-	}
-	
-	public String toString(ChessNotation not)	// det ska även innehålla drag-nummer
-	{
-		 return toString(not, false, false);
 	}
 	
 	// special om kungen blir tagen, då ska detta visas som konstant (+-)kunga-värde.
 	// 
 	public void addValueFromNextMove(Move nextMove)
 	{
-
-		if (nextMove == null) {
-			//tabort
-			nextMove = null;
-		} else if (nextMove.value == PieceType.getValue(King.class)) {
-			//tabort
-			if (value == PieceType.getValue(King.class))
-				System.out.println("Hit ska den inte komma alls");
-			
+		if (nextMove.value == PieceType.getValue(King.class)) {
 			value = -PieceType.getValue(King.class);
 		} else
 			value -= nextMove.value;
@@ -202,17 +169,14 @@ public class Move {
 	@Override
 	public String toString()
 	{
-		return toString(STANDARD_CHESS_NOTATION);	// det ska även innehålla drag-nummer
+		return toString(false, false);	// det ska även innehålla drag-nummer
 	}
 	
-	
-	/**
-	 * @param withRank "The horizontal rows of squares (called ranks) are numbered 1 to 8 starting from White's side of the board"
-	 * @param withFile "The vertical columns of squares (called files) from White's left"
-	 * @return
-	 */
-	public String toString(boolean withFile, boolean withRank)
+	public static String getCo(int pos)
 	{
-		return toString(STANDARD_CHESS_NOTATION, withFile, withRank);	// det ska även innehålla drag-nummer
+		int x = pos%8;
+		int y = pos/8;
+		return ((char)('a' + x)) + "" + (y+1);
 	}
+	
 }

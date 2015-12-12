@@ -14,7 +14,6 @@ import system.move.Move;
 import system.move.MoveType;
 import system.move.Moves;
 import system.piece.Bishop;
-import system.piece.ChessNotation;
 import system.piece.King;
 import system.piece.Knight;
 import system.piece.Pawn;
@@ -252,12 +251,7 @@ public class Board {
 		}
 		
 		moveToCommit.getPiece().moveTo(newPosId, moveNumber);
-		//moveToCommit.getPiece().moveX(dx + dy*8, moveNumber);
-		if (newPosId > 63 || newPosId < 0 || oldPosId > 63 || oldPosId < 0)
-		{
-			System.out.println("Hit ska den absolut inte komma");
-			return -1;
-		} 
+
 		MoveType moveType = moveToCommit.getMoveType();
 		if (moveType.isPromotion()) {
 			Piece oldPawn = moveToCommit.getPiece();
@@ -426,8 +420,10 @@ public class Board {
 			for (int x=1; x<=8; x++)
 			{
 				Piece piece = getPiece(x, y);
+				//if (piece != null)
+				//	str += piece.toString(ChessNotation.LONG_ALGEBRAIC);
 				if (piece != null)
-					str += piece.toString(ChessNotation.LONG_ALGEBRAIC);
+					str += piece;
 				str += (x<8)? "\t": "";
 			}
 			
@@ -437,48 +433,44 @@ public class Board {
 			str += "   " + ((char)(c+x)) + ((x==8)? "\n": "\t");
 		return str;
 	}
-
-	
+	/**
+	 * Skapa en kopia av brädet, skapa kopior av alla movesen, bygg därefter det skapade brädets moves till stringar
+	 * 
+	 * @return
+	 */
 	public List<String> getMoveHistory()
 	{
-			// skapa ett helt nytt schackbräde och gör om allting från grunden
-		Moves moves = new Moves();
+		// skapa ett helt nytt schackbräde och gör om allting från grunden
 		List<String> moveList = new ArrayList<>();
+		Board tempBoard = new Board();
+		tempBoard.standardSetup();
+		PlayerColour pc = PlayerColour.White;
 		
-		moves.addAll(committedMoves);
-		while (!committedMoves.isEmpty()){
-			uncommitLastMove();
-		}
-		
-		for (Move move: moves)
+		for (final Move move: committedMoves)
 		{
 			boolean rankNeeded = false;
 			boolean fileNeeded = false;
 		
-			Piece piece = move.getPiece();
-			
 			//but the file(x-value) takes precedence over the rank
-			Moves otherMoves = getAllPossibleAllowedMovesFor(piece.getPlayer()).getMovesToPos(move.getToPos());
-			int fromX = move.getFromPos()&7;
-			int fromY = move.getFromPos()/8;
-			
-			for (Move otherMove: otherMoves)
+			Moves allTempMoves = tempBoard.getAllPossibleAllowedMovesFor(pc).getMovesToPos(move.getToPos()).getMovesByPieceType(move.getPiece().getClass());
+			int fromPos = move.getFromPos();
+			int fromX = fromPos&7;
+			int fromY = fromPos/8;
+
+			for (Move tempMove: allTempMoves)
 			{
-				boolean sameFile = (otherMove.getFromPos()&7) == fromX;
-				boolean sameRank = (otherMove.getFromPos()/8) == fromY;
-				
-					// Om exempelvis det finns två pjäser av samma typ som kan gå till denna rutan
-				if (piece.getClass().equals(otherMove.getPiece().getClass()))
-				{
-					if (!sameFile)
-						fileNeeded = true;
-					else  if (!sameRank)
-						rankNeeded = true;
-				}	
+				if ((tempMove.getFromPos()&7) != fromX)
+					fileNeeded = true;
+				else  if ((tempMove.getFromPos()/8) != fromY)
+					rankNeeded = true;
 			}
-			String toBeAdded = move.toString(fileNeeded, rankNeeded); 
-			commitMove(move);
-			switch(getPlayerStatus(move.getPiece().getPlayer().getOpponentColour()))
+			
+			Move tempMove = allTempMoves.getMovesFromPos(move.getFromPos()).get(0);
+			String toBeAdded = tempMove.toString(fileNeeded, rankNeeded);
+			tempBoard.commitMove(tempMove);
+			
+			pc = pc.getOpponentColour();
+			switch(tempBoard.getPlayerStatus(pc))
 			{
 			case CHECK:
 				toBeAdded += "+";
@@ -487,13 +479,11 @@ public class Board {
 				toBeAdded += "++";
 				break;
 			case STALE_MATE:
-				// todo tabort
 				toBeAdded += "";
 				break;
 			default:
 				break;
 			}
-			
 			moveList.add(toBeAdded);
 		}
 		
@@ -596,12 +586,7 @@ public class Board {
 		
 		for (Move thisMove : moves)
 		{
-			
-			//tabort			
-			if (thisMove == null)
-			{
-				thisMove = null;
-			} else if (thisMove.getValue() == PieceType.getValue(King.class)) {
+			if (thisMove.getValue() == PieceType.getValue(King.class)) {
 				// fortsätt inte leta djupare om kungen blir tagen, då är spelet avslutat
 				// annars så fortsätter den byta kungarna för att sen fortsätta spelet (strictly foh-bid'n)
 				return thisMove;
@@ -609,16 +594,7 @@ public class Board {
 			
 				// utför move
 			commitMove(thisMove);
-
 			Move nextMove = findBestMove(colour.getOpponentColour(), N-1);
-			
-			//tabort
-			if (nextMove == null)
-			{
-				Move nextMove2 = findBestMove(colour.getOpponentColour(), N-1);
-				System.out.println(nextMove2);
-			}
-			
 			thisMove.addValueFromNextMove(nextMove);
 			int nyttMoveValue = thisMove.getValue(); 
 
@@ -630,11 +606,6 @@ public class Board {
 			
 				// dra tillbaka senaste move
 			uncommitLastMove();
-		}
-		//tabort	
-		if (rekordMove == null)
-		{
-			rekordMove = null;
 		}
 
 		return rekordMove;
@@ -719,6 +690,7 @@ public class Board {
 	public PlayerStatus getPlayerStatus(PlayerColour pc)
 	{
 		LinkedList<Piece> pieces = (pc == PlayerColour.White)? whites: blacks;
+		
 		Piece king = null;
 		for(Piece piece: pieces)
 		{
@@ -734,8 +706,10 @@ public class Board {
 			return PlayerStatus.UNDEFINED;
 		}
 		
+		
 		boolean playerIsChecked = isSquareThreatnedBy(king.getPosition(), pc.getOpponentColour());
 		boolean playerCantMove = getAllPossibleAllowedMovesFor(pc).isEmpty();
+		
 		PlayerStatus ps;
 		if (playerIsChecked)
 		{
@@ -756,7 +730,7 @@ public class Board {
 	/**
 	 * @return true if everything is alright
 	 */
-	protected boolean securityCheck()
+	public boolean securityCheck()
 	{
 		boolean test = true;
 		
@@ -796,11 +770,20 @@ public class Board {
 			}
 		}
 		
+		for (Piece activePiece: activePieces){
+			int pos = activePiece.getPosition();
+			if (squares[pos] != activePiece)
+			{
+				System.out.println("(square[" + pos + "] == " + squares[pos] + ") <-> (activePiece == " + activePiece + ")");
+				test = false;
+			}
+		}
+		
+		if (!test){
+			test = false;
+		}
 		
 		return test;
 	}
 }
-
-
-
 
