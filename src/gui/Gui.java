@@ -38,7 +38,7 @@ import system.board.PlayerColour;
 //exempelkod från:
 //http://zetcode.com/tutorials/javaswingtutorial/firstprograms/
 
-public class Gui extends JFrame {// implements Runnable {
+public class Gui extends JFrame {
 	/**
 	 * 
 	 */
@@ -56,6 +56,7 @@ public class Gui extends JFrame {// implements Runnable {
 	
 	private static final Color WHITE_SQUARE_COLOUR = Color.lightGray;
 	private static final Color BLACK_SQUARE_COLOUR = Color.darkGray;
+	private static final Color AVAILABLE_SQUARE_COLOUR = Color.red;
 	
 	private ProcessType processType = ProcessType.Gui_1;
 	private Timer idleTimer;
@@ -130,7 +131,7 @@ public class Gui extends JFrame {// implements Runnable {
         		squares[b] = new JButton();
             	squares[b].setMargin(new Insets(0, 0, 0, 0));
             	squares[b].setForeground(Color.red);
-            	squares[b].setBackground(((9*b / 8) % 2) == 0? WHITE_SQUARE_COLOUR: BLACK_SQUARE_COLOUR);
+            	//squares[b].setBackground(((9*b / 8) % 2) == 0? WHITE_SQUARE_COLOUR: BLACK_SQUARE_COLOUR);
     			squares[b].setBorder(null);
     			squares[b].setActionCommand("" + b);
     			squares[b].addActionListener(new ActionListener() {
@@ -143,6 +144,7 @@ public class Gui extends JFrame {// implements Runnable {
     			b++;
         	}
         }
+        redrawSquareColours();
         updateCoordinateLabelTexts();
         topPanel.add(boardPanel);
         
@@ -198,8 +200,6 @@ public class Gui extends JFrame {// implements Runnable {
 	{
 		boolean isWhitePlayerAtBottomOfScreenBefore = gameSettings.isWhitePlayerAtBottomOfScreen();
 		gameSettings.runAlert();
-		
-		//boolean isWhitePlayerAtBottomOfScreenAfter = !(gameSettings.isBlackPlayerHuman() == true && gameSettings.isWhitePlayerHuman() == false);
 		boolean isWhitePlayerAtBottomOfScreenAfter = gameSettings.isWhitePlayerAtBottomOfScreen();
 		
 		if (isWhitePlayerAtBottomOfScreenAfter != isWhitePlayerAtBottomOfScreenBefore)
@@ -226,6 +226,12 @@ public class Gui extends JFrame {// implements Runnable {
 			verticalCoordLabels[i].setText(Integer.toString(whiteDown? 8-i: i+1));
 			horizontalCoordLabels[i].setText("" + (char)(whiteDown? ('A' + i): ('H' - i)));
 		}
+	}
+	
+	private void redrawSquareColours()
+	{
+		for (int b=0; b<64; b++)
+			squares[b].setBackground(((9*b / 8) % 2) == 0? WHITE_SQUARE_COLOUR: BLACK_SQUARE_COLOUR);
 	}
 	
 	private void setAllSquaresEnabled(boolean enabled)
@@ -341,7 +347,7 @@ public class Gui extends JFrame {// implements Runnable {
 			ControlValue controlValue = new ControlValue(controlValueStr);
 			ImageIcon icon = imageIcons.get(controlValue.toString());
 			if (icon != null) {
-				squares[buttonId].setText("");
+				//squares[buttonId].setText("");
 				squares[buttonId].setIcon(icon);
 				squares[buttonId].setDisabledIcon(icon);
 			} else {
@@ -350,6 +356,7 @@ public class Gui extends JFrame {// implements Runnable {
 			}
         	squareId++;
 		}
+		redrawSquareColours();
 	}
 	
 	private void updateBoardAvailability(String messData)
@@ -366,7 +373,8 @@ public class Gui extends JFrame {// implements Runnable {
 			int buttonId = getButtonIdFromSquareId(squareId);
 			squares[buttonId].setEnabled(squareEnabled);
 			if (squares[buttonId].getIcon() == null && squareEnabled)
-				squares[buttonId].setText("*");
+				squares[buttonId].setBackground(AVAILABLE_SQUARE_COLOUR);
+				//squares[buttonId].setText("*");
 		}
 	}
 	
